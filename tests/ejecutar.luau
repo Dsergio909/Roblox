@@ -16,6 +16,13 @@ local Mutaciones = require("../src/shared/Config/Mutaciones")
 local Sets = require("../src/shared/Config/Sets")
 local Crunchis = require("../src/shared/Config/Crunchis")
 local Cintas = require("../src/shared/Config/Cintas")
+local Progresion = require("../src/shared/Logica/Progresion")
+local ConfigRebirths = require("../src/shared/Config/Rebirths")
+local ConfigCanastas = require("../src/shared/Config/Canastas")
+local ConfigSemillas = require("../src/shared/Config/Semillas")
+local ConfigMisiones = require("../src/shared/Config/Misiones")
+local ConfigLogin = require("../src/shared/Config/Login")
+local ConfigIndice = require("../src/shared/Config/Indice")
 
 ----------------------------------------------------------------------------- mini framework
 local pasadas, fallidas = 0, 0
@@ -107,6 +114,13 @@ prueba("Tiempo", function()
 	igual(Formato.Tiempo(125), "2:05")
 	igual(Formato.Tiempo(3661), "1:01:01")
 	igual(Formato.Tiempo(-3), "0:00")
+end)
+prueba("Duración", function()
+	igual(Formato.Duracion(45), "45s")
+	igual(Formato.Duracion(725), "12m 5s")
+	igual(Formato.Duracion(3 * 3600 + 120), "3h 2m")
+	igual(Formato.Duracion(90000), "1d 1h")
+	igual(Formato.Duracion(-10), "0s")
 end)
 prueba("Porcentaje", function()
 	igual(Formato.Porcentaje(0.55), "55 %")
@@ -310,6 +324,175 @@ prueba("Simulación: en 10.000 apariciones las rarezas salen en proporción", fu
 	end
 	cerca((conteo.comun or 0) / n, 0.55, 0.02)
 	cerca((conteo.raro or 0) / n, 0.115, 0.015)
+end)
+
+----------------------------------------------------------------------------- Progresión
+grupo("Progresión")
+local ordenRareza: { [string]: number } = {}
+for _, r in catalogo.rarezas do
+	ordenRareza[r.id] = r.orden
+end
+
+prueba("Niveles de rebirth: tabla y fórmula", function()
+	igual(Progresion.NivelRebirth(1, ConfigRebirths).costo, 1e6)
+	local ultimo = ConfigRebirths.NIVELES[#ConfigRebirths.NIVELES]
+	local siguiente = Progresion.NivelRebirth(#ConfigRebirths.NIVELES + 1, ConfigRebirths)
+	igual(siguiente.costo, ultimo.costo * ConfigRebirths.FACTOR_COSTO)
+	igual(siguiente.requisitos[1].rareza, ConfigRebirths.REQUISITO_DESPUES.rareza)
+end)
+prueba("Rebirths cada vez más caros", function()
+	local anterior = 0
+	for n = 1, 12 do
+		local costo = Progresion.NivelRebirth(n, ConfigRebirths).costo
+		verdadero(costo > anterior, `rebirth {n} no es más caro que el anterior`)
+		anterior = costo
+	end
+end)
+prueba("Requisitos: una rareza mayor cuenta para una menor", function()
+	local ok = Progresion.CumpleRequisitos({ 6 }, { { rareza = "legendario", cantidad = 1 } }, ordenRareza)
+	igual(ok, true)
+	local ok2 = Progresion.CumpleRequisitos({ 4, 4 }, { { rareza = "legendario", cantidad = 1 } }, ordenRareza)
+	igual(ok2, false)
+end)
+prueba("Requisitos: cada Crunchi cuenta una sola vez", function()
+	local req = { { rareza = "legendario", cantidad = 1 }, { rareza = "mitico", cantidad = 1 } }
+	igual((Progresion.CumpleRequisitos({ 6 }, req, ordenRareza)), false)
+	igual((Progresion.CumpleRequisitos({ 6, 5 }, req, ordenRareza)), true)
+	local _, detalle = Progresion.CumpleRequisitos({ 5 }, { { rareza = "legendario", cantidad = 2 } }, ordenRareza)
+	igual(detalle[1].tiene, 1)
+	igual(detalle[1].cumple, false)
+end)
+prueba("Día y semana (semanas desde el lunes)", function()
+	igual(Progresion.Dia(0), 0)
+	igual(Progresion.Dia(86399), 0)
+	igual(Progresion.Dia(86400), 1)
+	-- 1970-01-05 fue lunes (día 4) y 1970-01-04 domingo (día 3)
+	igual(Progresion.Semana(3), 0)
+	igual(Progresion.Semana(4), 1)
+	igual(Progresion.Semana(10), 1)
+	igual(Progresion.Semana(11), 2)
+end)
+prueba("Racha suave", function()
+	igual(Progresion.ActualizarRacha(0, 0, 100, 5), 1) -- primera vez
+	igual(Progresion.ActualizarRacha(3, 100, 100, 5), 3) -- mismo día
+	igual(Progresion.ActualizarRacha(3, 99, 100, 5), 4) -- día seguido
+	igual(Progresion.ActualizarRacha(5, 99, 100, 5), 5) -- tope
+	igual(Progresion.ActualizarRacha(4, 97, 100, 5), 3) -- faltó 2 días: -2 +1
+	igual(Progresion.ActualizarRacha(1, 90, 100, 5), 1) -- nunca baja de 0 antes de sumar hoy
+end)
+prueba("Dinero por minutos y offline", function()
+	igual(Progresion.DineroPorMinutos(10, 5, 100), 3000)
+	igual(Progresion.DineroPorMinutos(0.1, 5, 100), 100)
+	igual(Progresion.GananciaOffline(100, 3600, 0.2, 3), 72000)
+	igual(Progresion.GananciaOffline(100, 36000, 0.2, 3), 216000) -- tope de 3 h
+	igual(Progresion.GananciaOffline(100, -5, 0.2, 3), 0)
+end)
+prueba("Porcentaje del Índice", function()
+	igual(Progresion.PorcentajeIndice({ a = 1, b = 1 }, { "a", "b", "c", "d" }), 50)
+	igual(Progresion.PorcentajeIndice({}, {}), 0)
+end)
+prueba("Elegir misiones sin repetir", function()
+	local aleatorio = generador(9)
+	local pool = { "a", "b", "c", "d", "e" }
+	for _ = 1, 50 do
+		local elegidas = Progresion.ElegirMisiones(pool, 3, aleatorio, { "a" })
+		igual(#elegidas, 3)
+		verdadero(table.find(elegidas, "a") == nil, "no debe elegir excluidas")
+		verdadero(elegidas[1] ~= elegidas[2] and elegidas[2] ~= elegidas[3] and elegidas[1] ~= elegidas[3], "repetidas")
+	end
+	igual(#Progresion.ElegirMisiones({ "x" }, 3, aleatorio, nil), 1)
+end)
+
+grupo("Config Fase 2")
+local canastaPorId: { [string]: any } = {}
+for _, c in ConfigCanastas do
+	canastaPorId[c.id] = c
+end
+local semillaPorId: { [string]: any } = {}
+for _, s in ConfigSemillas do
+	semillaPorId[s.id] = s
+end
+prueba("Canastas y semillas usan rarezas existentes con Crunchis", function()
+	local function revisar(nombre: string, pesos: { [string]: number })
+		for rareza, peso in pesos do
+			verdadero(ordenRareza[rareza] ~= nil, `{nombre}: rareza desconocida {rareza}`)
+			if peso > 0 then
+				verdadero(#catalogo.porRareza[rareza] > 0, `{nombre}: no hay Crunchis {rareza}`)
+			end
+		end
+	end
+	for _, c in ConfigCanastas do
+		revisar(c.id, c.pesos)
+	end
+	for _, s in ConfigSemillas do
+		revisar(s.id, s.pesos)
+	end
+end)
+prueba("Canastas: valor esperado menor que el precio", function()
+	for _, c in ConfigCanastas do
+		if c.precio > 0 then
+			local p = Azar.Probabilidades(c.pesos)
+			local esperado = 0
+			for rareza, prob in p do
+				local lista = catalogo.porRareza[rareza]
+				local suma = 0
+				for _, cr in lista do
+					suma += cr.precio
+				end
+				esperado += prob * suma / #lista
+			end
+			verdadero(esperado < c.precio, `{c.id}: valor esperado {esperado} >= precio {c.precio}`)
+		end
+	end
+end)
+prueba("Misiones: ids únicos y tipos conocidos", function()
+	local tipos = {
+		comprar = true,
+		cobrar = true,
+		robar_o_defender = true,
+		abrir_canasta = true,
+		conseguir_rareza = true,
+		jugar_minutos = true,
+		cerrar_base = true,
+		cosechar = true,
+		completar_diarias = true,
+	}
+	local vistos = {}
+	for _, lista in { ConfigMisiones.DIARIAS, ConfigMisiones.SEMANALES } do
+		for _, m in lista do
+			verdadero(vistos[m.id] == nil, `id repetido {m.id}`)
+			vistos[m.id] = true
+			verdadero(tipos[m.tipo] == true, `tipo desconocido {m.tipo}`)
+			if m.tipo == "conseguir_rareza" then
+				verdadero(ordenRareza[m.parametro or ""] ~= nil, `{m.id}: parámetro de rareza inválido`)
+			end
+		end
+	end
+	verdadero(#ConfigMisiones.DIARIAS >= ConfigMisiones.DIARIAS_POR_DIA, "pocas diarias")
+	verdadero(#ConfigMisiones.SEMANALES >= ConfigMisiones.SEMANALES_POR_SEMANA, "pocas semanales")
+	verdadero(canastaPorId[ConfigMisiones.BONUS_DIARIO.canasta] ~= nil, "bonus diario: canasta desconocida")
+end)
+prueba("Login: recompensas válidas", function()
+	igual(#ConfigLogin.CALENDARIO, 7)
+	for i, r in ConfigLogin.CALENDARIO do
+		if r.tipo == "canasta" then
+			verdadero(canastaPorId[r.id or ""] ~= nil, `día {i}: canasta desconocida`)
+		elseif r.tipo == "semilla" then
+			verdadero(semillaPorId[r.id or ""] ~= nil, `día {i}: semilla desconocida`)
+		else
+			igual(r.tipo, "dinero", `día {i}`)
+		end
+	end
+end)
+prueba("Hitos del Índice ordenados y con canastas válidas", function()
+	local anterior = 0
+	for _, h in ConfigIndice.HITOS do
+		verdadero(h.porcentaje > anterior, "hitos desordenados")
+		anterior = h.porcentaje
+		if h.canasta then
+			verdadero(canastaPorId[h.canasta] ~= nil, `hito {h.porcentaje}: canasta desconocida`)
+		end
+	end
 end)
 
 ----------------------------------------------------------------------------- resumen

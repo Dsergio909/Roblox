@@ -26,6 +26,14 @@ local Economia = {
 		PREMIUM = 0.1,
 	},
 
+	-- Ganancias offline: al volver cobras este porcentaje de tu ingreso por el tiempo fuera.
+	OFFLINE = {
+		PORCENTAJE = 0.2,
+		HORAS_MAXIMO = 3,
+		HORAS_MAXIMO_VIP = 6, -- Game Pass VIP (Fase 3)
+		SEGUNDOS_MINIMOS = 60, -- menos que esto no cuenta
+	},
+
 	-- ID del grupo de Roblox del juego (para el bonus de grupo).
 	-- TODO (configuración de Roblox): crea el grupo y pon aquí su ID. 0 = desactivado.
 	ID_GRUPO = 0,

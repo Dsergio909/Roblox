@@ -11,10 +11,10 @@ local Juego = {
 	NOMBRE = "Crunch Heist",
 
 	-- Súbela en cada versión que publiques (y anótala en docs/CHANGELOG.md).
-	VERSION = "0.1.0",
+	VERSION = "0.2.0",
 
 	-- Fase de desarrollo actual (ver docs/GAME_DESIGN.md, sección 13).
-	FASE = 1,
+	FASE = 2,
 
 	-- Nombre del DataStore donde se guardan los jugadores.
 	-- ⚠️ Si lo cambias después de publicar, todos empiezan de cero.

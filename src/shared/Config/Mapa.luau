@@ -65,6 +65,7 @@ local Mapa = {
 		ALTO_PEDESTAL = 1.2,
 		DISTANCIA_BOTON_COBRO = 3.6, -- qué tan adelante del pedestal está su botón de cobro
 		POSICION_CERROJO = Vector3.new(-19, 0, -17),
+		POSICION_MACETERO = Vector3.new(19, 0, -17),
 		POSICION_APARICION = Vector3.new(0, 3, -16),
 	},
 

@@ -36,6 +36,38 @@ export type Ajustes = {
 	ahorro: boolean, -- "modo ahorro": menos partículas y efectos
 }
 
+export type MisionGuardada = {
+	id: string,
+	progreso: number,
+	reclamada: boolean,
+}
+
+export type Misiones = {
+	dia: number, -- día (UTC) de las diarias actuales
+	diarias: { MisionGuardada },
+	semana: number,
+	semanales: { MisionGuardada },
+	cambiosUsados: number,
+	bonusDiario: boolean, -- ya se dio el premio por completar las 3 diarias
+}
+
+export type Login = {
+	diasTotales: number, -- días distintos que se conectó (el calendario avanza con esto)
+	ultimoDia: number,
+	racha: number,
+	pendiente: boolean, -- recompensa del calendario de hoy sin reclamar
+}
+
+export type Macetero = {
+	semilla: string, -- "" = vacío
+	listaEn: number, -- os.time() en que estará lista
+}
+
+export type Offline = {
+	ingresoAlSalir: number, -- ingreso base por segundo al desconectarse
+	pendiente: number, -- dinero offline por cobrar
+}
+
 export type Datos = {
 	version: number,
 	dinero: number,
@@ -52,6 +84,19 @@ export type Datos = {
 	-- PurchaseId de compras con Robux ya entregadas (para no entregar nunca dos veces).
 	recibos: { string },
 	ajustes: Ajustes,
+
+	-- Fase 2
+	mejorAmigo: string, -- uid del Crunchi que se conserva al hacer rebirth ("" = el más valioso)
+	setsCompletados: { [string]: number }, -- setId → fecha
+	hitosIndice: { [string]: boolean }, -- "25", "50"... → reclamado
+	titulos: { [string]: boolean }, -- títulos desbloqueados
+	tituloEquipado: string,
+	misiones: Misiones,
+	login: Login,
+	tickets: { [string]: number }, -- canastas gratis por abrir: canastaId → cantidad
+	semillas: { [string]: number }, -- semillaId → cantidad
+	macetero: Macetero,
+	offline: Offline,
 }
 
 -- Estado que el servidor comparte SOLO con el dueño (no con otros jugadores).

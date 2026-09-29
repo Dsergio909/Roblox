@@ -18,6 +18,8 @@ local Sonidos: { [string]: Sonido } = {
 	Golpe = { id = 0, volumen = 0.6 }, -- S5
 	RarezaAlta = { id = 0, volumen = 0.7 }, -- S6
 	Robo = { id = 0, volumen = 0.6 },
+	Logro = { id = 0, volumen = 0.5 }, -- S9 (misión, set, recompensa)
+	Rebirth = { id = 0, volumen = 0.7 }, -- S8
 	Error = { id = 0, volumen = 0.4 }, -- S10
 	Clic = { id = 0, volumen = 0.3 }, -- S10
 }

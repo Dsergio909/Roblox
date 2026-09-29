@@ -12,6 +12,10 @@ local Base = {
 	PEDESTALES_PASE = 4, -- Game Pass "Piso Extra" (Fase 3)
 	PEDESTALES_TOTAL = 20, -- lo que cabe físicamente en la base (5 columnas × 4 filas)
 
+	-- Depósito: Crunchis guardados (no producen, no se pueden robar).
+	DEPOSITO_CAPACIDAD = 10,
+	DEPOSITO_PASE = 30, -- Game Pass "Depósito XL" (Fase 3)
+
 	-- Bóvedas: pedestales cuyos Crunchis NO se pueden robar. Son los primeros de la base.
 	-- Cada entrada: a partir de tantos rebirths, tienes tantas bóvedas.
 	BOVEDAS = {

@@ -7,6 +7,7 @@
 	  Formato.Dinero(1500)        → "$1.5K"
 	  Formato.Completo(1234567)   → "1,234,567"
 	  Formato.Tiempo(125)         → "2:05"
+	  Formato.Duracion(90000)     → "1d 1h"
 	  Formato.Porcentaje(0.0005)  → "0.05 %"
 
 	Módulo puro: no usa nada de Roblox, así que se puede probar fuera de Studio (tests/).
@@ -92,6 +93,23 @@ function Formato.Tiempo(segundos: number): string
 		return string.format("%d:%02d:%02d", horas, minutos, segs)
 	end
 	return string.format("%d:%02d", minutos, segs)
+end
+
+-- Duración larga y corta de leer: "3d 4h", "5h 12m", "12m 5s", "45s".
+function Formato.Duracion(segundos: number): string
+	local total = math.max(0, math.floor(segundos))
+	local dias = total // 86400
+	local horas = (total % 86400) // 3600
+	local minutos = (total % 3600) // 60
+	local segs = total % 60
+	if dias > 0 then
+		return `{dias}d {horas}h`
+	elseif horas > 0 then
+		return `{horas}h {minutos}m`
+	elseif minutos > 0 then
+		return `{minutos}m {segs}s`
+	end
+	return `{segs}s`
 end
 
 -- Probabilidad (0 a 1) a texto. Muestra más decimales para probabilidades pequeñas,

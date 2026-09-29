@@ -33,8 +33,27 @@ export type Rareza = CatalogoPuro.Rareza
 export type Mutacion = CatalogoPuro.Mutacion
 export type Cinta = CatalogoPuro.Cinta
 
+local ConfigCanastas = require(Config:WaitForChild("Canastas"))
+local ConfigSemillas = require(Config:WaitForChild("Semillas"))
+
+export type Canasta = typeof(ConfigCanastas[1])
+export type Semilla = typeof(ConfigSemillas[1])
+
+local canastaPorId: { [string]: Canasta } = {}
+for _, canasta in ConfigCanastas do
+	canastaPorId[canasta.id] = canasta
+end
+local semillaPorId: { [string]: Semilla } = {}
+for _, semilla in ConfigSemillas do
+	semillaPorId[semilla.id] = semilla
+end
+
 local Catalogo = {
 	datos = datos,
+	canastas = ConfigCanastas,
+	canasta = canastaPorId,
+	semillas = ConfigSemillas,
+	semilla = semillaPorId,
 }
 
 function Catalogo.Valor(crunchiId: string, mutacionId: string): (number, number)
