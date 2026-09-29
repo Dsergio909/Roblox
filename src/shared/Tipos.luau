@@ -126,6 +126,7 @@ export type Datos = {
 
 	-- Fase 4
 	almacen: { proximo: number, veces: number }, -- Almacén FrutaMax: próximo intento (os.time)
+	insignias: { [string]: boolean }, -- insignias de Roblox ya entregadas (clave de Config/Insignias)
 }
 
 -- Estado que el servidor comparte SOLO con el dueño (no con otros jugadores).

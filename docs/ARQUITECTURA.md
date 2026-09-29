@@ -46,6 +46,7 @@ src/
 │   │   ├── AlmacenService               ← Almacén FrutaMax: edificio, sesiones y láseres (validación)
 │   │   ├── ClasificacionService         ← tablas globales con OrderedDataStore y sus carteles
 │   │   ├── AjustesService               ← guarda música, sonidos y Modo ahorro
+│   │   ├── InsigniaService              ← entrega las insignias (badges) según los datos
 │   │   └── AdminService                 ← comandos de prueba (solo admins)
 │   ├── Util/RedServidor                 ← escuchar remotos con límite de frecuencia y pcall
 │   ├── Util/Acciones                    ← un remoto "AccionMenu" para todas las acciones de menús

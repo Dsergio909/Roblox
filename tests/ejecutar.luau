@@ -30,6 +30,7 @@ local ConfigEventos = require("../src/shared/Config/Eventos")
 local ConfigAlmacen = require("../src/shared/Config/Almacen")
 local ConfigClasificacion = require("../src/shared/Config/Clasificacion")
 local Laseres = require("../src/shared/Logica/Laseres")
+local ConfigInsignias = require("../src/shared/Config/Insignias")
 
 ----------------------------------------------------------------------------- mini framework
 local pasadas, fallidas = 0, 0
@@ -683,6 +684,25 @@ prueba("Mutaciones fijas de canastas: el bonus solo multiplica mutaciones", func
 	end
 	verdadero(base ~= catalogo.pesosMutacion, "debe devolver una copia")
 	igual(catalogo.pesosMutacion.dorado, base.dorado)
+end)
+
+prueba("Insignias: claves únicas y condiciones conocidas", function()
+	local conocidas = {
+		comprasCinta = true,
+		robosExitosos = true,
+		defensas = true,
+		rebirths = true,
+		sets = true,
+		indice = true,
+		almacen = true,
+	}
+	local vistas = {}
+	for _, insignia in ConfigInsignias do
+		verdadero(not vistas[insignia.clave], `insignia repetida: {insignia.clave}`)
+		vistas[insignia.clave] = true
+		verdadero(conocidas[insignia.condicion] == true, `{insignia.clave}: condición desconocida`)
+		verdadero(insignia.minimo > 0, `{insignia.clave}: mínimo inválido`)
+	end
 end)
 
 grupo("Láseres")

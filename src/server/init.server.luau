@@ -51,6 +51,7 @@ local ORDEN = {
 	"AlmacenService",
 	"ClasificacionService",
 	"AjustesService",
+	"InsigniaService",
 	"AdminService",
 	"DatosService",
 }
