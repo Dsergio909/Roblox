@@ -16,8 +16,10 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). V
 - **Menú ⚙️ Ajustes:** música, sonidos y **Modo ahorro** (menos partículas, sin sombras y menos manzanas). Se guardan con tus datos. Si el juego va lento, sugiere el Modo ahorro una vez por sesión. Muestra los FPS.
 - **Música de fondo** y música de evento (`Config/Sonidos`: `MusicaPrincipal`, `MusicaEvento`), y sonidos nuevos `Laser` y `Evento`.
 - Los **Crunchis Arcoíris** cambian de color de verdad (un solo ciclo para todos y solo los cercanos).
+- **Insignias (badges):** 8 insignias (`Config/Insignias.luau`) que se entregan solas según los datos del jugador; cada una se pide a Roblox una sola vez.
+- **`docs/CONFIGURACION_ROBLOX.md`:** guía paso a paso de todo lo que se configura en Roblox (UserId de admin, Game Passes, Developer Products, insignias, sonidos, fechas del pase, grupo, servidores privados, madurez y publicación).
 - Comandos de admin: `evento <id>` / `evento fin` y `almacen` (con botones rápidos en el panel 🛠️).
-- Pruebas: configuración de eventos, Almacén y clasificación, fórmula de los láseres y mutaciones fijas (59 en total).
+- Pruebas: configuración de eventos, Almacén, clasificación e insignias, fórmula de los láseres y mutaciones fijas (60 en total).
 
 ### Cambiado
 - **Reciclaje de modelos (object pooling)** en las cintas: los Crunchis que salen de la cinta se reutilizan en vez de crearse de nuevo (menos tirones en celulares).

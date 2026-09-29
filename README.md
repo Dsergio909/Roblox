@@ -7,6 +7,7 @@ El código está en Luau y se sincroniza con Roblox Studio usando [Rojo](https:/
 ## Empezar
 1. **Instalación (una vez):** [`docs/SETUP.md`](docs/SETUP.md)
 2. **Qué probar:** [`docs/PRUEBAS.md`](docs/PRUEBAS.md)
+3. **Configurar Roblox (IDs, pases, insignias, publicar):** [`docs/CONFIGURACION_ROBLOX.md`](docs/CONFIGURACION_ROBLOX.md)
 
 ## Documentos
 | Documento | Contenido |
@@ -15,6 +16,7 @@ El código está en Luau y se sincroniza con Roblox Studio usando [Rojo](https:/
 | [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md) | Cómo está organizado el código |
 | [`docs/ASSETS_PENDIENTES.md`](docs/ASSETS_PENDIENTES.md) | Modelos, imágenes y sonidos por crear |
 | [`docs/LANZAMIENTO.md`](docs/LANZAMIENTO.md) | Nombre, descripción, miniaturas y plan de eventos |
+| [`docs/CONFIGURACION_ROBLOX.md`](docs/CONFIGURACION_ROBLOX.md) | Todo lo que se configura en tu cuenta de Roblox, paso a paso |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | Historial de versiones |
 
 ## Estructura

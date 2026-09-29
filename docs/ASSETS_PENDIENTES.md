@@ -100,6 +100,8 @@ Los IDs van en `src/shared/Config/Sonidos.luau` (ya existe; `0` = sin sonido). A
 
 ## 4. Configuración en el Creator Hub (no son archivos, pero también te tocan)
 
+Paso a paso en **`CONFIGURACION_ROBLOX.md`**.
+
 | Tarea | Fase |
 |---|---|
 | Crear los 8 Game Passes y copiar sus IDs a `Config/Productos.luau` | 3 |

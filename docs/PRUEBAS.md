@@ -292,3 +292,6 @@ Pestaña **Test → Device**: elige un teléfono pequeño y uno con notch, en ho
 - [ ] Crunchi Arcoíris (`crunchi crunchito_bobo arcoiris`): su cuerpo cambia de color continuamente.
 - [ ] Con el emulador de un celular pequeño: la ventana ⚙️ y el cartel del evento se ven completos.
 - [ ] Rendimiento (orientativo): con la cinta llena, en `View → Stats` o con Ctrl+Shift+F5 los FPS se mantienen estables. En el Explorer, `Workspace → CintaLocal` no crece sin parar (los modelos se reciclan).
+
+### P4.6 Insignias (cuando tengan ID, en el juego publicado)
+- [ ] Con los IDs puestos en `Config/Insignias.luau` y el juego publicado: comprar tu primer Crunchi da la insignia "¡Mi primer Crunchi!" (aparece el aviso de Roblox). Salir y volver no la vuelve a pedir.
