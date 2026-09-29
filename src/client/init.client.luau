@@ -31,6 +31,13 @@ local ORDEN = {
 	"EfectosController",
 	"RoboController",
 	"TutorialController",
+	"CanastasController",
+	"MisionesController",
+	"IndiceController",
+	"RebirthController",
+	"BienvenidaController",
+	"DepositoController",
+	"MaceteroController",
 	"AdminController",
 }
 

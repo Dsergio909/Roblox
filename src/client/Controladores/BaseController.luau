@@ -20,9 +20,16 @@ local Formato = require(Shared:WaitForChild("Util"):WaitForChild("Formato"))
 local Reloj = require(Shared:WaitForChild("Util"):WaitForChild("Reloj"))
 local Ingreso = require(Shared:WaitForChild("Logica"):WaitForChild("Ingreso"))
 
+local Senal = require(Shared:WaitForChild("Util"):WaitForChild("Senal"))
+
 local SonidoController = require(script.Parent:WaitForChild("SonidoController"))
 
-local BaseController = {}
+local BaseController = {
+	-- (uid) — el jugador pulsó "Opciones" sobre uno de sus Crunchis
+	OpcionesPedidas = Senal.nueva(),
+	-- () — el jugador pulsó su macetero
+	MaceteroPedido = Senal.nueva(),
+}
 
 local jugador = Players.LocalPlayer
 local carpetaBases: Folder? = nil
@@ -95,8 +102,21 @@ end
 
 local function registrarPrompt(prompt: ProximityPrompt)
 	local tipo = prompt.Name
-	if tipo ~= "Robar" and tipo ~= "Vender" and tipo ~= "PromptCerrojo" then
+	if tipo ~= "Robar" and tipo ~= "Opciones" and tipo ~= "PromptCerrojo" and tipo ~= "PromptMacetero" then
 		return
+	end
+	if tipo == "Opciones" then
+		prompt.Triggered:Connect(function()
+			local modelo = prompt:FindFirstAncestorWhichIsA("Model")
+			local uid = modelo and modelo:GetAttribute("Uid")
+			if type(uid) == "string" then
+				BaseController.OpcionesPedidas:Disparar(uid)
+			end
+		end)
+	elseif tipo == "PromptMacetero" then
+		prompt.Triggered:Connect(function()
+			BaseController.MaceteroPedido:Disparar()
+		end)
 	end
 	local base = buscarAncestro(prompt, "Dueno")
 	local pedestal: Model? = nil
@@ -132,7 +152,7 @@ local function actualizarPrompts(momento: number)
 			local enBoveda = info.pedestal ~= nil and info.pedestal:GetAttribute("Boveda") == true
 			local tieneDueno = (base:GetAttribute("Dueno") or 0) ~= 0
 			visible = tieneDueno and not esMia and not cargando and not enBoveda and not baseProtegida(base, momento)
-		elseif info.tipo == "Vender" or info.tipo == "PromptCerrojo" then
+		elseif info.tipo == "Opciones" or info.tipo == "PromptCerrojo" or info.tipo == "PromptMacetero" then
 			visible = esMia
 		end
 		if prompt.Enabled ~= visible then

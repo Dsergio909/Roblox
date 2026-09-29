@@ -100,6 +100,24 @@ local function alEfecto(nombre: any, datos: any)
 		if posicion then
 			EfectosController.Confeti(posicion + Vector3.new(0, 2, 0), Color3.fromRGB(255, 80, 80), 40)
 		end
+	elseif nombre == "Logro" then
+		SonidoController.Reproducir("Logro")
+		local posicion = posicionJugador()
+		if posicion then
+			EfectosController.Confeti(posicion + Vector3.new(0, 3, 0), Color3.fromRGB(255, 220, 80), 25)
+		end
+	elseif nombre == "Rebirth" then
+		SonidoController.Reproducir("Rebirth")
+		local nivel = if type(datos) == "table" and type(datos.nivel) == "number" then datos.nivel else 0
+		NotificacionController.Anunciar(`🔁 ¡REBIRTH {nivel}!`, "mitico")
+		local posicion = posicionJugador()
+		if posicion then
+			for i = 1, 3 do
+				task.delay(i * 0.25, function()
+					EfectosController.Confeti(posicion + Vector3.new(0, 3, 0), Color3.fromRGB(180, 120, 255), 40)
+				end)
+			end
+		end
 	elseif nombre == "Golpe" then
 		SonidoController.Reproducir("Golpe")
 	elseif nombre == "Cerrojo" then

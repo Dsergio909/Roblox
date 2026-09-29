@@ -51,6 +51,7 @@ local function construirPanel(): Frame
 		Visible = false,
 		Parent = pantalla,
 	})
+	UI.Escalar(nuevo, 420, 300)
 	UI.Borde(nuevo, Tema.COLORES.naranja, 3)
 	UI.Margen(nuevo, 10)
 	UI.Texto({
@@ -135,7 +136,7 @@ local function activar()
 	panel = nuevo
 	HudController.AgregarBoton("🛠️", Tema.COLORES.naranja, 100, function()
 		nuevo.Visible = not nuevo.Visible
-	end)
+	end, "izquierda")
 end
 
 function AdminController.Iniciar()

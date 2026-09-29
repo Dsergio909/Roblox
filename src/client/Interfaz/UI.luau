@@ -6,10 +6,12 @@
 	  local boton = UI.Boton({ texto = "Tienda", color = Tema.COLORES.verde, alPulsar = fn })
 	  local pantalla = UI.Pantalla("HUD", 1)
 
-	Todas las pantallas:
-	  - respetan el notch y las esquinas del celular (ScreenInsets = DeviceSafeInsets),
-	  - se escalan solas según el tamaño de la pantalla (UIScale),
-	  - no se reinician al morir (ResetOnSpawn = false).
+	Todas las pantallas respetan el notch y las esquinas del celular
+	(ScreenInsets = DeviceSafeInsets) y no se reinician al morir (ResetOnSpawn = false).
+
+	Escala: cada elemento principal (panel, columna de botones, ventana) lleva su propio
+	UIScale con UI.Escalar(). Así crece o se achica DESDE SU PUNTO DE ANCLAJE (un panel
+	centrado sigue centrado) y, si se le indica su tamaño base, nunca se sale de la pantalla.
 ]]
 
 local Players = game:GetService("Players")
@@ -19,18 +21,38 @@ local Tema = require(script.Parent:WaitForChild("Tema"))
 
 local UI = {}
 
-local escalas: { UIScale } = {}
+type Escalado = { uiScale: UIScale, ancho: number?, alto: number? }
+local escalas: { Escalado } = {}
+
+-- Espacio que ocupan la barra superior de Roblox y los márgenes (aprox.).
+local MARGEN_ALTO = 70
+local MARGEN_ANCHO = 16
+
+local function tamanoPantalla(): Vector2
+	local camara = workspace.CurrentCamera
+	return if camara then camara.ViewportSize else Vector2.new(800, Tema.ALTO_REFERENCIA)
+end
 
 local function calcularEscala(): number
-	local camara = workspace.CurrentCamera
-	local alto = if camara then camara.ViewportSize.Y else Tema.ALTO_REFERENCIA
-	return math.clamp(alto / Tema.ALTO_REFERENCIA, Tema.ESCALA_MIN, Tema.ESCALA_MAX)
+	local pantalla = tamanoPantalla()
+	return math.clamp(pantalla.Y / Tema.ALTO_REFERENCIA, Tema.ESCALA_MIN, Tema.ESCALA_MAX)
+end
+
+local function escalaPara(escalado: Escalado): number
+	local escala = calcularEscala()
+	local pantalla = tamanoPantalla()
+	if escalado.ancho then
+		escala = math.min(escala, (pantalla.X - MARGEN_ANCHO) / escalado.ancho)
+	end
+	if escalado.alto then
+		escala = math.min(escala, (pantalla.Y - MARGEN_ALTO) / escalado.alto)
+	end
+	return math.max(0.3, escala)
 end
 
 local function actualizarEscalas()
-	local escala = calcularEscala()
-	for _, uiScale in escalas do
-		uiScale.Scale = escala
+	for _, escalado in escalas do
+		escalado.uiScale.Scale = escalaPara(escalado)
 	end
 end
 
@@ -73,7 +95,7 @@ function UI.Crear(clase: string, propiedades: { [string]: any }?, hijos: { Insta
 	return instancia
 end
 
--- ScreenGui con escala automática. `orden` decide qué pantalla queda encima.
+-- ScreenGui para celular. `orden` decide qué pantalla queda encima.
 function UI.Pantalla(nombre: string, orden: number?): ScreenGui
 	local pantalla = UI.Crear("ScreenGui", {
 		Name = nombre,
@@ -83,11 +105,28 @@ function UI.Pantalla(nombre: string, orden: number?): ScreenGui
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		DisplayOrder = orden or 0,
 	}) :: ScreenGui
-	local uiScale = UI.Crear("UIScale", { Scale = calcularEscala(), Parent = pantalla }) :: UIScale
-	table.insert(escalas, uiScale)
 	local jugador = Players.LocalPlayer
 	pantalla.Parent = jugador:WaitForChild("PlayerGui")
 	return pantalla
+end
+
+--[[
+	Hace que un elemento se escale con la pantalla. Si se pasan `ancho`/`alto` (su tamaño
+	sin escalar), además se achica lo necesario para caber siempre en la pantalla
+	(p. ej. una ventana en un celular vertical).
+]]
+function UI.Escalar(objeto: GuiObject, ancho: number?, alto: number?): UIScale
+	local uiScale = UI.Crear("UIScale", { Name = "Escala", Parent = objeto }) :: UIScale
+	local escalado: Escalado = { uiScale = uiScale, ancho = ancho, alto = alto }
+	uiScale.Scale = escalaPara(escalado)
+	table.insert(escalas, escalado)
+	uiScale.Destroying:Connect(function()
+		local indice = table.find(escalas, escalado)
+		if indice then
+			table.remove(escalas, indice)
+		end
+	end)
+	return uiScale
 end
 
 function UI.Esquinas(padre: Instance, radio: UDim?): UICorner
@@ -216,6 +255,58 @@ function UI.Panel(propiedades: { [string]: any }): Frame
 	local panel = UI.Crear("Frame", props) :: Frame
 	UI.Esquinas(panel)
 	return panel
+end
+
+-- Lista con scroll vertical que crece según su contenido.
+function UI.Lista(propiedades: { [string]: any }, separacion: number?): ScrollingFrame
+	local props = table.clone(propiedades)
+	props.BackgroundTransparency = props.BackgroundTransparency or 1
+	props.BorderSizePixel = 0
+	props.ScrollBarThickness = props.ScrollBarThickness or 6
+	props.CanvasSize = UDim2.new()
+	props.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	props.ScrollingDirection = Enum.ScrollingDirection.Y
+	local lista = UI.Crear("ScrollingFrame", props) :: ScrollingFrame
+	UI.Crear("UIListLayout", {
+		SortOrder = Enum.SortOrder.LayoutOrder,
+		Padding = UDim.new(0, separacion or 6),
+		Parent = lista,
+	})
+	return lista
+end
+
+-- Borra los hijos de una lista (menos el layout y el padding).
+function UI.Vaciar(contenedor: Instance)
+	for _, hijo in contenedor:GetChildren() do
+		if not (hijo:IsA("UIListLayout") or hijo:IsA("UIGridLayout") or hijo:IsA("UIPadding")) then
+			hijo:Destroy()
+		end
+	end
+end
+
+-- Barra de progreso. Devuelve el marco y una función para cambiar el progreso (0 a 1).
+function UI.Barra(padre: Instance, tamano: UDim2, color: Color3, posicion: UDim2?): (Frame, (number) -> ())
+	local fondo = UI.Crear("Frame", {
+		Name = "Barra",
+		Size = tamano,
+		Position = posicion or UDim2.new(),
+		BackgroundColor3 = Tema.COLORES.fondoClaro,
+		BorderSizePixel = 0,
+		Parent = padre,
+	}) :: Frame
+	UI.Esquinas(fondo, UDim.new(1, 0))
+	local relleno = UI.Crear("Frame", {
+		Name = "Relleno",
+		Size = UDim2.fromScale(0, 1),
+		BackgroundColor3 = color,
+		BorderSizePixel = 0,
+		Parent = fondo,
+	}) :: Frame
+	UI.Esquinas(relleno, UDim.new(1, 0))
+	local function fijar(progreso: number)
+		relleno.Size = UDim2.fromScale(math.clamp(progreso, 0, 1), 1)
+	end
+	return fondo, fijar
 end
 
 -- Pequeña animación de "rebote" (al ganar dinero, al aparecer algo...).

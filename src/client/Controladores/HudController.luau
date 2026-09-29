@@ -39,22 +39,29 @@ local panelCarga: Frame
 local textoCarga: TextLabel
 local barraCarga: Frame
 local columnaBotones: Frame
+local columnaIzquierda: Frame
 
 local dineroMostrado = 0
 local dineroObjetivo = 0
 
 ----------------------------------------------------------------------------- botones laterales
 
--- Agrega un botón a la columna derecha (Tienda, Índice, Misiones, Ajustes...).
--- Devuelve el botón para poder ponerle un globito de aviso.
-function HudController.AgregarBoton(texto: string, color: Color3, orden: number, alPulsar: () -> ()): TextButton
+-- Agrega un botón a una columna lateral (Tienda, Índice, Misiones...). `lado` puede ser
+-- "derecha" (por defecto) o "izquierda". Devuelve el botón (para ponerle un globito).
+function HudController.AgregarBoton(
+	texto: string,
+	color: Color3,
+	orden: number,
+	alPulsar: () -> (),
+	lado: string?
+): TextButton
 	local boton = UI.Boton({
 		texto = texto,
 		color = color,
-		tamano = UDim2.fromOffset(58, 58),
+		tamano = UDim2.fromOffset(54, 54),
 		tamanoLetra = 26,
 		alPulsar = alPulsar,
-		padre = columnaBotones,
+		padre = if lado == "izquierda" then columnaIzquierda else columnaBotones,
 	})
 	boton.LayoutOrder = orden
 	return boton
@@ -167,13 +174,20 @@ end
 local function construir()
 	pantalla = UI.Pantalla("HUD", 5)
 
-	-- Dinero (arriba al centro)
-	pildoraDinero = UI.Panel({
-		Name = "Dinero",
+	-- Dinero (arriba al centro). El contenedor se escala desde arriba al centro.
+	local superior = UI.Crear("Frame", {
+		Name = "Superior",
+		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 6),
-		Size = UDim2.fromOffset(210, 50),
+		Size = UDim2.fromOffset(210, 82),
 		Parent = pantalla,
+	})
+	UI.Escalar(superior)
+	pildoraDinero = UI.Panel({
+		Name = "Dinero",
+		Size = UDim2.fromOffset(210, 50),
+		Parent = superior,
 	})
 	UI.Borde(pildoraDinero, Tema.COLORES.dinero, 2.5)
 	textoDinero = UI.Texto({
@@ -187,11 +201,10 @@ local function construir()
 	textoIngreso = UI.Texto({
 		texto = "+$0/s",
 		tamano = UDim2.fromOffset(210, 22),
-		posicion = UDim2.new(0.5, 0, 0, 58),
-		ancla = Vector2.new(0.5, 0),
+		posicion = UDim2.fromOffset(0, 56),
 		tamanoLetra = 18,
 		color = Tema.COLORES.verde,
-		padre = pantalla,
+		padre = superior,
 	})
 
 	-- Estado de la base (arriba a la izquierda)
@@ -201,6 +214,7 @@ local function construir()
 		Size = UDim2.fromOffset(250, 34),
 		Parent = pantalla,
 	})
+	UI.Escalar(pildoraBase)
 	textoEstadoBase = UI.Texto({
 		texto = "",
 		tamano = UDim2.new(1, -12, 1, 0),
@@ -218,6 +232,7 @@ local function construir()
 		Visible = false,
 		Parent = pantalla,
 	})
+	UI.Escalar(panelCarga, 380)
 	UI.Borde(panelCarga, Tema.COLORES.rojo, 3)
 	textoCarga = UI.Texto({
 		texto = "",
@@ -241,20 +256,27 @@ local function construir()
 	})
 
 	-- Columna de botones (derecha, centrada verticalmente: cómoda para el pulgar)
-	columnaBotones = UI.Crear("Frame", {
-		Name = "Botones",
-		BackgroundTransparency = 1,
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -8, 0.5, 0),
-		Size = UDim2.fromOffset(62, 300),
-		Parent = pantalla,
-	})
-	UI.Crear("UIListLayout", {
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		VerticalAlignment = Enum.VerticalAlignment.Center,
-		Padding = UDim.new(0, 8),
-		Parent = columnaBotones,
-	})
+	local function columna(nombre: string, ancla: Vector2, posicion: UDim2): Frame
+		local marco = UI.Crear("Frame", {
+			Name = nombre,
+			BackgroundTransparency = 1,
+			AnchorPoint = ancla,
+			Position = posicion,
+			Size = UDim2.fromOffset(60, 290),
+			Parent = pantalla,
+		}) :: Frame
+		UI.Crear("UIListLayout", {
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			Padding = UDim.new(0, 7),
+			Parent = marco,
+		})
+		UI.Escalar(marco, nil, 290)
+		return marco
+	end
+	columnaBotones = columna("Botones", Vector2.new(1, 0.5), UDim2.new(1, -6, 0.5, 0))
+	columnaIzquierda = columna("BotonesIzquierda", Vector2.new(0, 0.5), UDim2.new(0, 6, 0.5, 0))
 end
 
 function HudController.Iniciar()

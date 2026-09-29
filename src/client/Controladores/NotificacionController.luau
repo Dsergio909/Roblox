@@ -153,6 +153,7 @@ function NotificacionController.Iniciar()
 		Size = UDim2.fromOffset(340, 160),
 		Parent = pantalla,
 	})
+	UI.Escalar(contenedorAvisos, 340)
 	UI.Crear("UIListLayout", {
 		SortOrder = Enum.SortOrder.LayoutOrder,
 		HorizontalAlignment = Enum.HorizontalAlignment.Center,
@@ -160,13 +161,20 @@ function NotificacionController.Iniciar()
 		Parent = contenedorAvisos,
 	})
 
+	local marcoAnuncio = UI.Crear("Frame", {
+		Name = "MarcoAnuncio",
+		BackgroundTransparency = 1,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.32),
+		Size = UDim2.fromOffset(520, 60),
+		Parent = pantalla,
+	})
+	UI.Escalar(marcoAnuncio, 520)
 	cartelAnuncio = UI.Texto({
 		texto = "",
-		tamano = UDim2.fromOffset(520, 60),
-		posicion = UDim2.fromScale(0.5, 0.32),
-		ancla = Vector2.new(0.5, 0.5),
+		tamano = UDim2.fromScale(1, 1),
 		tamanoLetra = 30,
-		padre = pantalla,
+		padre = marcoAnuncio,
 	})
 	cartelAnuncio.Name = "Anuncio"
 	cartelAnuncio.Visible = false
@@ -189,6 +197,7 @@ function NotificacionController.Iniciar()
 		color = Color3.fromRGB(255, 235, 235),
 		padre = pantalla,
 	})
+	UI.Escalar(cartelAlarma, 560)
 	cartelAlarma.Name = "CartelAlarma"
 	cartelAlarma.Visible = false
 

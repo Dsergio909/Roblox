@@ -146,14 +146,21 @@ end
 
 function TutorialController.Iniciar()
 	local pantalla = UI.Pantalla("Tutorial", 10)
-	globo = UI.Panel({
-		Name = "Globo",
+	local marco = UI.Crear("Frame", {
+		Name = "MarcoGlobo",
+		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -160),
 		Size = UDim2.fromOffset(360, 48),
+		Parent = pantalla,
+	})
+	UI.Escalar(marco, 360)
+	globo = UI.Panel({
+		Name = "Globo",
+		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 0.05,
 		Visible = false,
-		Parent = pantalla,
+		Parent = marco,
 	})
 	UI.Borde(globo, Tema.COLORES.dinero, 3)
 	textoGlobo = UI.Texto({
