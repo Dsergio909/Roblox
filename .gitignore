@@ -1,0 +1,21 @@
+# Archivos de lugar de Roblox Studio: se guardan en tu PC o publicados en Roblox, no en git.
+# (Los modelos exportados como .rbxm SÍ se pueden subir, en la carpeta assets/)
+*.rbxl
+*.rbxlx
+*.rbxl.lock
+*.rbxlx.lock
+
+# Generado por Rojo para el autocompletado de VS Code
+sourcemap.json
+
+# Paquetes de Wally (si en el futuro se usan)
+Packages/
+ServerPackages/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Librería estándar de Roblox que genera Selene (se regenera sola)
+roblox.yml

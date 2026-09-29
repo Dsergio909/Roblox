@@ -1,0 +1,6 @@
+# Herramientas del proyecto. Rokit instala exactamente estas versiones.
+# Uso: abre una terminal en la carpeta del proyecto y ejecuta `rokit install`.
+[tools]
+rojo = "rojo-rbx/rojo@7.7.0"
+selene = "Kampfkarren/selene@0.31.0"
+stylua = "JohnnyMorganz/StyLua@2.5.2"

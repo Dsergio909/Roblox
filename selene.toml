@@ -1,0 +1,3 @@
+# Selene: revisa el código Luau en busca de errores comunes.
+# Uso: `selene src`
+std = "roblox"
