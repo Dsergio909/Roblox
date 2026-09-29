@@ -26,6 +26,10 @@ local ConfigIndice = require("../src/shared/Config/Indice")
 local ConfigProductos = require("../src/shared/Config/Productos")
 local ConfigCosmeticos = require("../src/shared/Config/Cosmeticos")
 local ConfigPase = require("../src/shared/Config/Pase")
+local ConfigEventos = require("../src/shared/Config/Eventos")
+local ConfigAlmacen = require("../src/shared/Config/Almacen")
+local ConfigClasificacion = require("../src/shared/Config/Clasificacion")
+local Laseres = require("../src/shared/Logica/Laseres")
 
 ----------------------------------------------------------------------------- mini framework
 local pasadas, fallidas = 0, 0
@@ -595,6 +599,116 @@ prueba("Canasta Sorpresa (Robux): solo rarezas altas y probabilidades que suman 
 		suma += prob
 	end
 	cerca(suma, 1, 1e-9)
+end)
+
+----------------------------------------------------------------------------- Fase 4
+grupo("Config Fase 4")
+prueba("Eventos: ids únicos, duraciones y mutaciones/rarezas que existen", function()
+	local vistos = {}
+	local todos = table.clone(ConfigEventos.ROTACION)
+	for _, e in ConfigEventos.TEMPORADA do
+		table.insert(todos, e)
+		verdadero(e.inicio ~= nil and e.fin ~= nil and e.fin > e.inicio, `{e.id}: temporada sin fechas reales`)
+	end
+	verdadero(#ConfigEventos.ROTACION >= 1, "la rotación está vacía")
+	for _, e in todos do
+		verdadero(not vistos[e.id], `evento repetido: {e.id}`)
+		vistos[e.id] = true
+		verdadero(e.duracion > 0 and e.duracion <= 15, `{e.id}: duración fuera de rango`)
+		verdadero(e.tipo == "lluvia" or e.tipo == "redada" or e.tipo == "hora", `{e.id}: tipo desconocido "{e.tipo}"`)
+		for mutacion, factor in e.mutaciones or {} do
+			verdadero(catalogo.mutacion[mutacion] ~= nil, `{e.id}: mutación desconocida {mutacion}`)
+			verdadero(factor > 0, `{e.id}: factor de mutación inválido`)
+		end
+		for rareza, factor in e.rarezas or {} do
+			verdadero(ordenRareza[rareza] ~= nil, `{e.id}: rareza desconocida {rareza}`)
+			verdadero(factor > 0, `{e.id}: factor de rareza inválido`)
+		end
+		verdadero((e.multIngreso or 1) >= 1 and (e.multIngreso or 1) <= 3, `{e.id}: multIngreso fuera de rango`)
+	end
+	verdadero(ConfigEventos.INTERVALO_MINUTOS >= 3, "eventos demasiado seguidos")
+	local r = ConfigEventos.REDADA
+	verdadero(r.AGENTES >= 1 and r.AGENTES <= 8, "Redada: cantidad de agentes (rendimiento)")
+	verdadero(r.SEGUNDOS_ETIQUETA <= 60, "Redada: una etiqueta no debería castigar más de 1 minuto")
+	verdadero(r.MAX_RECOMPENSAS >= 1, "Redada: sin recompensas")
+end)
+prueba("Almacén: probabilidades válidas y solo rarezas con Crunchis", function()
+	local p = Azar.Probabilidades(ConfigAlmacen.PESOS)
+	local suma = 0
+	for rareza, prob in p do
+		verdadero(ordenRareza[rareza] ~= nil, `rareza desconocida {rareza}`)
+		verdadero(#(catalogo.porRareza[rareza] or {}) > 0, `rareza {rareza} sin Crunchis`)
+		suma += prob
+	end
+	cerca(suma, 1, 1e-9)
+	verdadero(ConfigAlmacen.TIEMPO_MINIMO < ConfigAlmacen.TIEMPO_MAXIMO, "tiempos invertidos")
+	verdadero(ConfigAlmacen.REINTENTO_SEGUNDOS <= 60, "fallar no debería castigar con mucha espera")
+end)
+prueba("Almacén: láseres dentro del pasillo y siempre con hueco para pasar", function()
+	local anterior = 0
+	for i, laser in ConfigAlmacen.LASERES do
+		verdadero(laser.z > anterior + 2, `láser {i}: muy pegado al anterior (o desordenado)`)
+		verdadero(laser.z < ConfigAlmacen.LARGO_PASILLO, `láser {i}: fuera del pasillo`)
+		verdadero(laser.velocidad > 0 and laser.velocidad <= 1.2, `láser {i}: velocidad imposible`)
+		verdadero(
+			Laseres.DejaHueco(laser, ConfigAlmacen.ANCHO_PASILLO, ConfigAlmacen.ANCHO_LASER),
+			`láser {i}: tapa todo el pasillo`
+		)
+		verdadero(
+			laser.amplitud + ConfigAlmacen.ANCHO_LASER / 2 <= ConfigAlmacen.ANCHO_PASILLO / 2 + 0.01,
+			`láser {i}: se sale por las paredes`
+		)
+		anterior = laser.z
+	end
+end)
+prueba("Clasificación: tablas conocidas", function()
+	for _, tabla in ConfigClasificacion.TABLAS do
+		verdadero(
+			tabla.id == "rebirths" or tabla.id == "robos" or tabla.id == "indice",
+			`tabla sin puntaje: {tabla.id}`
+		)
+	end
+	verdadero(ConfigClasificacion.SUBIR_CADA >= 60, "subir puntajes muy seguido gasta el límite de DataStore")
+end)
+
+prueba("Mutaciones fijas de canastas: el bonus solo multiplica mutaciones", function()
+	local base = CatalogoPuro.PesosMutacionFijos(catalogo)
+	local conBonus = CatalogoPuro.PesosMutacionFijos(catalogo, 2)
+	for clave, peso in base do
+		if clave == "normal" then
+			igual(conBonus[clave], peso)
+		else
+			cerca(conBonus[clave], peso * 2, 1e-9)
+		end
+	end
+	verdadero(base ~= catalogo.pesosMutacion, "debe devolver una copia")
+	igual(catalogo.pesosMutacion.dorado, base.dorado)
+end)
+
+grupo("Láseres")
+local laserPrueba = { z = 10, amplitud = 3, velocidad = 0.5, fase = 0 }
+prueba("Lado: empieza en el centro y es periódico", function()
+	cerca(Laseres.Lado(laserPrueba, 0), 0, 1e-9)
+	cerca(Laseres.Lado(laserPrueba, 0.5), 3, 1e-9) -- un cuarto de vuelta: extremo
+	cerca(Laseres.Lado(laserPrueba, 2), Laseres.Lado(laserPrueba, 0), 1e-9)
+end)
+prueba("Toca: solo cerca en avance y en lado", function()
+	verdadero(Laseres.Toca(laserPrueba, 0, 10, 0, 4, 0), "en el centro debería tocar")
+	verdadero(not Laseres.Toca(laserPrueba, 0, 12, 0, 4, 0), "2 studs antes no toca")
+	verdadero(not Laseres.Toca(laserPrueba, 0, 10, 6, 4, 0), "al costado no toca")
+	verdadero(Laseres.Toca(laserPrueba, 0, 10, 2.9, 4, 0), "rozando el borde sí toca")
+	verdadero(not Laseres.Toca(laserPrueba, 0, 10, 2.9, 4, 0.5), "con holgura, rozar no cuenta")
+end)
+prueba("Cruza: detecta a quien pasa corriendo entre dos muestras", function()
+	-- De avance 8 a 12 en 0.25 s (16 studs/s) por el centro, con el láser en el centro.
+	verdadero(Laseres.Cruza(laserPrueba, 0, 8, 0, 0.01, 12, 0, 4, 0), "debería detectar el cruce")
+	-- Mismo tramo pero por el costado libre.
+	verdadero(not Laseres.Cruza(laserPrueba, 0, 8, -6, 0.01, 12, -6, 4, 0), "por el costado no toca")
+	-- Tramo que no llega a la cortina.
+	verdadero(not Laseres.Cruza(laserPrueba, 0, 2, 0, 0.1, 5, 0, 4, 0), "lejos de la cortina")
+	-- Quieto sobre la cortina.
+	verdadero(Laseres.Cruza(laserPrueba, 0, 10, 0, 0.1, 10, 0, 4, 0), "quieto encima")
+	igual(Laseres.Tocado({ laserPrueba }, 0, 8, 0, 0.01, 12, 0, 4, 0), 1)
 end)
 
 ----------------------------------------------------------------------------- resumen

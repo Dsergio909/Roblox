@@ -22,6 +22,12 @@ local Sonidos: { [string]: Sonido } = {
 	Rebirth = { id = 0, volumen = 0.7 }, -- S8
 	Error = { id = 0, volumen = 0.4 }, -- S10
 	Clic = { id = 0, volumen = 0.3 }, -- S10
+	Laser = { id = 0, volumen = 0.5 }, -- S13 (alarma del Almacén)
+	Evento = { id = 0, volumen = 0.6 }, -- S14 (empieza un evento)
+
+	-- Música en bucle (se apaga en ⚙️ Ajustes).
+	MusicaPrincipal = { id = 0, volumen = 0.25 }, -- S11
+	MusicaEvento = { id = 0, volumen = 0.3 }, -- S12
 }
 
 return Sonidos

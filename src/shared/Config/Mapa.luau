@@ -18,7 +18,7 @@ local Mapa = {
 		COLOR = Color3.fromRGB(95, 95, 105),
 	},
 	SUELO = {
-		TAMANO = Vector3.new(400, 1, 220),
+		TAMANO = Vector3.new(520, 1, 220), -- incluye el Almacén (oeste) y la Terraza VIP (este)
 		COLOR = Color3.fromRGB(110, 190, 90),
 	},
 
