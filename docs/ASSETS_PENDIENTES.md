@@ -32,13 +32,14 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 |---|---|---|---|---|
 | M1 | **Cuerpo de Crunchi** (malla base compartida) | Manzana redondeada ≤ 400 tris, ~3 studs de alto. **Una sola malla para los 21 Crunchis.** Hoja y rabito aparte (≤ 60 tris). | Ver "Cómo reemplazar un placeholder" abajo | 2 |
 | M2 | **Accesorios** (1 por Crunchi) | ≤ 300 tris cada uno, solo colores. Lista: mochila, semillas (decal), gotas de sudor, gusano, taladro, casco de obra, sombrero de pescador, catapulta, globo con canasta, mecha encendida, cohete, corona de hojas, (Gigantón: sin accesorio, escala 2×), visor láser, armadura robot, bandana ninja, brillo radiactivo, corazón dorado, anillo cósmico | Dentro del modelo de cada Crunchi | 2–3 |
-| M3 | **Agente Escáner** | Rig R6 con traje negro y corbata roja. Cabeza = **escáner de supermercado** (pistola lectora con ventana roja), ≤ 800 tris, + línea láser `Neon` roja. Total ≤ 1,500 tris. **No** debe parecerse a personajes con cabeza de cámara de otras series. | `Config/Agentes.luau` | 2 |
+| M3 | **Agente Escáner** | Model con `HumanoidRootPart` y `Humanoid` (rig R15 o sin piernas animadas), traje negro y corbata roja. Cabeza = **escáner de supermercado** (pistola lectora con ventana roja) ≤ 800 tris + línea láser `Neon` roja. Total ≤ 1,500 tris. **No** debe parecerse a personajes con cabeza de cámara de otras series. | `ReplicatedStorage → Modelos → AgenteEscaner` (el juego lo usa si existe) | 2 |
 | M4 | **Kit de base** (modular) | Plataforma de piso, pedestal (≤ 200 tris), botón de cobro redondo, botón de cerrojo, puerta con campo de fuerza, cartel con nombre del dueño | Se reemplaza el placeholder en `Mapa/` | 3–4 |
 | M5 | **Cinta transportadora** | Segmento recto repetible (≤ 150 tris) + textura de franjas 256×256 que se mueve | `Config/Mapa.luau` | 4 |
 | M6 | **Periódico enrollado** (herramienta) | ≤ 150 tris, con textura de periódico 256×256 **inventada** (sin logos reales) | `Config/Robo.luau` | 4 |
 | M7 | **Canastas** (4 tipos) | Madera, Hierro, Dorada y Celestial. ≤ 300 tris cada una. | `Config/Canastas.luau` | 3 |
 | M8 | **Ciudad (Villa Crunch)** | Fachadas simples (cajas + atlas de ventanas 512×512), postes y árboles low-poly | Mapa en Studio | 4 |
 | M9 | **Edificio FrutaMax / Almacén** | Edificio gris con logo **inventado** "FrutaMax" (manzana con etiqueta de precio) | Mapa en Studio | 4 |
+| M11 | **Macetero y planta** | Maceta ≤ 200 tris; planta en 3 etapas (brote, tallo, flor-manzana) ≤ 300 tris cada una | Reemplaza el placeholder en `MaceteroController` | 3–4 |
 | M10 | Props de evento | Manzana gigante que cae, cohete con humo, globo | `Config/Eventos.luau` | 4 |
 
 ### Cómo reemplazar un placeholder por un modelo real (Crunchis)

@@ -2,6 +2,33 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versiones: `MAYOR.MENOR.PARCHE`.
 
+## [0.2.0] - 2026-09-29 (Fase 2: progresión)
+
+### Agregado
+- **Índice 📖:** colección por set con siluetas "???" para los que faltan, pestañas por mutación (Dorado, Diamante, Arcoíris, Radiactivo) y progreso general.
+- **Sets:** completar un set da +3 % de ingreso permanente (no se pierde con el rebirth), un título y un anuncio a todo el servidor.
+- **Hitos del Índice** (25/50/75/100 %): títulos, dinero y canastas.
+- **Títulos sobre la cabeza:** nombre, título equipado y rebirths visibles para todos (el nombre por defecto de Roblox se oculta).
+- **Rebirth 🔁:** requisitos de dinero y de Crunchis ("rareza o mejor"), multiplicador +0.5× permanente, +1 pedestal, más cerrojo, más bóvedas y zonas (Cinta Dorada en R3, Canasta Celestial en R5, Cinta Celestial en R6). Conservas un "Mejor Amigo" y apareces en la misma base. Doble confirmación.
+- **Misiones 📋:** 3 diarias (00:00 UTC) y 3 semanales (lunes), progreso por señales (comprar, cobrar, robar o defender, canastas, rarezas, minutos, cerrojo, cosechar), recompensas en minutos de ingreso + XP + semillas, 1 cambio gratis por día y premio por completar las 3 diarias.
+- **Recompensas 🎁:** calendario de 7 días de conexión que nunca se reinicia y racha suave (+2 %/día, máx. +10 %, faltar un día resta un paso). La ventana se abre sola una vez por sesión, nunca en la primera.
+- **Ganancias offline:** 20 % del ingreso base por el tiempo fuera (tope 3 h), para cobrar al volver.
+- **Mis Crunchis 📦 y panel de Opciones:** vender (con confirmación para Épico+), depósito (10 lugares, no produce pero no se puede robar), colocar, mover a la bóveda y elegir Mejor Amigo. Comprar con la base llena manda el Crunchi al depósito.
+- **Canastas 🧺** con dinero del juego o tickets de recompensa (Madera, Hierro, Dorada, Celestial y Épica solo por recompensa), con probabilidades visibles y animación de revelación.
+- **Macetero 🌱:** semillas (Común 30 min, Dorada 2 h, Estelar 8 h) que crecen en tiempo real incluso desconectado; cosechar da un Crunchi con más probabilidad de mutación. La planta se ve crecer en cada base.
+- **Agentes Escáner:** 3 NPCs de FrutaMax patrullan la avenida y persiguen a quien carga un Crunchi robado; si lo alcanzan, el Crunchi vuelve a su dueño.
+- **Bonus por amigos:** +10 % por amigo en el servidor (máx. +30 %).
+- Sistema de ventanas para celular (una abierta a la vez, se ajustan a pantallas verticales y horizontales) y tarjetas de Crunchi.
+- Comando de admin `rebirth`. Pruebas unitarias nuevas (46 en total).
+
+### Cambiado
+- La acción "Vender" sobre tus Crunchis ahora es "Opciones" (abre el panel).
+- Escalado de la interfaz: cada panel se escala desde su punto de anclaje y nunca se sale de la pantalla.
+- Los bordes de las cintas ya no tienen colisión (nadie se traba al cruzar).
+
+### Corregido
+- La semilla de regalo ya no se vuelve a regalar en cada sesión (ProfileStore rellenaba la plantilla de forma recursiva).
+
 ## [0.1.0] - 2026-09-29 (Fase 1: MVP jugable)
 
 ### Agregado

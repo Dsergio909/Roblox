@@ -27,12 +27,25 @@ src/
 │   │   ├── CintaService                 ← aparición de Crunchis por rareza y compra validada
 │   │   ├── RoboService                  ← robos, protecciones y periódico
 │   │   ├── TutorialService              ← pasos del onboarding y estado del tutorial
+│   │   ├── RecompensaService            ← entrega de recompensas (dinero, canastas, semillas, XP)
+│   │   ├── IndiceService                ← sets, hitos del Índice y títulos
+│   │   ├── CabezaService                ← etiqueta sobre la cabeza (nombre, título, rebirths)
+│   │   ├── CanastaService               ← canastas con dinero o tickets (sorteo en el servidor)
+│   │   ├── MaceteroService              ← plantar y cosechar semillas
+│   │   ├── MisionService                ← misiones diarias y semanales
+│   │   ├── LoginService                 ← calendario diario y racha suave
+│   │   ├── OfflineService               ← ganancias mientras no estás
+│   │   ├── RebirthService               ← rebirth y Mejor Amigo
+│   │   ├── SocialService                ← bonus por amigos
+│   │   ├── AgenteService                ← NPCs Agentes Escáner
 │   │   └── AdminService                 ← comandos de prueba (solo admins)
 │   ├── Util/RedServidor                 ← escuchar remotos con límite de frecuencia y pcall
+│   ├── Util/Acciones                    ← un remoto "AccionMenu" para todas las acciones de menús
 │   └── Paquetes/ProfileStore            ← librería de terceros (Apache 2.0), sin modificar
 ├── client/                              (en el dispositivo de cada jugador)
 │   ├── init.client.luau                 ← arranque: inicia los controladores en orden
 │   ├── Interfaz/Tema, Interfaz/UI       ← colores, medidas y constructores de UI (escala automática)
+│   ├── Interfaz/Ventana, Tarjetas       ← ventanas de menú (una a la vez) y tarjetas de Crunchi
 │   └── Controladores/
 │       ├── EstadoCliente                ← estado privado que manda el servidor
 │       ├── HudController                ← dinero, ingreso, estado de la base, barra de robo, botones
@@ -43,6 +56,13 @@ src/
 │       ├── RoboController               ← rayo hacia el ladrón y empujón
 │       ├── TutorialController           ← rayo guía y globo de los primeros minutos
 │       ├── SonidoController             ← sonidos (IDs en Config/Sonidos)
+│       ├── CanastasController           ← menú 🧺 y animación de revelación
+│       ├── MisionesController           ← menú 📋
+│       ├── IndiceController             ← menú 📖 (sets, mutaciones, títulos)
+│       ├── RebirthController            ← menú 🔁
+│       ├── BienvenidaController         ← menú 🎁 (calendario, racha, offline)
+│       ├── DepositoController           ← menú 📦 y panel de Opciones de un Crunchi
+│       ├── MaceteroController           ← planta visible y panel 🌱
 │       └── AdminController              ← panel 🛠️
 └── shared/                              (servidor y cliente)
     ├── Config/                          ← TODO el balance y los datos editables

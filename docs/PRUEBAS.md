@@ -51,7 +51,7 @@ Qué probar después de cada fase y cómo. Marca cada casilla y, si algo falla, 
 > 💡 **Panel de admin:** en Studio eres admin automáticamente. Busca el botón 🛠️ naranja a la derecha de la pantalla. Tiene botones para darte dinero, hacer aparecer un Secreto, quitar tu escudo, etc. Si escribes `lista` en el cuadro, ves los ids de todos los Crunchis.
 
 ### P1.1 Arranque (1 jugador, botón Play)
-- [ ] Output: `[Crunch Heist] Servidor v0.1.0 iniciado (Fase 1).` y `[Crunch Heist] Cliente v0.1.0 listo.`, sin líneas rojas.
+- [ ] Output: `[Crunch Heist] Servidor vX.Y.Z iniciado (Fase N).` y `[Crunch Heist] Cliente vX.Y.Z listo.` (con la versión actual), sin líneas rojas.
 - [ ] Aparece el mapa: pasto verde, avenida gris, 3 cintas (gris, dorada y azul) y 8 bases de colores.
 - [ ] Apareces **dentro de tu base**, mirando hacia tus pedestales. El letrero sobre la puerta dice `Base de <tu nombre>`.
 - [ ] En el pedestal dorado (bóveda, fondo a la izquierda) está tu **Crunchito Bobo** (bizco, boca torcida).
@@ -76,8 +76,8 @@ Qué probar después de cada fase y cómo. Marca cada casilla y, si algo falla, 
 - [ ] Con el admin: `+$1M` → compra varios Crunchis y verifica que `+$/s` sube.
 
 ### P1.5 Vender y base llena
-- [ ] Acércate a un Crunchi tuyo: aparece **"Vender $X"** (tecla **F**, mantener). Al venderlo recibes el 50 % de su precio y el pedestal queda vacío.
-- [ ] Llena los 8 pedestales y trata de comprar otro: aviso "¡Tu base está llena!".
+- [ ] Acércate a un Crunchi tuyo: aparece **"Opciones"** (tecla **F**) → "Vender $X". Al venderlo recibes el 50 % de su precio y el pedestal queda vacío. (Desde la Fase 2; ver P2.1.)
+- [ ] Llena los 8 pedestales y compra otro: desde la Fase 2 va al depósito 📦. Con base y depósito llenos: aviso "¡Tu base y tu depósito están llenos!".
 - [ ] Los pedestales 9 a 20 se ven casi transparentes (se desbloquean con rebirths en la Fase 2).
 
 ### P1.6 Cerrojo
@@ -126,3 +126,70 @@ Pestaña **Test → Device**: elige un teléfono pequeño y uno con notch, en ho
 - [ ] Output no muestra advertencias repetidas.
 
 **Si algo falla:** copia las líneas rojas de Output (de la ventana del servidor y de la del jugador) y pégamelas.
+
+---
+
+## Fase 2: progresión
+
+**Qué hay:** Índice con sets e hitos, títulos sobre la cabeza, rebirth con Mejor Amigo, mutaciones en el Índice, misiones diarias y semanales, calendario de 7 días con racha suave, ganancias offline, depósito y opciones de cada Crunchi, canastas con dinero del juego (con probabilidades visibles), macetero con semillas que crecen en tiempo real, Agentes Escáner que persiguen ladrones y bonus por amigos.
+
+**Botones nuevos:** a la derecha 🧺 Canastas · 📋 Misiones · 📖 Índice · 🔁 Rebirth. A la izquierda 🎁 Recompensas · 📦 Mis Crunchis · 🛠️ Admin.
+
+**Comandos de admin nuevos:** escribe `rebirth` en el cuadro del panel 🛠️ para hacer un rebirth gratis (sin requisitos).
+
+### P2.1 Opciones y depósito
+- [ ] Acércate a un Crunchi tuyo: ahora dice **"Opciones"** (tecla **F**). Se abre un panel con Vender, Guardar en depósito, A la bóveda y Mejor Amigo.
+- [ ] "Guardar en depósito": el Crunchi desaparece del pedestal y aparece en 📦 → Depósito. Deja de sumar al `+$/s`.
+- [ ] En 📦 toca un Crunchi del depósito → "Colocar en la base": vuelve a un pedestal libre.
+- [ ] "A la bóveda": pasa al pedestal dorado (si estaba ocupado, intercambian lugares).
+- [ ] Vender un Épico o mejor pide confirmación ("¿Seguro? Toca otra vez").
+- [ ] Con la base llena, comprar en la cinta lo manda al depósito (aviso 📦).
+
+### P2.2 Canastas 🧺
+- [ ] Cada canasta muestra sus **probabilidades por rareza** antes del botón de abrir.
+- [ ] "Abrir $1K" (Canasta de Madera) cobra el dinero y muestra la animación: nombres que giran y se detienen en el premio.
+- [ ] El Crunchi aparece en tu base (o en el depósito si está llena).
+- [ ] Sin dinero suficiente: aviso rojo y no se cobra nada.
+- [ ] La Canasta Celestial dice `🔒 Rebirth 5` si no tienes 5 rebirths.
+
+### P2.3 Índice 📖 y sets
+- [ ] Los Crunchis que tuviste se ven con su nombre; los demás, como silueta "???" con el color de su rareza.
+- [ ] Pestañas Dorado, Diamante… muestran solo las mutaciones que tuviste.
+- [ ] Completa un set (con admin: `crunchi pepito_pepita`, `crunchi don_gusano`, `crunchi rey_semilla`, `crunchi corazon_oro` → set Huerto): aviso 🏆, anuncio a todos, `+$/s` sube un 3 % y el título aparece en la pestaña 🏷️ Títulos.
+- [ ] Al equipar un título, se ve sobre tu cabeza (y tu nombre con 🔁 si tienes rebirths).
+- [ ] Al llegar al 25 % del Índice (6 Crunchis distintos): recompensa de hito.
+
+### P2.4 Rebirth 🔁
+- [ ] El menú muestra costo y requisitos con ✓/✗, lo que ganas y lo que pierdes.
+- [ ] Con admin: `+$1M` y `crunchi manzana_cohete` → el botón 🔁 muestra "!" y el requisito queda ✓.
+- [ ] "Cambiar Mejor Amigo" → elige uno. "HACER REBIRTH" pide confirmación.
+- [ ] Tras el rebirth: dinero $50, solo queda tu Mejor Amigo, ingreso x1.5, un pedestal más (9) y apareces en la misma base. Tu nombre muestra 🔁1.
+- [ ] Tras `rebirth` ×3 (admin): la Cinta Dorada ya deja comprar y tienes 2 bóvedas.
+
+### P2.5 Misiones 📋
+- [ ] Hay 3 diarias y 3 semanales con barra de progreso y recompensa (💰, ⭐ XP, 🌱).
+- [ ] Compra Crunchis / cobra: la barra avanza. Al completarla, aviso ✅ y el botón 📋 muestra un globito.
+- [ ] "¡Reclamar!" da la recompensa. Completar las 3 diarias da una Canasta de Madera extra.
+- [ ] "🔄 Cambiar" cambia una diaria (1 vez por día).
+- [ ] Los contadores "nuevas en…" / "terminan en…" bajan cada segundo.
+
+### P2.6 Recompensas 🎁 (calendario, racha y offline)
+- [ ] En tu **primera** sesión la ventana NO se abre sola; el botón 🎁 tiene un globito.
+- [ ] Reclamar el día 1 da dinero. El calendario marca ✅ los días reclamados.
+- [ ] Con datos guardados: sal, espera 2+ minutos y vuelve. La ventana se abre sola con "Mientras no estabas… tus Crunchis ganaron $X" y un botón Cobrar.
+- [ ] La racha y su bonus se muestran en la ventana.
+
+### P2.7 Macetero 🌱
+- [ ] En tu base, frente al cerrojo (esquina opuesta), hay una maceta café. Al tocarla (**E**) se abre el panel.
+- [ ] Tienes 1 Semilla Común de regalo → "Plantar". Aparece un brote que crece con un contador `🌱 29:59`.
+- [ ] (Para no esperar 30 min: cambia `minutos` de "comun" a `1` en `Config/Semillas.luau` mientras pruebas.)
+- [ ] Cuando dice "✨ ¡Lista!", abre el panel → "Cosechar": animación de revelación y el Crunchi va a tu base.
+- [ ] Otros jugadores ven tu planta crecer.
+
+### P2.8 Agentes Escáner (2 jugadores)
+- [ ] Hay 3 agentes (traje negro, cabeza gris con ventana roja y un láser) caminando por la avenida.
+- [ ] Roba un Crunchi y pasa cerca de un agente: aviso "🔎 ¡Un Agente Escáner te vio! ¡Corre!" y te persigue.
+- [ ] Si te alcanza, sales empujado y el Crunchi vuelve a su dueño. Si te alejas o llegas a tu base, se rinde.
+
+### P2.9 Amigos
+- [ ] (Con una cuenta amiga real en un servidor publicado) el `+$/s` sube un 10 % por amigo en el servidor.
