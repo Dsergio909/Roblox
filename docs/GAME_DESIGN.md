@@ -244,13 +244,13 @@ Los rebirths 8 en adelante son el "techo" temporal. Cada actualización agrega C
 
 ```
 ingreso/s = Σ (ingreso base del Crunchi × multiplicador de mutación)          ← por cada pedestal
-          × (1 + 0.5·rebirths + bonus de sets + racha + amigos + Premium 0.10)  ← bonus aditivos
+          × (1 + 0.5·rebirths + sets + racha + amigos + grupo 0.05 + Premium 0.10)  ← bonus aditivos
           × (2 si tiene el pase x2 Dinero)                                     ← multiplicadores
           × (2 si tiene un boost x2 temporal activo)
 ```
 
 - Los bonus del segundo grupo **se suman** entre sí, para que no se disparen. Los del tercer grupo multiplican.
-- Amigos en el servidor: +10 % por amigo, máximo +30 %.
+- Amigos en el servidor: +10 % por amigo, máximo +30 %. Estar en el grupo de Roblox del juego: +5 %.
 - Las recompensas que se escalan "en minutos de ingreso" usan el **ingreso base sin boosts temporales**, para que no se pueda hacer trampa activando un x2 justo antes de cobrar.
 
 ### Fuentes de dinero (entradas)
