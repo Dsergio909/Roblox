@@ -2,68 +2,49 @@
 --[[
 	Punto de entrada del CLIENTE (se ejecuta en el dispositivo de cada jugador).
 
-	Rojo convierte esta carpeta (src/client) en un LocalScript llamado "Client" dentro
-	de StarterPlayer > StarterPlayerScripts. Igual que en el servidor, un solo punto
-	de entrada cargará los "controladores" (UI, efectos, sonidos) en la Fase 1.
+	Rojo convierte esta carpeta (src/client) en un LocalScript llamado "Client" dentro de
+	StarterPlayer > StarterPlayerScripts. Carga los "controladores" (UI, efectos, sonidos)
+	en un orden conocido; cada uno expone Iniciar().
 
-	Por ahora solo muestra un aviso temporal para comprobar que Rojo funciona
-	y que la UI se ve bien en celular (respeta el notch y las áreas seguras).
+	Recordatorio: el cliente NUNCA decide dinero, compras ni robos. Solo muestra cosas y
+	le PIDE acciones al servidor, que valida todo.
 ]]
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- En el cliente usamos WaitForChild: las cosas de ReplicatedStorage pueden tardar
--- un instante en llegar desde el servidor.
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Juego = require(Shared:WaitForChild("Config"):WaitForChild("Juego"))
 
-local SEGUNDOS_VISIBLE = 6
+local Interfaz = script:WaitForChild("Interfaz")
+local UI = require(Interfaz:WaitForChild("UI"))
+UI.Iniciar()
 
-local jugador = Players.LocalPlayer
-local playerGui = jugador:WaitForChild("PlayerGui")
+local Controladores = script:WaitForChild("Controladores")
 
-local pantalla = Instance.new("ScreenGui")
-pantalla.Name = "AvisoRojo"
-pantalla.ResetOnSpawn = false
--- DeviceSafeInsets: nada queda tapado por el notch ni por las esquinas redondeadas del celular.
-pantalla.ScreenInsets = Enum.ScreenInsets.DeviceSafeInsets
+local ORDEN = {
+	"EstadoCliente",
+	"SonidoController",
+	"NotificacionController",
+	"BaseController",
+	"HudController",
+	"CintaController",
+	"EfectosController",
+	"RoboController",
+	"TutorialController",
+	"AdminController",
+}
 
-local etiqueta = Instance.new("TextLabel")
-etiqueta.Name = "Mensaje"
--- Tamaños en escala (porcentaje de la pantalla), no en píxeles fijos: se adapta a cualquier dispositivo.
-etiqueta.AnchorPoint = Vector2.new(0.5, 0)
-etiqueta.Position = UDim2.fromScale(0.5, 0.03)
-etiqueta.Size = UDim2.fromScale(0.8, 0.08)
-etiqueta.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-etiqueta.BackgroundTransparency = 0.2
-etiqueta.TextColor3 = Color3.fromRGB(140, 230, 90)
-etiqueta.Font = Enum.Font.FredokaOne
-etiqueta.TextScaled = true
-etiqueta.Text = `✔ Rojo conectado · {Juego.NOMBRE} v{Juego.VERSION} · Fase {Juego.FASE}`
-etiqueta.Parent = pantalla
+for _, nombre in ORDEN do
+	local modulo = Controladores:WaitForChild(nombre, 10)
+	if modulo == nil or not modulo:IsA("ModuleScript") then
+		warn(`[{Juego.NOMBRE}] No se encontró el controlador {nombre}`)
+		continue
+	end
+	local controlador = (require :: any)(modulo)
+	local ok, err = pcall(controlador.Iniciar)
+	if not ok then
+		warn(`[{Juego.NOMBRE}] Error iniciando {nombre}: {err}`)
+	end
+end
 
-local esquinas = Instance.new("UICorner")
-esquinas.CornerRadius = UDim.new(0.3, 0)
-esquinas.Parent = etiqueta
-
--- Límite de tamaño de letra: legible en un celular de 5" sin verse gigante en un monitor.
-local limiteTexto = Instance.new("UITextSizeConstraint")
-limiteTexto.MinTextSize = 14
-limiteTexto.MaxTextSize = 32
-limiteTexto.Parent = etiqueta
-
-local margen = Instance.new("UIPadding")
-margen.PaddingLeft = UDim.new(0.03, 0)
-margen.PaddingRight = UDim.new(0.03, 0)
-margen.PaddingTop = UDim.new(0.15, 0)
-margen.PaddingBottom = UDim.new(0.15, 0)
-margen.Parent = etiqueta
-
-pantalla.Parent = playerGui
-
-print(`[{Juego.NOMBRE}] Cliente v{Juego.VERSION} iniciado para {jugador.Name}.`)
-
-task.delay(SEGUNDOS_VISIBLE, function()
-	pantalla:Destroy()
-end)
+print(`[{Juego.NOMBRE}] Cliente v{Juego.VERSION} listo.`)
