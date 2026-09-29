@@ -58,6 +58,9 @@ local RoboService = {
 	RoboFallido = Senal.nueva(),
 	-- (ladron, dueno)
 	RoboIniciado = Senal.nueva(),
+	-- (golpeador, posicion: Vector3, frente: Vector3) — alguien dio un periodicazo (los
+	-- agentes de la Redada lo escuchan para saber si les pegaron)
+	Periodicazo = Senal.nueva(),
 }
 
 local robos: { [Player]: Robo } = {} -- clave: el ladrón
@@ -437,6 +440,7 @@ local function golpear(golpeador: Player)
 		return
 	end
 	local frente = raiz.CFrame.LookVector
+	RoboService.Periodicazo:Disparar(golpeador, raiz.Position, frente)
 	for _, otro in Players:GetPlayers() do
 		if otro ~= golpeador then
 			local raizOtro = raizDe(otro)

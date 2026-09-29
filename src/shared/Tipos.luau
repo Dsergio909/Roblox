@@ -123,6 +123,9 @@ export type Datos = {
 	pase: PaseGuardado,
 	cosmeticos: { [string]: boolean },
 	equipados: { aura: string, estela: string },
+
+	-- Fase 4
+	almacen: { proximo: number, veces: number }, -- Almacén FrutaMax: próximo intento (os.time)
 }
 
 -- Estado que el servidor comparte SOLO con el dueño (no con otros jugadores).

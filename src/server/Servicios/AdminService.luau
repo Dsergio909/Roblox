@@ -14,6 +14,9 @@
 	  sinescudo                quita el escudo de tu base (para probar robos)
 	  novato                   suma 15 min de tiempo jugado (salta la protección de novato)
 	  lista                    muestra los ids de todos los Crunchis
+	  evento <id>|fin          empieza un evento ya (lluvia, redada...) o termina el actual
+	  almacen                  quita tu tiempo de espera del Almacén FrutaMax
+	  (y los de otras fases: rebirth, pase, producto...)
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

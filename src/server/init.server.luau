@@ -47,6 +47,10 @@ local ORDEN = {
 	"CosmeticoService",
 	"OfertaService",
 	"TutorialService",
+	"EventoService",
+	"AlmacenService",
+	"ClasificacionService",
+	"AjustesService",
 	"AdminService",
 	"DatosService",
 }

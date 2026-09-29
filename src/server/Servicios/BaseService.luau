@@ -47,6 +47,7 @@ type EstadoPedestal = {
 	modelo: Model?,
 	enRobo: boolean,
 	reservado: boolean,
+	etiquetadoHasta: number, -- Redada FrutaMax: no produce hasta este momento
 }
 
 export type EstadoBase = {
@@ -119,6 +120,7 @@ local function publicarPedestal(estado: EstadoBase, lugar: number)
 	modelo:SetAttribute("Tasa", pedestal.tasa)
 	modelo:SetAttribute("Ocupado", pedestal.uid ~= nil)
 	modelo:SetAttribute("EnRobo", pedestal.enRobo)
+	modelo:SetAttribute("EtiquetadoHasta", pedestal.etiquetadoHasta)
 end
 
 local function publicarBase(estado: EstadoBase)
@@ -261,7 +263,7 @@ function BaseService.Recalcular(jugador: Player)
 	local momento = ahora()
 	for lugar, pedestal in estado.pedestales do
 		asentar(pedestal, momento)
-		if pedestal.uid and pedestal.crunchiId and not pedestal.enRobo then
+		if pedestal.uid and pedestal.crunchiId and not pedestal.enRobo and pedestal.etiquetadoHasta <= momento then
 			local base = Catalogo.Valor(pedestal.crunchiId, pedestal.mutacion or "normal")
 			pedestal.tasa = Ingreso.PorSegundo(base, 1, multiplicador)
 		else
@@ -348,6 +350,7 @@ function BaseService.Colocar(jugador: Player, crunchi: CrunchiGuardado)
 	pedestal.mutacion = crunchi.mut
 	pedestal.enRobo = false
 	pedestal.reservado = false
+	pedestal.etiquetadoHasta = 0
 	crearModelo(estado, crunchi.lugar, crunchi)
 	BaseService.Recalcular(jugador)
 	BaseService.CrunchiColocado:Disparar(jugador, crunchi)
@@ -405,10 +408,75 @@ function BaseService.VaciarPedestal(jugador: Player, lugar: number)
 	pedestal.crunchiId = nil
 	pedestal.mutacion = nil
 	pedestal.enRobo = false
+	pedestal.etiquetadoHasta = 0
 	pedestal.tasa = 0
 	publicarPedestal(estado, lugar)
 	actualizarIngresoTotal(estado)
 	BaseService.CrunchisCambiaron:Disparar(jugador)
+end
+
+----------------------------------------------------------------------------- redada (Fase 4)
+
+-- ¿Un agente de la Redada puede etiquetar este pedestal? Nunca en bóvedas, con escudo o
+-- con el cerrojo puesto: las protecciones de la base también valen contra la redada.
+function BaseService.PuedeEtiquetar(jugador: Player, lugar: number): boolean
+	local estado = estados[jugador]
+	local pedestal = estado and estado.pedestales[lugar]
+	if estado == nil or pedestal == nil then
+		return false
+	end
+	return pedestal.uid ~= nil
+		and not pedestal.enRobo
+		and pedestal.etiquetadoHasta <= ahora()
+		and not BaseService.EsBoveda(jugador, lugar)
+		and BaseService.EscudoRestante(jugador) <= 0
+		and not BaseService.CerrojoActivo(jugador)
+end
+
+-- La Redada etiqueta un Crunchi: deja de producir `segundos` (no se pierde nada más).
+function BaseService.Etiquetar(jugador: Player, lugar: number, segundos: number): boolean
+	if not BaseService.PuedeEtiquetar(jugador, lugar) then
+		return false
+	end
+	local estado = estados[jugador] :: EstadoBase
+	local pedestal = estado.pedestales[lugar]
+	pedestal.etiquetadoHasta = ahora() + segundos
+	BaseService.Recalcular(jugador)
+
+	local modelo = pedestal.modelo
+	local cartel: BillboardGui? = nil
+	if modelo then
+		local nuevo = Instance.new("BillboardGui")
+		nuevo.Name = "Etiquetado"
+		nuevo.Size = UDim2.fromOffset(150, 34)
+		nuevo.StudsOffsetWorldSpace = Vector3.new(0, ModeloCrunchi.Altura(pedestal.crunchiId or "") + 1.5, 0)
+		nuevo.MaxDistance = 60
+		nuevo.AlwaysOnTop = true
+		local texto = Instance.new("TextLabel")
+		texto.Size = UDim2.fromScale(1, 1)
+		texto.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+		texto.TextColor3 = Color3.new(1, 1, 1)
+		texto.Font = Enum.Font.FredokaOne
+		texto.TextScaled = true
+		texto.Text = "🏷️ ¡ETIQUETADO!"
+		texto.Parent = nuevo
+		local esquinas = Instance.new("UICorner")
+		esquinas.Parent = texto
+		nuevo.Adornee = modelo.PrimaryPart :: BasePart
+		nuevo.Parent = modelo
+		cartel = nuevo
+	end
+
+	local uid = pedestal.uid
+	task.delay(segundos + 0.1, function()
+		if cartel then
+			cartel:Destroy()
+		end
+		if estados[jugador] == estado and pedestal.uid == uid then
+			BaseService.Recalcular(jugador)
+		end
+	end)
+	return true
 end
 
 ----------------------------------------------------------------------------- depósito y entregas
@@ -903,6 +971,7 @@ function BaseService.Asignar(jugador: Player, datos: Tipos.Datos, preferida: num
 			modelo = nil,
 			enRobo = false,
 			reservado = false,
+			etiquetadoHasta = 0,
 		})
 	end
 

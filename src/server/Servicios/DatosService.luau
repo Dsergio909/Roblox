@@ -125,6 +125,9 @@ local PLANTILLA: Datos = {
 	},
 	cosmeticos = {},
 	equipados = { aura = "", estela = "" },
+
+	-- Fase 4
+	almacen = { proximo = 0, veces = 0 },
 }
 
 -- Migraciones: MIGRACIONES[n] convierte datos de la versión n a la n + 1.
