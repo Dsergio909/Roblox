@@ -21,7 +21,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Catalogo = require(script.Parent:WaitForChild("Catalogo"))
 
-local ModeloCrunchi = {}
+local ModeloCrunchi = {
+	ETIQUETA_ARCOIRIS = "CrunchiArcoiris", -- CollectionService: cuerpos que cambian de color
+}
 
 local DIAMETRO = 3 -- diámetro del cuerpo con escala 1
 local VERDE = Color3.fromRGB(126, 217, 87)
@@ -332,6 +334,10 @@ function ModeloCrunchi.Crear(crunchiId: string, mutacionId: string): Model
 	modelo.Name = def.nombre
 	modelo:SetAttribute("Crunchi", crunchiId)
 	modelo:SetAttribute("Mutacion", mutacion.id)
+	if mutacion.id == "arcoiris" then
+		-- El cliente le va cambiando el color (EfectosController); se replica desde el servidor.
+		cuerpo:AddTag(ModeloCrunchi.ETIQUETA_ARCOIRIS)
+	end
 	-- Con StreamingEnabled: todas las partes llegan juntas al cliente (nunca medio Crunchi).
 	modelo.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	return modelo

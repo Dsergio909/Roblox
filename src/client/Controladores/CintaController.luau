@@ -9,6 +9,10 @@
 
 	Cada Crunchi tiene una acción "Comprar" (mantener pulsado). La compra la valida el servidor.
 	El precio se ve en verde si te alcanza y en rojo si no.
+
+	Reciclaje (object pooling): cuando un Crunchi sale de la cinta, su modelo no se destruye;
+	se guarda y se reutiliza para el próximo Crunchi igual (misma especie y mutación). Crear
+	modelos es lo más caro en celulares, y en la cinta se repiten mucho.
 ]]
 
 local Players = game:GetService("Players")
@@ -26,8 +30,18 @@ local Reloj = require(Shared:WaitForChild("Util"):WaitForChild("Reloj"))
 
 local CintaController = {}
 
+type Reciclable = {
+	clave: string,
+	modelo: Model,
+	cuerpo: BasePart,
+	etiquetaPrecio: TextLabel?,
+	prompt: ProximityPrompt,
+}
+
 type ItemLocal = {
 	datos: Tipos.ItemCinta,
+	reciclable: Reciclable,
+	conexion: RBXScriptConnection,
 	modelo: Model,
 	cuerpo: BasePart,
 	radio: number,
@@ -46,10 +60,65 @@ local jugador = Players.LocalPlayer
 local items: { [number]: ItemLocal } = {}
 local carpeta: Folder
 
+local reciclados: { [string]: { Reciclable } } = {}
+local cantidadReciclados = 0
+local MAX_RECICLADOS = 40
+local MAX_RECICLADOS_POR_TIPO = 4
+
 local VERDE = Color3.fromRGB(120, 255, 120)
 local ROJO = Color3.fromRGB(255, 110, 110)
 
 ----------------------------------------------------------------------------- crear / quitar
+
+-- Modelo + etiqueta + acción "Comprar" de un Crunchi (nuevo o reciclado).
+local function obtenerReciclable(crunchiId: string, mutacionId: string): Reciclable
+	local clave = `{crunchiId}:{mutacionId}`
+	local lista = reciclados[clave]
+	if lista and #lista > 0 then
+		cantidadReciclados -= 1
+		return table.remove(lista) :: Reciclable
+	end
+
+	local modelo = ModeloCrunchi.Crear(crunchiId, mutacionId)
+	local cuerpo = modelo.PrimaryPart :: BasePart
+	local ingreso, precio = Catalogo.Valor(crunchiId, mutacionId)
+	local etiqueta = ModeloCrunchi.CrearEtiqueta(crunchiId, mutacionId, {
+		precio = precio,
+		ingresoPorSegundo = ingreso,
+		distanciaMaxima = 70,
+		formatoDinero = Formato.Dinero,
+	})
+	etiqueta.Parent = modelo
+	local etiquetaPrecio = etiqueta:FindFirstChild("Precio")
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "Comprar"
+	prompt.ActionText = `Comprar {Formato.Dinero(precio)}`
+	prompt.ObjectText = Catalogo.NombreCompleto(crunchiId, mutacionId)
+	prompt.HoldDuration = 0.25
+	prompt.MaxActivationDistance = 12
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = cuerpo
+	return {
+		clave = clave,
+		modelo = modelo,
+		cuerpo = cuerpo,
+		etiquetaPrecio = if etiquetaPrecio and etiquetaPrecio:IsA("TextLabel") then etiquetaPrecio else nil,
+		prompt = prompt,
+	}
+end
+
+local function reciclar(reciclable: Reciclable)
+	local lista = reciclados[reciclable.clave] or {}
+	reciclados[reciclable.clave] = lista
+	if cantidadReciclados >= MAX_RECICLADOS or #lista >= MAX_RECICLADOS_POR_TIPO then
+		reciclable.modelo:Destroy()
+		return
+	end
+	reciclable.modelo.Parent = nil
+	table.insert(lista, reciclable)
+	cantidadReciclados += 1
+end
 
 local function crear(datos: Tipos.ItemCinta)
 	if items[datos.id] or Catalogo.datos.crunchi[datos.crunchi] == nil then
@@ -66,41 +135,25 @@ local function crear(datos: Tipos.ItemCinta)
 		return -- ya llegó al final
 	end
 
-	local modelo = ModeloCrunchi.Crear(datos.crunchi, datos.mut)
-	local cuerpo = modelo.PrimaryPart :: BasePart
-	local ingreso, precio = Catalogo.Valor(datos.crunchi, datos.mut)
-
-	local etiqueta = ModeloCrunchi.CrearEtiqueta(datos.crunchi, datos.mut, {
-		precio = precio,
-		ingresoPorSegundo = ingreso,
-		distanciaMaxima = 70,
-		formatoDinero = Formato.Dinero,
-	})
-	etiqueta.Parent = modelo
-	local etiquetaPrecio = etiqueta:FindFirstChild("Precio")
-
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "Comprar"
-	prompt.ActionText = `Comprar {Formato.Dinero(precio)}`
-	prompt.ObjectText = Catalogo.NombreCompleto(datos.crunchi, datos.mut)
-	prompt.HoldDuration = 0.25
-	prompt.MaxActivationDistance = 12
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = cuerpo
+	local reciclable = obtenerReciclable(datos.crunchi, datos.mut)
+	local _, precio = Catalogo.Valor(datos.crunchi, datos.mut)
 	local id = datos.id
-	prompt.Triggered:Connect(function()
+	local conexion = reciclable.prompt.Triggered:Connect(function()
 		Red.Evento("ComprarCinta"):FireServer(id)
 	end)
 
-	modelo.Parent = carpeta
+	local cuerpo = reciclable.cuerpo
+	reciclable.modelo.Parent = carpeta
 	items[datos.id] = {
 		datos = datos,
-		modelo = modelo,
+		reciclable = reciclable,
+		conexion = conexion,
+		modelo = reciclable.modelo,
 		cuerpo = cuerpo,
 		radio = cuerpo.Size.Y / 2,
 		precio = precio,
-		etiquetaPrecio = if etiquetaPrecio and etiquetaPrecio:IsA("TextLabel") then etiquetaPrecio else nil,
-		prompt = prompt,
+		etiquetaPrecio = reciclable.etiquetaPrecio,
+		prompt = reciclable.prompt,
 		inicio = mapa.inicio,
 		direccion = vector.Unit,
 		velocidad = cinta.velocidad,
@@ -114,7 +167,8 @@ local function quitar(id: number)
 	local item = items[id]
 	if item then
 		items[id] = nil
-		item.modelo:Destroy()
+		item.conexion:Disconnect()
+		reciclar(item.reciclable)
 	end
 end
 

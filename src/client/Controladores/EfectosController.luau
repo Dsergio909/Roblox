@@ -4,15 +4,21 @@
 	Efectos visuales y de sonido que el servidor pide ("Efecto") o que pasan en el cliente.
 
 	Rendimiento: las partículas SOLO existen en el cliente, tienen un tope por efecto y un
-	tope global, y el "Modo ahorro" (Ajustes, Fase 4) las reduce o apaga.
+	tope global, y el "Modo ahorro" (⚙️ Ajustes) las reduce.
+
+	También hace brillar en colores a los Crunchis Arcoíris (etiqueta "CrunchiArcoiris"):
+	un solo ciclo para todos, pocas veces por segundo y solo los que están cerca.
 ]]
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalogo = require(Shared:WaitForChild("Catalogo"))
+local ModeloCrunchi = require(Shared:WaitForChild("ModeloCrunchi"))
 local Red = require(Shared:WaitForChild("Red"))
+local Reloj = require(Shared:WaitForChild("Util"):WaitForChild("Reloj"))
 
 local SonidoController = require(script.Parent:WaitForChild("SonidoController"))
 local NotificacionController = require(script.Parent:WaitForChild("NotificacionController"))
@@ -135,11 +141,46 @@ local function alEfecto(nombre: any, datos: any)
 		SonidoController.Reproducir("Golpe")
 	elseif nombre == "Cerrojo" then
 		SonidoController.Reproducir("Cerrojo")
+	elseif nombre == "Laser" then
+		SonidoController.Reproducir("Laser")
+		local posicion = posicionJugador()
+		if posicion then
+			EfectosController.Confeti(posicion + Vector3.new(0, 2, 0), Color3.fromRGB(255, 40, 40), 20)
+		end
+	elseif nombre == "AgenteFuera" then
+		SonidoController.Reproducir("Golpe")
+		local posicion = if type(datos) == "table" and typeof(datos.posicion) == "Vector3" then datos.posicion else nil
+		if posicion then
+			EfectosController.Confeti(posicion + Vector3.new(0, 2, 0), Color3.fromRGB(255, 220, 80), 30)
+		end
+	end
+end
+
+----------------------------------------------------------------------------- arcoíris
+
+local DISTANCIA_ARCOIRIS = 120
+
+local function cicloArcoiris()
+	if EfectosController.calidad <= 0 then
+		return
+	end
+	local camara = workspace.CurrentCamera
+	if camara == nil then
+		return
+	end
+	local posCamara = camara.CFrame.Position
+	local tono = (Reloj.Ahora() * 0.25) % 1
+	for _, parte in CollectionService:GetTagged(ModeloCrunchi.ETIQUETA_ARCOIRIS) do
+		if parte:IsA("BasePart") and (parte.Position - posCamara).Magnitude < DISTANCIA_ARCOIRIS then
+			parte.Color = Color3.fromHSV(tono, 0.65, 1)
+		end
 	end
 end
 
 function EfectosController.Iniciar()
 	Red.Evento("Efecto").OnClientEvent:Connect(alEfecto)
+	-- 10 veces por segundo se ve suave y cuesta casi nada.
+	Reloj.Cada(0.1, cicloArcoiris)
 end
 
 return EfectosController

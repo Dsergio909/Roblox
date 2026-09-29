@@ -5,6 +5,9 @@
 	simplemente no suena: el juego funciona igual sin sonidos.
 
 	  SonidoController.Reproducir("Cobro")
+
+	Música: suena en bucle "MusicaPrincipal", y durante los eventos "MusicaEvento" (si tiene
+	id; si no, sigue la principal). Se apaga en ⚙️ Ajustes.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,10 +17,13 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ConfigSonidos = require(Shared:WaitForChild("Config"):WaitForChild("Sonidos"))
 
 local SonidoController = {
-	activado = true, -- lo cambia el menú de ajustes (Fase 4)
+	activado = true, -- efectos de sonido (⚙️ Ajustes)
+	musica = true, -- música de fondo (⚙️ Ajustes)
 }
 
 local cache: { [string]: Sound } = {}
+local pistaDeseada = "MusicaPrincipal"
+local pistaActual: Sound? = nil
 
 local function obtener(nombre: string): Sound?
 	local existente = cache[nombre]
@@ -63,6 +69,37 @@ function SonidoController.Bucle(nombre: string, activo: boolean)
 	end
 end
 
-function SonidoController.Iniciar() end
+local function aplicarMusica()
+	local deseada: Sound? = nil
+	if SonidoController.musica then
+		deseada = obtener(pistaDeseada) or obtener("MusicaPrincipal")
+	end
+	local actual = pistaActual
+	if actual and actual ~= deseada then
+		actual:Stop()
+	end
+	if deseada then
+		deseada.Looped = true
+		if not deseada.IsPlaying then
+			deseada:Play()
+		end
+	end
+	pistaActual = deseada
+end
+
+-- Cambia la pista de fondo (p. ej. "MusicaEvento" durante un evento).
+function SonidoController.Pista(nombre: string)
+	pistaDeseada = nombre
+	aplicarMusica()
+end
+
+function SonidoController.FijarMusica(activa: boolean)
+	SonidoController.musica = activa
+	aplicarMusica()
+end
+
+function SonidoController.Iniciar()
+	aplicarMusica()
+end
 
 return SonidoController

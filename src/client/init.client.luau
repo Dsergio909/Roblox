@@ -42,6 +42,9 @@ local ORDEN = {
 	"PaseController",
 	"CosmeticosController",
 	"OfertaController",
+	"AjustesController",
+	"EventoController",
+	"AlmacenController",
 	"AdminController",
 }
 

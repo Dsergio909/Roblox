@@ -30,6 +30,13 @@ local rapidos: { { texto: string, comando: string } } = {
 	{ texto = "Quitar mi escudo", comando = "sinescudo" },
 	{ texto = "No soy novato", comando = "novato" },
 	{ texto = "Reiniciar datos", comando = "reiniciar" },
+	-- Fase 4
+	{ texto = "🌧️ Lluvia", comando = "evento lluvia" },
+	{ texto = "🚨 Redada", comando = "evento redada" },
+	{ texto = "✨ Hora Dorada", comando = "evento hora_dorada" },
+	{ texto = "☢️ Noche Nuclear", comando = "evento noche_nuclear" },
+	{ texto = "Terminar evento", comando = "evento fin" },
+	{ texto = "🏭 Almacén listo", comando = "almacen" },
 }
 
 local function enviar(comando: string)
