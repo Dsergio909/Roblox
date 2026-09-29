@@ -338,7 +338,7 @@ Un jugador gratis puede llegar a **todo** el contenido del Índice, a todas las 
 | Boost x2 Dinero (30 min) | 49 R$ | Se suma al tiempo restante |
 | Suerte del Servidor (15 min) | 79 R$ | Duplica la probabilidad de rarezas altas en la cinta **para todo el servidor**, con anuncio "¡Gracias, @jugador!". Social y positivo. |
 | Duplicar ganancias offline | 25 R$ | Solo aparece en la pantalla de bienvenida, una vez por regreso |
-| Canasta Sorpresa | 149 R$ | Épico o superior garantizado: Épico 70 % · Legendario 24 % · Mítico 5 % · Secreto 1 %. **Probabilidades visibles**. Se oculta a quien `PolicyService` restrinja (`ArePaidRandomItemsRestricted`). Todo lo que contiene se consigue gratis en la cinta. |
+| Canasta Sorpresa | 149 R$ | Épico o superior garantizado: Épico 70 % · Legendario 24 % · Mítico 5 % · Secreto 1 %; mutación Dorado 4 % · Diamante 1 % · Arcoíris 0.2 %. **Probabilidades visibles**. Se oculta a quien `PolicyService` restrinja (`ArePaidRandomItemsRestricted`). Todo lo que contiene se consigue gratis en la cinta. |
 | Saltar nivel del pase | 29 R$ | +1 nivel del Pase Crunch |
 | Pase Crunch Premium | 299 R$ | Camino premium de la temporada actual |
 | **Pack Inicial** (una sola compra) | 99 R$ | 1 h de tu ingreso (mínimo $50K), una **Manzana Cohete (Legendario)**, boost x2 de 1 h y el título "Crunchero". Valor percibido de ~400 R$. |
@@ -377,7 +377,7 @@ Auras, estelas, títulos sobre la cabeza, skins de pedestal, efecto de llegada d
 
 | Regla | Cómo se garantiza |
 |---|---|
-| Probabilidades visibles | Toda canasta, con dinero o con Robux, muestra la tabla **antes** del botón de compra. La tabla se genera de la misma `Config` que usa el servidor, así que no pueden diferir. |
+| Probabilidades visibles | Toda canasta, con dinero o con Robux, muestra la tabla **antes** del botón de compra: rareza **y mutación**. La tabla se genera de la misma `Config` que usa el servidor, así que no pueden diferir, y los eventos no cambian las probabilidades de las canastas. |
 | Productos aleatorios de pago según país | `PolicyService:GetPolicyInfoForPlayerAsync` → se oculta la Canasta Sorpresa si `ArePaidRandomItemsRestricted` |
 | Precios claros | Siempre en R$ con el ícono oficial. Los paquetes de dinero muestran la cifra exacta. |
 | Sin escasez falsa | Un "limitado" tiene fecha de fin real guardada en `Config/Eventos.luau` y se cumple |
@@ -409,13 +409,19 @@ Conversión (% de pagadores), ARPDAU, ARPPU, uso del primer paquete comprado, ti
 
 | Elemento | Descripción | Fase |
 |---|---|---|
-| **Patrulla** | 3 agentes recorren la avenida. Si ven a alguien cargando un Crunchi robado, lo persiguen, y si lo tocan el Crunchi vuelve a su dueño. Disparan etiquetas pegajosas que frenan 2 s. | 2 |
-| **Almacén FrutaMax** | PvE: entras al edificio de FrutaMax, esquivas láseres de escáner y sacas un Crunchi de su bodega (probabilidades visibles). Cooldown de 10 min. **Robar sin víctimas.** | 4 |
-| **Redada FrutaMax** | Evento del servidor cada 20–25 min: 6 agentes etiquetan Crunchis (pausan su ingreso) y todos los golpean con el periódico para soltar monedas. | 4 |
-| **Lluvia de Manzanas** | Manzanas gigantes caen del cielo y aumentan la probabilidad de mutación por 3 min | 4 |
+| **Patrulla** | 3 agentes recorren la avenida. Si ven a alguien cargando un Crunchi robado, lo persiguen, y si lo tocan el Crunchi vuelve a su dueño. | 2 |
+| **Almacén FrutaMax** | PvE (Rebirth 1): entras al edificio de FrutaMax, esquivas láseres de escáner que se deslizan y sacas un Crunchi Raro o mejor de su caja fuerte (probabilidades en un cartel en la entrada). Una caja cada 10 min; tocar un láser solo cuesta 15 s de espera. **Robar sin víctimas.** | 4 |
+| **Redada FrutaMax** | Evento de la rotación (2 min): 5 agentes con sirena entran a las bases y etiquetan Crunchis (no producen durante 25 s). Todos los golpean con el periódico para ganar monedas (máx. 6 recompensas por jugador y redada). No entran a bases con escudo o cerrojo. | 4 |
+| **Lluvia de Manzanas** | Manzanas gigantes caen del cielo (decorativas) y triplican la probabilidad de mutación en las cintas por 3 min | 4 |
+| **Hora Dorada** | Ingreso x1.5 para todos y Dorados x5 en las cintas por 3 min | 4 |
+| **Noche Nuclear** | La mutación Radiactiva (x4) solo sale en este evento; más Épicos y Legendarios | 4 |
 | **Evento en vivo del creador** | Tú entras al juego a una hora **anunciada** y activas lluvias, suerte y Crunchis especiales para todos | Post-lanzamiento |
 
-Todos los eventos se definen en `Config/Eventos.luau` (id, duración, frecuencia, efectos, fechas reales de inicio y fin). Un evento temporal nuevo es un bloque de configuración más.
+Todos los eventos se definen en `Config/Eventos.luau` (id, duración, frecuencia, efectos, fechas reales de inicio y fin). Un evento temporal nuevo es un bloque de configuración más. Rotan solos: el primero a los 5 min de abrir el servidor y luego uno cada 8 min.
+
+Los eventos solo cambian las probabilidades de las **cintas** (que se ven en vivo). Las canastas, semillas y el Almacén tienen probabilidades de mutación fijas y visibles antes de abrir.
+
+**Salón de la Fama:** tablas globales de Top Rebirths, Top Robos y Top Coleccionistas (entradas del Índice) junto al Almacén.
 
 ---
 

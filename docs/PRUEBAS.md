@@ -211,7 +211,7 @@ Pestaña **Test → Device**: elige un teléfono pequeño y uno con notch, en ho
 - [ ] Pestaña 💰 Dinero: 4 paquetes con la cantidad EXACTA en $ que darían ahora, el precio en R$ y las etiquetas "Más popular" y "Mejor valor". Arriba: "Tu PRIMERA compra de dinero vale x2".
 - [ ] `producto DINERO_PUNADO` dos veces: la primera da el doble (aviso de bonus) y la segunda no.
 - [ ] Pestaña ⭐ Pases: 8 pases con descripción; los que tienes dicen "✔ Lo tienes".
-- [ ] Pestaña 🎁 Sorpresa: muestra las probabilidades (Épico 70 %, Legendario 24 %, Mítico 5 %, Secreto 1 %). En Studio suele salir "no disponible en tu región" (PolicyService en Studio restringe; es lo esperado y seguro).
+- [ ] Pestaña 🎁 Sorpresa: muestra las probabilidades por rareza (Épico 70 %, Legendario 24 %, Mítico 5 %, Secreto 1 %) y por mutación (Dorado 4 %, Diamante 1 %, Arcoíris 0.2 %). En Studio puede salir "no disponible en tu región": el juego oculta la canasta cuando Roblox (PolicyService) no confirma que está permitida, y en Studio a veces no lo confirma. Es lo esperado y seguro.
 - [ ] Pestaña ✨ Cosméticos: comprar el "Aura Brillante" con dinero del juego ($25K) la equipa y se ve alrededor de tu personaje. "Quitar" / "Usar" funcionan.
 - [ ] Botón de compra con ID 0: aviso "aún no está configurado" (no se rompe nada).
 
@@ -245,3 +245,50 @@ Pestaña **Test → Device**: elige un teléfono pequeño y uno con notch, en ho
 ### P3.6 Compras reales (cuando configures los IDs)
 - [ ] Compra un producto en un servidor publicado: se entrega una sola vez, aunque salgas enseguida.
 - [ ] Si el servidor se cierra justo al comprar, al volver a entrar se entrega (una vez).
+
+---
+
+## Fase 4: eventos, Almacén y optimización
+
+**Qué hay:** eventos automáticos (🌧️ Lluvia de Manzanas, 🚨 Redada FrutaMax, ✨ Hora Dorada, ☢️ Noche Nuclear), el Almacén FrutaMax 🏭 con láseres, el Salón de la Fama (tablas globales), el menú ⚙️ Ajustes con Modo ahorro, música, Crunchis Arcoíris que cambian de color y reciclaje de modelos en las cintas.
+
+**Botones:** izquierda 🎁 · 📦 · 🔁 · ⚙️ · 🛠️.
+
+> Para no esperar: en el panel 🛠️ están los botones **🌧️ Lluvia, 🚨 Redada, ✨ Hora Dorada, ☢️ Noche Nuclear, Terminar evento** y **🏭 Almacén listo**. Sin tocar nada, el primer evento empieza a los 5 minutos y luego uno cada 8 minutos.
+
+### P4.1 Eventos
+- [ ] Al empezar un evento: anuncio grande, cartel arriba a la izquierda (debajo del estado de la base) con el nombre y "termina en 2:59", y un tono de color suave en la pantalla. Al terminar, el cartel desaparece.
+- [ ] 🌧️ Lluvia: caen manzanas rojas (y alguna dorada) alrededor de ti. No chocan con nada. Salen más Crunchis Dorados, Diamante y Arcoíris en las cintas.
+- [ ] ✨ Hora Dorada: tu `+$/s` sube x1.5 al empezar y vuelve a la normalidad al terminar.
+- [ ] ☢️ Noche Nuclear: aparecen Crunchis **Radiactivos** (verdes brillantes) en las cintas. Fuera del evento no salen nunca.
+- [ ] Con la ventana del servidor: en Output no aparecen errores rojos durante los eventos.
+
+### P4.2 Redada FrutaMax (mejor con 2 jugadores)
+- [ ] Botón 🚨 Redada: aparecen 5 agentes con una **sirena roja** en la cabeza. Van a una base, entran por la puerta y se acercan a un Crunchi.
+- [ ] Al llegar, el Crunchi muestra "🏷️ ¡ETIQUETADO!", su contador deja de subir unos 25 s y al dueño le llega un aviso.
+- [ ] Golpea a un agente con el 🗞️ periódico: desaparece con confeti y ganas monedas ("🗞️ ¡Agente fuera! +$X"). Vuelve a aparecer a los 6 s. Después de 6 recompensas ya no da monedas (pero se sigue yendo).
+- [ ] Con el **escudo** activo (los primeros minutos) o con el **cerrojo** puesto, los agentes no etiquetan tu base. Si pones el cerrojo con un agente adentro, lo saca.
+- [ ] Los agentes de la redada no atrapan ladrones (eso lo hacen solo los 3 agentes normales).
+- [ ] Al terminar el evento, los agentes con sirena desaparecen.
+
+### P4.3 Almacén FrutaMax 🏭
+- [ ] Al oeste de la avenida (pasando el final de las cintas) está el edificio con el letrero "ALMACÉN FRUTAMAX" y un cartel con las probabilidades por rareza y mutación.
+- [ ] Sin rebirths, la puerta dice "🔒 Rebirth 1" y no deja entrar. Con `rebirth` (o al llegar a Rebirth 1) aparece el aviso "¡Se abrió el Almacén FrutaMax!".
+- [ ] "Entrar" te lleva al inicio del pasillo y abajo aparece "🏭 ¡Esquiva los láseres y abre la caja! 90 s".
+- [ ] Los láseres rojos se deslizan de lado a lado. Si tocas uno: alarma, te saca afuera y dice que esperes 15 s.
+- [ ] Llegar a la caja fuerte (zona amarilla) → "Abrir la caja" → recibes un Crunchi Raro o mejor (en un pedestal o en el depósito). La puerta pasa a decir "⏳ 9:59".
+- [ ] Salir y volver a entrar al juego no reinicia la espera. El botón 🏭 Almacén listo (admin) la quita.
+- [ ] Con 2 jugadores: el otro ve los mismos láseres en las mismas posiciones.
+- [ ] Nadie puede quedarse adentro sin haber entrado por la puerta (si reapareces adentro, te saca).
+
+### P4.4 Salón de la Fama
+- [ ] Junto al Almacén (lado norte) hay 3 carteles: 🔁 Top Rebirths, 🦹 Top Robos, 📖 Top Coleccionistas.
+- [ ] En Studio sin "Enable Studio Access to API Services" dicen "Sin conexión con Roblox". Con el acceso activado y tras unos minutos de juego, aparece tu nombre.
+
+### P4.5 Ajustes ⚙️ y rendimiento
+- [ ] ⚙️ abre la ventana con 🎵 Música, 🔊 Sonidos y 🔋 Modo ahorro (SÍ/NO). Abajo se ven los FPS.
+- [ ] Modo ahorro SÍ: el confeti es mucho menor, las sombras desaparecen y en la Lluvia caen menos manzanas. Sale del juego y vuelve: el ajuste se mantiene.
+- [ ] Sonidos NO: no suena nada al comprar o cobrar. Música NO: se apaga la música (cuando tenga ID).
+- [ ] Crunchi Arcoíris (`crunchi crunchito_bobo arcoiris`): su cuerpo cambia de color continuamente.
+- [ ] Con el emulador de un celular pequeño: la ventana ⚙️ y el cartel del evento se ven completos.
+- [ ] Rendimiento (orientativo): con la cinta llena, en `View → Stats` o con Ctrl+Shift+F5 los FPS se mantienen estables. En el Explorer, `Workspace → CintaLocal` no crece sin parar (los modelos se reciclan).

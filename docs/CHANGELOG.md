@@ -2,6 +2,28 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versiones: `MAYOR.MENOR.PARCHE`.
 
+## [0.4.0] - 2026-09-29 (Fase 4: eventos, Almacén y optimización)
+
+### Agregado
+- **Eventos automáticos** (`Config/Eventos.luau`): cada 8 minutos empieza el siguiente de la rotación, con un cartel y la cuenta regresiva real, anuncio, música de evento y un tono de color suave.
+  - 🌧️ **Lluvia de Manzanas:** manzanas gigantes caen del cielo (solo visuales, recicladas) y hay más mutaciones en las cintas.
+  - 🚨 **Redada FrutaMax:** 5 agentes con sirena entran a las bases y etiquetan Crunchis (no producen durante 25 s). De un periodicazo se van y quien les pega gana monedas (máximo 6 recompensas por redada). Nunca entran a bases con escudo o cerrojo.
+  - ✨ **Hora Dorada:** ingreso x1.5 para todos y muchos Dorados.
+  - ☢️ **Noche Nuclear:** la mutación Radiactiva (x4) solo sale en este evento.
+  - Eventos de temporada con fechas reales de inicio y fin (solo aparecen entre esas fechas).
+- **Almacén FrutaMax 🏭** (Rebirth 1): robar sin víctimas. Cruzas un pasillo de láseres que se deslizan y abres la caja fuerte: un Crunchi Raro o mejor, con las probabilidades en un cartel en la entrada. Una caja cada 10 minutos (se guarda); si tocas un láser solo esperas 15 s para reintentar.
+- **Salón de la Fama:** tablas de clasificación globales (Top Rebirths, Top Robos y Top Coleccionistas) junto al Almacén.
+- **Menú ⚙️ Ajustes:** música, sonidos y **Modo ahorro** (menos partículas, sin sombras y menos manzanas). Se guardan con tus datos. Si el juego va lento, sugiere el Modo ahorro una vez por sesión. Muestra los FPS.
+- **Música de fondo** y música de evento (`Config/Sonidos`: `MusicaPrincipal`, `MusicaEvento`), y sonidos nuevos `Laser` y `Evento`.
+- Los **Crunchis Arcoíris** cambian de color de verdad (un solo ciclo para todos y solo los cercanos).
+- Comandos de admin: `evento <id>` / `evento fin` y `almacen` (con botones rápidos en el panel 🛠️).
+- Pruebas: configuración de eventos, Almacén y clasificación, fórmula de los láseres y mutaciones fijas (59 en total).
+
+### Cambiado
+- **Reciclaje de modelos (object pooling)** en las cintas: los Crunchis que salen de la cinta se reutilizan en vez de crearse de nuevo (menos tirones en celulares).
+- Las canastas, semillas, la Canasta Sorpresa y el Almacén muestran también la **probabilidad de cada mutación**, y esas probabilidades son fijas (los eventos solo cambian las cintas). Así lo que se ve antes de abrir es siempre lo real.
+- El suelo del mapa es más ancho para que entren el Almacén (oeste) y la Terraza VIP (este).
+
 ## [0.3.0] - 2026-09-29 (Fase 3: monetización)
 
 ### Agregado

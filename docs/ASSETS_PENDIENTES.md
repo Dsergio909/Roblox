@@ -38,10 +38,11 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 | M6 | **Periódico enrollado** (herramienta) | ≤ 150 tris, con textura de periódico 256×256 **inventada** (sin logos reales) | `Config/Robo.luau` | 4 |
 | M7 | **Canastas** (4 tipos) | Madera, Hierro, Dorada y Celestial. ≤ 300 tris cada una. | `Config/Canastas.luau` | 3 |
 | M8 | **Ciudad (Villa Crunch)** | Fachadas simples (cajas + atlas de ventanas 512×512), postes y árboles low-poly | Mapa en Studio | 4 |
-| M9 | **Edificio FrutaMax / Almacén** | Edificio gris con logo **inventado** "FrutaMax" (manzana con etiqueta de precio) | Mapa en Studio | 4 |
+| M9 | **Edificio FrutaMax / Almacén** | Edificio gris con logo **inventado** "FrutaMax" (manzana con etiqueta de precio). Por dentro: pasillo recto de 14 × 56 studs, bodega de 12 studs al fondo y caja fuerte. Emisores de láser en las paredes (los rayos los dibuja el juego). | Hoy lo arma `AlmacenService` con partes; las medidas están en `Config/Almacen.luau` (si cambias el edificio, respeta esas medidas) | 4 |
 | M12 | **Terraza VIP** | Plataforma elegante (≤ 3,000 tris) con bancos y una estatua dorada | Reemplaza el placeholder en `MapaService` | 4 |
 | M11 | **Macetero y planta** | Maceta ≤ 200 tris; planta en 3 etapas (brote, tallo, flor-manzana) ≤ 300 tris cada una | Reemplaza el placeholder en `MaceteroController` | 3–4 |
-| M10 | Props de evento | Manzana gigante que cae, cohete con humo, globo | `Config/Eventos.luau` | 4 |
+| M10 | Props de evento | Manzana gigante que cae (≤ 200 tris; hoy es una esfera roja), cohete con humo, globo | `EventoController` (Lluvia de Manzanas) | 4 |
+| M13 | **Salón de la Fama** | 3 carteles de clasificación con marco decorativo (≤ 500 tris cada uno) | Hoy los arma `ClasificacionService`; posición en `Config/Clasificacion.luau` | 4 |
 
 ### Cómo reemplazar un placeholder por un modelo real (Crunchis)
 1. Arma el modelo en Studio: un **Model** con una parte llamada **`Cuerpo`** (el cuerpo de la manzana) y el resto de las piezas (hojas, accesorio, cara…).
@@ -88,8 +89,10 @@ Reglas de Roblox: solo puedes usar audio **subido por ti** (tuyo o con licencia)
 | S8 | Rebirth | Fanfarria larga (≤ 5 s) | 2 |
 | S9 | Misión completa / nivel del pase | Campanita alegre | 2 |
 | S10 | UI | Clic suave y error ("no alcanza") | 3 |
-| S11 | Música principal | Loop de 90–120 s, funky y alegre, sin letra | 3 |
-| S12 | Música de evento | Loop tenso pero gracioso, para la Redada FrutaMax | 4 |
+| S11 | Música principal (`MusicaPrincipal`) | Loop de 90–120 s, funky y alegre, sin letra. Volumen bajo: suena todo el tiempo. | 4 |
+| S12 | Música de evento (`MusicaEvento`) | Loop tenso pero gracioso, para los eventos (si no tiene ID, sigue la principal) | 4 |
+| S13 | Alarma del Almacén (`Laser`) | "¡Biip-biip!" corto de alarma cartoon al tocar un láser | 4 |
+| S14 | Empieza un evento (`Evento`) | Fanfarria corta o sirena cartoon (≤ 3 s) | 4 |
 
 Los IDs van en `src/shared/Config/Sonidos.luau` (ya existe; `0` = sin sonido). Ahí cada sonido tiene su nombre (Compra, Cobro, Alarma…) y su volumen.
 

@@ -37,11 +37,15 @@ src/
 │   │   ├── OfflineService               ← ganancias mientras no estás
 │   │   ├── RebirthService               ← rebirth y Mejor Amigo
 │   │   ├── SocialService                ← bonus por amigos
-│   │   ├── AgenteService                ← NPCs Agentes Escáner
+│   │   ├── AgenteService                ← NPCs Agentes Escáner (patrulla y Redada)
 │   │   ├── PaseService                  ← Pase Crunch (temporada, XP, premios)
 │   │   ├── CompraService                ← Game Passes, Developer Products, ProcessReceipt, PolicyService
 │   │   ├── CosmeticoService             ← auras y estelas
 │   │   ├── OfertaService                ← prueba x2 gratis y oferta del Pack Inicial
+│   │   ├── EventoService                ← rotación de eventos (modificadores de cintas e ingreso)
+│   │   ├── AlmacenService               ← Almacén FrutaMax: edificio, sesiones y láseres (validación)
+│   │   ├── ClasificacionService         ← tablas globales con OrderedDataStore y sus carteles
+│   │   ├── AjustesService               ← guarda música, sonidos y Modo ahorro
 │   │   └── AdminService                 ← comandos de prueba (solo admins)
 │   ├── Util/RedServidor                 ← escuchar remotos con límite de frecuencia y pcall
 │   ├── Util/Acciones                    ← un remoto "AccionMenu" para todas las acciones de menús
@@ -54,9 +58,9 @@ src/
 │       ├── EstadoCliente                ← estado privado que manda el servidor
 │       ├── HudController                ← dinero, ingreso, estado de la base, barra de robo, botones
 │       ├── NotificacionController       ← avisos, anuncios, alarma de robo
-│       ├── CintaController              ← dibuja y mueve los Crunchis de la cinta; botón Comprar
+│       ├── CintaController              ← dibuja, mueve y RECICLA los Crunchis de la cinta; botón Comprar
 │       ├── BaseController               ← contadores de cobro, puertas, qué acciones ves en cada Crunchi
-│       ├── EfectosController            ← confeti y efectos (con límite)
+│       ├── EfectosController            ← confeti y efectos (con límite) y color de los Arcoíris
 │       ├── RoboController               ← rayo hacia el ladrón y empujón
 │       ├── TutorialController           ← rayo guía y globo de los primeros minutos
 │       ├── SonidoController             ← sonidos (IDs en Config/Sonidos)
@@ -71,6 +75,9 @@ src/
 │       ├── PaseController               ← menú ⭐
 │       ├── CosmeticosController         ← dibuja auras/estelas cercanas, [VIP] en chat, puerta VIP
 │       ├── OfertaController             ← tarjeta lateral de oferta
+│       ├── AjustesController            ← menú ⚙️ (música, sonidos, Modo ahorro, FPS)
+│       ├── EventoController             ← cartel del evento, música, tono y Lluvia de Manzanas
+│       ├── AlmacenController            ← dibuja y mueve los láseres, cuenta regresiva y puerta
 │       └── AdminController              ← panel 🛠️
 └── shared/                              (servidor y cliente)
     ├── Config/                          ← TODO el balance y los datos editables
@@ -88,6 +95,9 @@ tests/                                   ← pruebas unitarias (no se sincroniza
 - **Señales** (`Util/Senal`): p. ej. `DatosService.JugadorListo`, `CintaService.Comprado`, `RoboService.RoboCompletado`. Un servicio avisa y otros reaccionan, sin depender unos de otros.
 - **Registro de bonus:** `EconomiaService.RegistrarBonus(...)`. Rebirths, Premium, grupo, pases y boosts aportan su parte sin que Economía los conozca.
 - **Estado privado:** `DatosService.RegistrarEstado("tutorial", fn)`. Cada servicio arma la parte del estado que el cliente necesita.
+- **Modificadores de las cintas:** `CintaService.RegistrarModificadorRareza/Mutacion(...)`. Los eventos y la Suerte del Servidor cambian las probabilidades de las cintas sin tocar CintaService. Las canastas, semillas y el Almacén usan probabilidades de mutación **fijas** (`Catalogo.PesosMutacionFijos`), las mismas que muestra la UI.
+- **Atributos de Workspace** para lo que ve todo el servidor: `EventoId`/`EventoHasta` (evento actual) y `SuerteHasta`. El cliente los escucha, sin remotos extra.
+- **Fórmulas compartidas con el reloj del servidor** (`Reloj.Ahora()`): las cintas y los láseres del Almacén se mueven en cada cliente con la misma fórmula que usa el servidor para validar. Cero tráfico de red por movimiento.
 
 ## Principios (no negociables)
 
