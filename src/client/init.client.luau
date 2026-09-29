@@ -38,6 +38,10 @@ local ORDEN = {
 	"BienvenidaController",
 	"DepositoController",
 	"MaceteroController",
+	"TiendaController",
+	"PaseController",
+	"CosmeticosController",
+	"OfertaController",
 	"AdminController",
 }
 

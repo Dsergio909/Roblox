@@ -20,7 +20,10 @@ local UI = require(Interfaz:WaitForChild("UI"))
 local Tema = require(Interfaz:WaitForChild("Tema"))
 local SonidoController = require(script.Parent:WaitForChild("SonidoController"))
 
-local NotificacionController = {}
+local NotificacionController = {
+	-- Lo asigna la tienda: qué hacer al tocar "Conseguir $" en un aviso de "te falta dinero".
+	AlPedirDinero = nil :: (() -> ())?,
+}
 
 local MAX_AVISOS = 3
 local DURACION_AVISO = 2.8
@@ -56,6 +59,25 @@ function NotificacionController.Avisar(texto: string, tipo: string?)
 		padre = aviso,
 	}).AutomaticSize =
 		Enum.AutomaticSize.Y
+	-- Momento correcto, sin interrumpir: un botón pequeño DENTRO del aviso.
+	local pedirDinero = NotificacionController.AlPedirDinero
+	if tipo == "sinDinero" and pedirDinero then
+		UI.Crear("UIListLayout", {
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			Padding = UDim.new(0, 4),
+			Parent = aviso,
+		})
+		UI.Boton({
+			texto = "💰 Conseguir $",
+			color = Tema.COLORES.dinero,
+			tamano = UDim2.fromOffset(150, 34),
+			tamanoLetra = 15,
+			alPulsar = pedirDinero,
+			padre = aviso,
+		}).LayoutOrder =
+			2
+	end
 
 	-- Máximo MAX_AVISOS a la vez: se quitan los más viejos.
 	local avisos = {}

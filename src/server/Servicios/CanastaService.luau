@@ -123,19 +123,16 @@ local function abrirUna(jugador: Player, datos: Tipos.Datos, canastaId: string, 
 	return { crunchi = crunchiId, mut = mutacion, nuevo = esNuevo, lugar = crunchi.lugar }, nil
 end
 
-local function alAbrir(jugador: Player, pedido: any)
-	if type(pedido) ~= "table" or type(pedido.id) ~= "string" then
-		return
-	end
+-- Abre `cantidad` canastas (con dinero o ticket). Devuelve cuántas se abrieron.
+function CanastaService.Abrir(jugador: Player, canastaId: string, usarTicket: boolean, cantidad: number): number
 	local datos = DatosService.Obtener(jugador)
 	if datos == nil then
-		return
+		return 0
 	end
-	local cantidad = if type(pedido.cantidad) == "number" then math.floor(pedido.cantidad) else 1
-	cantidad = math.clamp(cantidad, 1, CanastaService.MaximoPorVez(jugador))
+	local veces = math.clamp(math.floor(cantidad), 1, CanastaService.MaximoPorVez(jugador))
 	local resultados = {}
-	for _ = 1, cantidad do
-		local resultado, motivo = abrirUna(jugador, datos, pedido.id, pedido.ticket == true)
+	for _ = 1, veces do
+		local resultado, motivo = abrirUna(jugador, datos, canastaId, usarTicket)
 		if resultado == nil then
 			if motivo then
 				RedServidor.Notificar(jugador, motivo, "error")
@@ -145,9 +142,18 @@ local function alAbrir(jugador: Player, pedido: any)
 		table.insert(resultados, resultado)
 	end
 	if #resultados > 0 then
-		RedServidor.Enviar("Efecto", jugador, "Canasta", { canasta = pedido.id, resultados = resultados })
-		DatosService.ActualizarEstado(jugador, { "canastas" })
+		RedServidor.Enviar("Efecto", jugador, "Canasta", { canasta = canastaId, resultados = resultados })
 	end
+	DatosService.ActualizarEstado(jugador, { "canastas" })
+	return #resultados
+end
+
+local function alAbrir(jugador: Player, pedido: any)
+	if type(pedido) ~= "table" or type(pedido.id) ~= "string" then
+		return
+	end
+	local cantidad = if type(pedido.cantidad) == "number" then pedido.cantidad else 1
+	CanastaService.Abrir(jugador, pedido.id, pedido.ticket == true, cantidad)
 end
 
 function CanastaService.Iniciar()

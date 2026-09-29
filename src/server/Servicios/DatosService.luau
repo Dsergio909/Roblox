@@ -103,6 +103,28 @@ local PLANTILLA: Datos = {
 		ingresoAlSalir = 0,
 		pendiente = 0,
 	},
+
+	-- Fase 3
+	compras = {
+		primeraCompraDinero = false,
+		packInicial = false,
+		vecesOfertaPack = 0,
+		pruebaX2 = false,
+		robuxGastados = 0,
+	},
+	boosts = { x2Hasta = 0 },
+	pase = {
+		temporada = "",
+		xp = 0,
+		premium = false,
+		gratis = {},
+		premiumes = {},
+		minutosJuego = 0,
+		diaXp = 0,
+		xpJuegoDia = 0,
+	},
+	cosmeticos = {},
+	equipados = { aura = "", estela = "" },
 }
 
 -- Migraciones: MIGRACIONES[n] convierte datos de la versión n a la n + 1.
@@ -300,8 +322,8 @@ function DatosService.GuardarYa(jugador: Player)
 	end
 end
 
--- Reinicia los datos del jugador (comando de admin). Conserva los recibos de compras
--- para no volver a entregar compras ya entregadas.
+-- Reinicia los datos del jugador (comando de admin). Conserva TODO lo pagado con Robux
+-- (recibos, compras, pase, cosméticos) para no perder ni volver a entregar compras.
 function DatosService.Reiniciar(jugador: Player)
 	local perfil = perfiles[jugador]
 	if perfil == nil or not perfil:IsActive() then
@@ -309,6 +331,9 @@ function DatosService.Reiniciar(jugador: Player)
 	end
 	DatosService.JugadorSaliendo:Disparar(jugador, perfil.Data)
 	local recibos = perfil.Data.recibos
+	local compras = perfil.Data.compras
+	local pase = perfil.Data.pase
+	local cosmeticos = perfil.Data.cosmeticos
 	local nuevos = copiaProfunda(PLANTILLA)
 	for clave in perfil.Data :: any do
 		(perfil.Data :: any)[clave] = nil
@@ -317,6 +342,9 @@ function DatosService.Reiniciar(jugador: Player)
 		(perfil.Data :: any)[clave] = valor
 	end
 	perfil.Data.recibos = recibos
+	perfil.Data.compras = compras
+	perfil.Data.pase = pase
+	perfil.Data.cosmeticos = cosmeticos
 	perfil.Data.ultimaConexion = os.time()
 	darRegalosIniciales(jugador, perfil.Data)
 	DatosService.JugadorListo:Disparar(jugador, perfil.Data)

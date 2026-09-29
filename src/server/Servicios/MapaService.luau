@@ -53,10 +53,13 @@ export type CintaMapa = {
 	altura: number, -- altura de la superficie de la cinta
 }
 
+export type TerrazaMapa = { cframe: CFrame, salida: CFrame, puerta: BasePart }
+
 local MapaService = {
 	Bases = {} :: { BaseMapa },
 	Cintas = {} :: { [string]: CintaMapa },
 	Carpeta = nil :: Folder?,
+	Terraza = nil :: TerrazaMapa?,
 }
 
 local MEDIDAS = ConfigMapa.BASE
@@ -390,6 +393,117 @@ local function construirCinta(carpeta: Folder, id: string)
 	}
 end
 
+----------------------------------------------------------------------------- terraza VIP
+
+local function construirTerraza(carpeta: Folder)
+	local config = ConfigMapa.TERRAZA_VIP
+	-- La puerta mira hacia el centro de la avenida (-X).
+	local cf = CFrame.lookAt(config.CENTRO, config.CENTRO - Vector3.new(1, 0, 0))
+	local modelo = Instance.new("Model")
+	modelo.Name = "TerrazaVIP"
+	local mitad = config.TAMANO / 2
+	local dorado = Color3.fromRGB(255, 200, 60)
+	local morado = Color3.fromRGB(70, 40, 110)
+
+	crearParte({
+		nombre = "Piso",
+		tamano = Vector3.new(config.TAMANO, 1.2, config.TAMANO),
+		cframe = cf * CFrame.new(0, -0.6, 0),
+		color = morado,
+		padre = modelo,
+	})
+	local function pared(nombre: string, tamano: Vector3, posicion: Vector3)
+		crearParte({
+			nombre = nombre,
+			tamano = tamano,
+			cframe = cf * CFrame.new(posicion),
+			color = dorado,
+			transparencia = 0.2,
+			padre = modelo,
+		})
+	end
+	local alto = config.ALTO_PARED
+	local tramo = (config.TAMANO - config.ANCHO_PUERTA) / 2
+	pared("Fondo", Vector3.new(config.TAMANO, alto, 1), Vector3.new(0, alto / 2, mitad - 0.5))
+	pared("Izquierda", Vector3.new(1, alto, config.TAMANO), Vector3.new(-mitad + 0.5, alto / 2, 0))
+	pared("Derecha", Vector3.new(1, alto, config.TAMANO), Vector3.new(mitad - 0.5, alto / 2, 0))
+	pared("FrenteIzq", Vector3.new(tramo, alto, 1), Vector3.new(-mitad + tramo / 2, alto / 2, -mitad + 0.5))
+	pared("FrenteDer", Vector3.new(tramo, alto, 1), Vector3.new(mitad - tramo / 2, alto / 2, -mitad + 0.5))
+	local puerta = crearParte({
+		nombre = "PuertaVIP",
+		tamano = Vector3.new(config.ANCHO_PUERTA, alto, 0.6),
+		cframe = cf * CFrame.new(0, alto / 2, -mitad + 0.5),
+		color = dorado,
+		material = Enum.Material.ForceField,
+		transparencia = 0.5,
+		colisiona = false, -- el cliente la vuelve sólida para quien no es VIP
+		padre = modelo,
+	})
+	-- Bancos y una "estatua" (placeholder) para sentarse a presumir.
+	for _, x in { -8, 8 } do
+		crearParte({
+			nombre = "Banco",
+			tamano = Vector3.new(6, 1, 2),
+			cframe = cf * CFrame.new(x, 0.5, 6),
+			color = Color3.fromRGB(120, 80, 50),
+			padre = modelo,
+		})
+	end
+	crearParte({
+		nombre = "Estatua",
+		tamano = Vector3.new(5, 5, 5),
+		cframe = cf * CFrame.new(0, 3, 4),
+		color = dorado,
+		material = Enum.Material.Metal,
+		forma = Enum.PartType.Ball,
+		padre = modelo,
+	})
+	local cartel = crearParte({
+		nombre = "Cartel",
+		tamano = Vector3.new(12, 2.5, 0.4),
+		cframe = cf * CFrame.new(0, alto + 1.4, -mitad + 0.5),
+		color = morado,
+		padre = modelo,
+	})
+	local superficie = Instance.new("SurfaceGui")
+	superficie.Face = Enum.NormalId.Front
+	superficie.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	superficie.PixelsPerStud = 30
+	superficie.LightInfluence = 0
+	superficie.Parent = cartel
+	local texto = Instance.new("TextLabel")
+	texto.Size = UDim2.fromScale(1, 1)
+	texto.BackgroundTransparency = 1
+	texto.Font = Enum.Font.FredokaOne
+	texto.TextScaled = true
+	texto.TextColor3 = dorado
+	texto.Text = "👑 Terraza VIP"
+	texto.Parent = superficie
+
+	modelo.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	modelo.Parent = carpeta
+	local terraza: TerrazaMapa = {
+		cframe = cf,
+		salida = cf * CFrame.new(0, 3, -mitad - 5),
+		puerta = puerta :: BasePart,
+	}
+	MapaService.Terraza = terraza
+end
+
+-- ¿Está la posición dentro de la Terraza VIP?
+function MapaService.DentroDeTerraza(posicion: Vector3): boolean
+	local terraza = MapaService.Terraza
+	if terraza == nil then
+		return false
+	end
+	local config = ConfigMapa.TERRAZA_VIP
+	local relativo = terraza.cframe:PointToObjectSpace(posicion)
+	return math.abs(relativo.X) < config.TAMANO / 2
+		and math.abs(relativo.Z) < config.TAMANO / 2
+		and relativo.Y > -3
+		and relativo.Y < config.ALTO_PARED + 6
+end
+
 ----------------------------------------------------------------------------- consultas
 
 -- ¿Está la posición dentro de la base (entre sus paredes)?
@@ -470,6 +584,8 @@ function MapaService.Iniciar()
 	for indice, centro in ConfigMapa.BASES do
 		table.insert(MapaService.Bases, construirBase(carpetaBases, indice, centro))
 	end
+
+	construirTerraza(carpeta)
 
 	carpeta.Parent = workspace
 	MapaService.Carpeta = carpeta

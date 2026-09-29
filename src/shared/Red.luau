@@ -35,6 +35,7 @@ local EVENTOS = {
 	"Cobro", -- (lugar: number, cantidad: number)
 	"EstadoPrivado", -- (cambios: {[string]: any})
 	"Efecto", -- (nombre: string, datos: any?)
+	"Oferta", -- (ofertaId: string) — tarjeta lateral de oferta (máximo 1 automática por sesión)
 }
 
 local FUNCIONES = {

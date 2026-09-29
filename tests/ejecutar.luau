@@ -23,6 +23,9 @@ local ConfigSemillas = require("../src/shared/Config/Semillas")
 local ConfigMisiones = require("../src/shared/Config/Misiones")
 local ConfigLogin = require("../src/shared/Config/Login")
 local ConfigIndice = require("../src/shared/Config/Indice")
+local ConfigProductos = require("../src/shared/Config/Productos")
+local ConfigCosmeticos = require("../src/shared/Config/Cosmeticos")
+local ConfigPase = require("../src/shared/Config/Pase")
 
 ----------------------------------------------------------------------------- mini framework
 local pasadas, fallidas = 0, 0
@@ -493,6 +496,105 @@ prueba("Hitos del Índice ordenados y con canastas válidas", function()
 			verdadero(canastaPorId[h.canasta] ~= nil, `hito {h.porcentaje}: canasta desconocida`)
 		end
 	end
+end)
+
+grupo("Config Fase 3")
+local cosmeticoPorId: { [string]: any } = {}
+for _, c in ConfigCosmeticos do
+	cosmeticoPorId[c.id] = c
+end
+prueba("Cosméticos: ids únicos y fuentes válidas", function()
+	local vistos = {}
+	for _, c in ConfigCosmeticos do
+		verdadero(vistos[c.id] == nil, `id repetido {c.id}`)
+		vistos[c.id] = true
+		verdadero(c.tipo == "aura" or c.tipo == "estela", `{c.id}: tipo inválido`)
+		if c.fuente == "dinero" then
+			verdadero((c.precioDinero or 0) > 0, `{c.id}: falta precioDinero`)
+		elseif string.sub(c.fuente, 1, 5) == "pase:" then
+			local pase = string.sub(c.fuente, 6)
+			verdadero(ConfigProductos.PASES[pase] ~= nil, `{c.id}: Game Pass desconocido {pase}`)
+		else
+			igual(c.fuente, "premio", c.id)
+		end
+	end
+	for _, h in ConfigIndice.HITOS do
+		if h.cosmetico then
+			verdadero(cosmeticoPorId[h.cosmetico] ~= nil, `hito {h.porcentaje}: cosmético desconocido`)
+		end
+	end
+end)
+prueba("Productos: tipos y referencias válidas", function()
+	local tipos = {
+		dinero = true,
+		boost = true,
+		suerte = true,
+		offline_x2 = true,
+		canasta = true,
+		pase_nivel = true,
+		pase_premium = true,
+		pack_inicial = true,
+	}
+	for clave, p in ConfigProductos.PRODUCTOS do
+		verdadero(tipos[p.tipo] == true, `{clave}: tipo desconocido {p.tipo}`)
+		if p.tipo == "canasta" then
+			verdadero(canastaPorId[p.canasta or ""] ~= nil, `{clave}: canasta desconocida`)
+		end
+		if p.tipo == "dinero" or p.tipo == "boost" or p.tipo == "suerte" then
+			verdadero((p.minutos or 0) > 0, `{clave}: faltan minutos`)
+		end
+	end
+	verdadero(catalogo.crunchi[ConfigProductos.PACK_INICIAL.CRUNCHI] ~= nil, "Pack Inicial: Crunchi desconocido")
+end)
+prueba("Paquetes de dinero: más grande = mejor valor por Robux (anclaje)", function()
+	local paquetes = {}
+	for _, p in ConfigProductos.PRODUCTOS do
+		if p.tipo == "dinero" then
+			table.insert(paquetes, p)
+		end
+	end
+	table.sort(paquetes, function(a, b)
+		return a.precio < b.precio
+	end)
+	verdadero(#paquetes >= 3, "se esperan al menos 3 paquetes de dinero")
+	local anterior = 0
+	for _, p in paquetes do
+		local valor = (p.minutos :: number) / p.precio
+		verdadero(valor > anterior, `{p.nombre}: da menos minutos por Robux que el anterior`)
+		anterior = valor
+	end
+end)
+prueba("Pase: 30 niveles con premios válidos", function()
+	igual(#ConfigPase.NIVELES, 30)
+	verdadero(ConfigPase.TEMPORADA.fin > ConfigPase.TEMPORADA.inicio, "fechas de temporada invertidas")
+	local function revisar(n: number, premio: any)
+		if premio.tipo == "canasta" then
+			verdadero(canastaPorId[premio.id] ~= nil, `nivel {n}: canasta desconocida`)
+		elseif premio.tipo == "semilla" then
+			verdadero(semillaPorId[premio.id] ~= nil, `nivel {n}: semilla desconocida`)
+		elseif premio.tipo == "cosmetico" then
+			verdadero(cosmeticoPorId[premio.id] ~= nil, `nivel {n}: cosmético desconocido`)
+		elseif premio.tipo == "dinero" then
+			verdadero((premio.minutos or 0) > 0, `nivel {n}: dinero sin minutos`)
+		else
+			igual(premio.tipo, "titulo", `nivel {n}`)
+		end
+	end
+	for n, nivel in ConfigPase.NIVELES do
+		revisar(n, nivel.gratis)
+		revisar(n, nivel.premium)
+	end
+end)
+prueba("Canasta Sorpresa (Robux): solo rarezas altas y probabilidades que suman 100 %", function()
+	local sorpresa = canastaPorId["sorpresa"]
+	verdadero(sorpresa ~= nil and sorpresa.soloTicket, "debe existir y ser solo por ticket")
+	local p = Azar.Probabilidades(sorpresa.pesos)
+	local suma = 0
+	for rareza, prob in p do
+		verdadero(ordenRareza[rareza] >= 4, `rareza {rareza} por debajo de Épico`)
+		suma += prob
+	end
+	cerca(suma, 1, 1e-9)
 end)
 
 ----------------------------------------------------------------------------- resumen

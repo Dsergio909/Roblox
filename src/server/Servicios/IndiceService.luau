@@ -94,6 +94,9 @@ local function revisarHitos(jugador: Player, datos: Tipos.Datos)
 			if hito.canasta then
 				table.insert(recompensas, { tipo = "canasta", id = hito.canasta, cantidad = 1 })
 			end
+			if hito.cosmetico then
+				table.insert(recompensas, { tipo = "cosmetico", id = hito.cosmetico })
+			end
 			local texto = RecompensaService.DarVarias(jugador, recompensas, `hito_indice_{clave}`)
 			RedServidor.Notificar(
 				jugador,

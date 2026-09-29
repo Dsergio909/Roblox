@@ -70,6 +70,16 @@ function RecompensaService.Dar(jugador: Player, recompensa: Recompensa, sku: str
 		datos.semillas[id] = (datos.semillas[id] or 0) + cantidad
 		DatosService.ActualizarEstado(jugador, { "macetero" })
 		return `🌱 {if cantidad > 1 then `{cantidad}× ` else ""}{semilla.nombre}`
+	elseif recompensa.tipo == "cosmetico" then
+		local id = recompensa.id or ""
+		datos.cosmeticos[id] = true
+		DatosService.ActualizarEstado(jugador, { "cosmeticos" })
+		return `✨ ¡Cosmético nuevo!`
+	elseif recompensa.tipo == "titulo" then
+		local titulo = recompensa.id or ""
+		datos.titulos[titulo] = true
+		DatosService.ActualizarEstado(jugador, { "indice" })
+		return `🏷️ Título «{titulo}»`
 	elseif recompensa.tipo == "xp" then
 		RecompensaService.XpGanada:Disparar(jugador, cantidad)
 		return `⭐ {cantidad} XP`

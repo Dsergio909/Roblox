@@ -39,6 +39,7 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 | M7 | **Canastas** (4 tipos) | Madera, Hierro, Dorada y Celestial. ≤ 300 tris cada una. | `Config/Canastas.luau` | 3 |
 | M8 | **Ciudad (Villa Crunch)** | Fachadas simples (cajas + atlas de ventanas 512×512), postes y árboles low-poly | Mapa en Studio | 4 |
 | M9 | **Edificio FrutaMax / Almacén** | Edificio gris con logo **inventado** "FrutaMax" (manzana con etiqueta de precio) | Mapa en Studio | 4 |
+| M12 | **Terraza VIP** | Plataforma elegante (≤ 3,000 tris) con bancos y una estatua dorada | Reemplaza el placeholder en `MapaService` | 4 |
 | M11 | **Macetero y planta** | Maceta ≤ 200 tris; planta en 3 etapas (brote, tallo, flor-manzana) ≤ 300 tris cada una | Reemplaza el placeholder en `MaceteroController` | 3–4 |
 | M10 | Props de evento | Manzana gigante que cae, cohete con humo, globo | `Config/Eventos.luau` | 4 |
 
@@ -64,8 +65,8 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 | I2 | **Íconos de UI** (hoja de sprites) | Un PNG de 1024×1024 con íconos de 128×128 | Dinero, tienda, índice, misiones, ajustes, rebirth, cerrojo, escudo, canasta, 7 gemas de rareza, x2, VIP. Una sola imagen = menos descargas en internet lento. | 3 |
 | I3 | **Ícono del juego** | 512×512 PNG | Ver conceptos en `LANZAMIENTO.md`. Legible en tamaño pequeño, un solo personaje. | Antes del lanzamiento |
 | I4 | **Miniaturas del juego** | 1920×1080 PNG/JPG, 3 a 5 imágenes | Ver `LANZAMIENTO.md`. Nada engañoso: debe mostrar lo que el juego tiene. | Antes del lanzamiento |
-| I5 | **Íconos de Game Passes** (8) | 512×512 PNG | Roblox los recorta en círculo: deja el contenido centrado con margen. | 3 |
-| I6 | **Íconos de Developer Products** (~10) | 512×512 PNG | Igual que I5 | 3 |
+| I5 | **Íconos de Game Passes** (8) | 512×512 PNG | VIP, x2 Dinero, Auto-Cobro, Piso Extra, Depósito XL, Apertura Triple, Estela Arcoíris, Aura Llama. Roblox los recorta en círculo: deja el contenido centrado con margen. | 3 |
+| I6 | **Íconos de Developer Products** (11) | 512×512 PNG | 4 paquetes de dinero (puñado, canasta, carretilla, camión), Boost x2, Suerte del Servidor, Duplicar offline, Canasta Sorpresa, Saltar nivel, Pase Premium, Pack Inicial | 3 |
 | I7 | **Íconos de badges** | 512×512 PNG, recorte circular | Primer Crunchi, primer robo, primer rebirth, set completo ×5, Índice 100 % | 2 |
 | I8 | Textura de periódico, franjas de la cinta y ventanas | 256×256 / 512×512 | Inventadas, sin marcas reales | 4 |
 

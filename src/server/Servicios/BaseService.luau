@@ -77,6 +77,9 @@ local estados: { [Player]: EstadoBase } = {}
 local duenos: { [number]: Player } = {}
 local extrasPedestales: { [string]: (Player) -> number } = {}
 local extrasDeposito: { [string]: (Player) -> number } = {}
+local autoCobro: { [string]: (Player) -> boolean } = {}
+local ultimoAutoCobro: { [Player]: number } = {}
+local AUTO_COBRO_SEGUNDOS = 2
 local estadoPendiente: { [Player]: boolean } = {}
 
 ----------------------------------------------------------------------------- utilidades
@@ -456,9 +459,18 @@ end
 	sus datos, lo pone en un pedestal libre o en el depósito y lo registra en el Índice.
 	Devuelve (crunchi, esNuevoEnIndice) o (nil, false) si no hay espacio.
 ]]
-function BaseService.Otorgar(jugador: Player, crunchiId: string, mutacionId: string): (CrunchiGuardado?, boolean)
+function BaseService.Otorgar(
+	jugador: Player,
+	crunchiId: string,
+	mutacionId: string,
+	forzarDeposito: boolean?
+): (CrunchiGuardado?, boolean)
 	local datos = DatosService.Obtener(jugador)
 	local destino = BaseService.Destino(jugador)
+	-- Lo comprado con Robux NUNCA se pierde: si no hay espacio, va al depósito aunque se pase.
+	if destino == nil and forzarDeposito then
+		destino = 0
+	end
 	if datos == nil or destino == nil or Catalogo.datos.crunchi[crunchiId] == nil then
 		return nil, false
 	end
@@ -586,16 +598,18 @@ end
 
 ----------------------------------------------------------------------------- acciones
 
-function BaseService.Cobrar(jugador: Player, lugar: number)
+-- Cobra un pedestal. Con `silencioso` no avisa al cliente (lo usa el Auto-Cobro, que
+-- manda un solo aviso con el total). Devuelve lo cobrado.
+function BaseService.Cobrar(jugador: Player, lugar: number, silencioso: boolean?): number
 	local estado = estados[jugador]
 	local pedestal = estado and estado.pedestales[lugar]
 	if estado == nil or pedestal == nil then
-		return
+		return 0
 	end
 	asentar(pedestal, ahora())
 	local cantidad = math.floor(pedestal.acumulado)
 	if cantidad < 1 then
-		return
+		return 0
 	end
 	pedestal.acumulado -= cantidad
 	publicarPedestal(estado, lugar)
@@ -604,8 +618,37 @@ function BaseService.Cobrar(jugador: Player, lugar: number)
 	if datos then
 		datos.stats.cobros += 1
 	end
-	RedServidor.Enviar("Cobro", jugador, lugar, cantidad)
+	if not silencioso then
+		RedServidor.Enviar("Cobro", jugador, lugar, cantidad)
+	end
 	BaseService.Cobrado:Disparar(jugador, cantidad)
+	return cantidad
+end
+
+-- Game Pass "Auto-Cobro" (Fase 3): cobra todo solo, cada pocos segundos.
+function BaseService.RegistrarAutoCobro(nombre: string, fn: (Player) -> boolean)
+	autoCobro[nombre] = fn
+end
+
+local function tieneAutoCobro(jugador: Player): boolean
+	for _, fn in autoCobro do
+		local ok, valor = pcall(fn, jugador)
+		if ok and valor == true then
+			return true
+		end
+	end
+	return false
+end
+
+-- Vuelve a pintar los pedestales (cuando cambia la capacidad, p. ej. al comprar Piso Extra).
+function BaseService.ActualizarCapacidad(jugador: Player)
+	local estado = estados[jugador]
+	local datos = DatosService.Obtener(jugador)
+	if estado == nil or datos == nil then
+		return
+	end
+	pintarPedestales(estado.mapa, BaseService.PedestalesDisponibles(jugador), BaseService.Bovedas(datos.rebirths))
+	BaseService.CrunchisCambiaron:Disparar(jugador)
 end
 
 function BaseService.Vender(jugador: Player, uid: string)
@@ -966,6 +1009,20 @@ local function revisar()
 	local momento = ahora()
 	local radio = ConfigBase.COBRO_RADIO
 	for jugador, estado in estados do
+		-- Auto-Cobro (Game Pass): todo junto cada pocos segundos, con un solo aviso.
+		if momento - (ultimoAutoCobro[jugador] or 0) >= AUTO_COBRO_SEGUNDOS then
+			ultimoAutoCobro[jugador] = momento
+			if tieneAutoCobro(jugador) then
+				local total = 0
+				for lugar in estado.pedestales do
+					total += BaseService.Cobrar(jugador, lugar, true)
+				end
+				if total > 0 then
+					RedServidor.Enviar("Cobro", jugador, 0, total)
+				end
+			end
+		end
+
 		-- Cobro: el dueño pisa el botón de cobro de un pedestal.
 		local raiz = raizDe(jugador)
 		if raiz then

@@ -14,9 +14,11 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalogo = require(Shared:WaitForChild("Catalogo"))
+local Red = require(Shared:WaitForChild("Red"))
 local ConfigRobo = require(Shared:WaitForChild("Config"):WaitForChild("Robo"))
 local Formato = require(Shared:WaitForChild("Util"):WaitForChild("Formato"))
 local Reloj = require(Shared:WaitForChild("Util"):WaitForChild("Reloj"))
@@ -26,7 +28,10 @@ local UI = require(Interfaz:WaitForChild("UI"))
 local Tema = require(Interfaz:WaitForChild("Tema"))
 local BaseController = require(script.Parent:WaitForChild("BaseController"))
 
-local HudController = {}
+local HudController = {
+	-- Lo asigna la tienda: abrir la pestaña de pases desde el aviso discreto "x2 para siempre".
+	AlPedirX2 = nil :: (() -> ())?,
+}
 
 local jugador = Players.LocalPlayer
 
@@ -34,6 +39,8 @@ local pantalla: ScreenGui
 local textoDinero: TextLabel
 local textoIngreso: TextLabel
 local pildoraDinero: Frame
+local textoBoost: TextLabel
+local botonX2: TextButton? = nil
 local textoEstadoBase: TextLabel
 local panelCarga: Frame
 local textoCarga: TextLabel
@@ -142,6 +149,27 @@ local function actualizarEstados()
 		textoEstadoBase.TextColor3 = Tema.COLORES.textoSuave
 	end
 
+	-- Boosts
+	local partes = {}
+	local boostHasta = jugador:GetAttribute("BoostX2Hasta")
+	local ahoraUnix = Reloj.Ahora() -- reloj del servidor (el del celular puede estar mal)
+	local conBoost = type(boostHasta) == "number" and boostHasta > ahoraUnix
+	if conBoost then
+		table.insert(partes, `⚡ x2 {Formato.Tiempo((boostHasta :: number) - ahoraUnix)}`)
+	end
+	local suerteHasta = workspace:GetAttribute("SuerteHasta")
+	if type(suerteHasta) == "number" and suerteHasta > ahoraUnix then
+		table.insert(partes, `🍀 Suerte x2 {Formato.Tiempo(suerteHasta - ahoraUnix)}`)
+	end
+	textoBoost.Text = table.concat(partes, "  ")
+	-- Tras la prueba gratis: un botón pequeño "x2 para siempre" (nunca un pop-up).
+	local pases = jugador:GetAttribute("Pases")
+	local tieneX2 = type(pases) == "string" and string.find(pases, "X2_DINERO", 1, true) ~= nil
+	local probo = type(boostHasta) == "number" and boostHasta > 0
+	if botonX2 then
+		botonX2.Visible = probo and not conBoost and not tieneX2
+	end
+
 	-- Cargando un Crunchi robado
 	local cargando = jugador:GetAttribute("Cargando") == true
 	panelCarga.Visible = cargando
@@ -180,7 +208,7 @@ local function construir()
 		BackgroundTransparency = 1,
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 6),
-		Size = UDim2.fromOffset(210, 82),
+		Size = UDim2.fromOffset(210, 106),
 		Parent = pantalla,
 	})
 	UI.Escalar(superior)
@@ -204,6 +232,15 @@ local function construir()
 		posicion = UDim2.fromOffset(0, 56),
 		tamanoLetra = 18,
 		color = Tema.COLORES.verde,
+		padre = superior,
+	})
+	-- Boosts activos (⚡ x2 propio, 🍀 suerte del servidor)
+	textoBoost = UI.Texto({
+		texto = "",
+		tamano = UDim2.fromOffset(210, 20),
+		posicion = UDim2.fromOffset(0, 80),
+		tamanoLetra = 15,
+		color = Tema.COLORES.dinero,
 		padre = superior,
 	})
 
@@ -262,7 +299,7 @@ local function construir()
 			BackgroundTransparency = 1,
 			AnchorPoint = ancla,
 			Position = posicion,
-			Size = UDim2.fromOffset(60, 290),
+			Size = UDim2.fromOffset(60, 300),
 			Parent = pantalla,
 		}) :: Frame
 		UI.Crear("UIListLayout", {
@@ -272,15 +309,57 @@ local function construir()
 			Padding = UDim.new(0, 7),
 			Parent = marco,
 		})
-		UI.Escalar(marco, nil, 290)
+		UI.Escalar(marco, nil, 300)
 		return marco
 	end
 	columnaBotones = columna("Botones", Vector2.new(1, 0.5), UDim2.new(1, -6, 0.5, 0))
 	columnaIzquierda = columna("BotonesIzquierda", Vector2.new(0, 0.5), UDim2.new(0, 6, 0.5, 0))
+
+	-- "x2 para siempre": aparece solo cuando terminó un boost y no tienes el pase.
+	local x2 = UI.Boton({
+		texto = "⚡ x2 para siempre",
+		color = Tema.COLORES.fondoClaro,
+		tamano = UDim2.fromOffset(170, 34),
+		posicion = UDim2.new(0.5, 0, 0, 112),
+		ancla = Vector2.new(0.5, 0),
+		tamanoLetra = 14,
+		alPulsar = function()
+			local fn = HudController.AlPedirX2
+			if fn then
+				fn()
+			end
+		end,
+		padre = superior,
+	})
+	x2.Visible = false
+	botonX2 = x2
+end
+
+-- Auto-Cobro: un solo "+$X" junto al dinero (en lugar de uno por pedestal).
+local function mostrarCobroTotal(cantidad: number)
+	local texto = UI.Texto({
+		texto = `+{Formato.Dinero(cantidad)}`,
+		tamano = UDim2.fromOffset(120, 24),
+		posicion = UDim2.new(1, 4, 0, 12),
+		tamanoLetra = 20,
+		alineacion = Enum.TextXAlignment.Left,
+		color = Tema.COLORES.dinero,
+		padre = pildoraDinero,
+	})
+	local info = TweenInfo.new(0.9)
+	TweenService:Create(texto, info, { Position = UDim2.new(1, 4, 0, -14), TextTransparency = 1 }):Play()
+	task.delay(1, function()
+		texto:Destroy()
+	end)
 end
 
 function HudController.Iniciar()
 	construir()
+	Red.Evento("Cobro").OnClientEvent:Connect(function(lugar: any, cantidad: any)
+		if lugar == 0 and type(cantidad) == "number" then
+			mostrarCobroTotal(cantidad)
+		end
+	end)
 	jugador:GetAttributeChangedSignal("Dinero"):Connect(actualizarDinero)
 	jugador:GetAttributeChangedSignal("IngresoSeg"):Connect(actualizarIngreso)
 	actualizarDinero()

@@ -66,6 +66,17 @@ local Canastas: { Canasta } = {
 		pesos = { epico = 50, legendario = 35, mitico = 13, secreto = 2 },
 		soloTicket = false,
 	}),
+	-- Se compra con Robux (producto CANASTA_SORPRESA). Probabilidades SIEMPRE visibles en la
+	-- tienda y oculta para jugadores de países que restringen objetos aleatorios de pago.
+	C({
+		id = "sorpresa",
+		nombre = "Canasta Sorpresa",
+		color = Color3.fromRGB(255, 90, 160),
+		precio = 0,
+		requisitoRebirths = 0,
+		pesos = { epico = 70, legendario = 24, mitico = 5, secreto = 1 },
+		soloTicket = true,
+	}),
 	C({
 		id = "epica",
 		nombre = "Canasta Épica",

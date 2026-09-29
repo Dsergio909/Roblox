@@ -219,9 +219,9 @@ function RebirthController.Iniciar()
 	end
 	lista = UI.Lista({ Size = UDim2.fromScale(1, 1), Parent = v.contenido }, 4)
 
-	boton = HudController.AgregarBoton("🔁", Color3.fromRGB(120, 90, 220), 4, function()
+	boton = HudController.AgregarBoton("🔁", Color3.fromRGB(120, 90, 220), 3, function()
 		v:Alternar()
-	end)
+	end, "izquierda")
 
 	EstadoCliente.Cambio:Conectar(function(parte: string)
 		if parte == "rebirth" or parte == "crunchis" then

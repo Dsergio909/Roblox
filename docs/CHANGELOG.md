@@ -2,6 +2,26 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versiones: `MAYOR.MENOR.PARCHE`.
 
+## [0.3.0] - 2026-09-29 (Fase 3: monetización)
+
+### Agregado
+- **Tienda 🛒** con pestañas: Pack Inicial, Dinero (4 paquetes con monto exacto, "Más popular" y "Mejor valor"), Pases, Boosts, Canasta Sorpresa y Cosméticos. Los precios se leen de Roblox (los reales del Creator Dashboard).
+- **8 Game Passes** con sus efectos: VIP, x2 Dinero, Auto-Cobro, Piso Extra, Depósito XL, Apertura Triple, Estela Arcoíris y Aura Llama Verde. Ninguno ayuda a robar ni a evitar robos.
+- **Developer Products:** paquetes de dinero (bonus x2 en la primera compra), Boost x2, Suerte del Servidor (beneficia a todos y agradece al comprador), Duplicar ganancias offline, Canasta Sorpresa, Saltar nivel, Pase Premium y Pack Inicial (una vez por cuenta).
+- **Compras seguras:** `ProcessReceipt` idempotente con recibos guardados en el perfil y espera del guardado antes de confirmar (patrón oficial de ProfileStore).
+- **PolicyService:** la Canasta Sorpresa se oculta donde se restringen objetos aleatorios de pago (y ante la duda, también).
+- **Pase Crunch ⭐:** temporada con fechas reales, 30 niveles, camino gratis y premium, XP por misiones y por jugar (con tope diario).
+- **Cosméticos:** auras y estelas (con dinero del juego, por pase o como premio) que cada cliente dibuja solo para jugadores cercanos.
+- **VIP:** etiqueta [VIP] sobre la cabeza y en el chat, Aura Dorada, Terraza VIP, +1 cambio de misión y ganancias offline de hasta 6 h. ⭐ junto al nombre de los usuarios Premium.
+- **Ofertas que no interrumpen:** boost x2 gratis de 5 min a los 3 minutos (una vez), tarjeta lateral del Pack Inicial a los 7 minutos (máx. una por sesión y 3 en total) y botón "Conseguir $" dentro del aviso "Te faltan $X".
+- Indicadores de boost y suerte bajo el dinero, y "+$X" único para el Auto-Cobro.
+- Comandos de admin: `pase <CLAVE>`, `producto <CLAVE>`, `pasexp <n>`, `pasepremium`.
+- Pruebas: anclaje de precios de los paquetes, referencias del pase y cosméticos (51 en total).
+
+### Cambiado
+- El botón 🔁 Rebirth pasó a la columna izquierda para dejar lugar a 🛒 y ⭐.
+- "Reiniciar datos" (admin) conserva todo lo pagado (recibos, compras, pase y cosméticos).
+
 ## [0.2.0] - 2026-09-29 (Fase 2: progresión)
 
 ### Agregado

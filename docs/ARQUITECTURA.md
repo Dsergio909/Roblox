@@ -38,6 +38,10 @@ src/
 │   │   ├── RebirthService               ← rebirth y Mejor Amigo
 │   │   ├── SocialService                ← bonus por amigos
 │   │   ├── AgenteService                ← NPCs Agentes Escáner
+│   │   ├── PaseService                  ← Pase Crunch (temporada, XP, premios)
+│   │   ├── CompraService                ← Game Passes, Developer Products, ProcessReceipt, PolicyService
+│   │   ├── CosmeticoService             ← auras y estelas
+│   │   ├── OfertaService                ← prueba x2 gratis y oferta del Pack Inicial
 │   │   └── AdminService                 ← comandos de prueba (solo admins)
 │   ├── Util/RedServidor                 ← escuchar remotos con límite de frecuencia y pcall
 │   ├── Util/Acciones                    ← un remoto "AccionMenu" para todas las acciones de menús
@@ -63,6 +67,10 @@ src/
 │       ├── BienvenidaController         ← menú 🎁 (calendario, racha, offline)
 │       ├── DepositoController           ← menú 📦 y panel de Opciones de un Crunchi
 │       ├── MaceteroController           ← planta visible y panel 🌱
+│       ├── TiendaController             ← menú 🛒 (precios reales de Roblox)
+│       ├── PaseController               ← menú ⭐
+│       ├── CosmeticosController         ← dibuja auras/estelas cercanas, [VIP] en chat, puerta VIP
+│       ├── OfertaController             ← tarjeta lateral de oferta
 │       └── AdminController              ← panel 🛠️
 └── shared/                              (servidor y cliente)
     ├── Config/                          ← TODO el balance y los datos editables

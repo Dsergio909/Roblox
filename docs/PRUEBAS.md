@@ -193,3 +193,55 @@ Pestaña **Test → Device**: elige un teléfono pequeño y uno con notch, en ho
 
 ### P2.9 Amigos
 - [ ] (Con una cuenta amiga real en un servidor publicado) el `+$/s` sube un 10 % por amigo en el servidor.
+
+---
+
+## Fase 3: monetización
+
+**Qué hay:** tienda 🛒 (Pack Inicial, dinero, pases, boosts, Canasta Sorpresa, cosméticos), Pase Crunch ⭐ (30 niveles, gratis y premium), auras y estelas visibles para todos, Terraza VIP, etiqueta [VIP] en el chat y sobre la cabeza, boost x2 de prueba gratis, oferta lateral del Pack Inicial, Suerte del Servidor, Auto-Cobro, Piso Extra, Depósito XL, Apertura Triple y compras seguras (ProcessReceipt idempotente).
+
+**Botones:** derecha 🛒 · 🧺 · 📋 · 📖 · ⭐ — izquierda 🎁 · 📦 · 🔁 · 🛠️.
+
+> ⚠️ **Los IDs de los productos todavía están en 0** (se configuran al final, ver `CONFIGURACION_ROBLOX.md`). Mientras tanto, los botones de compra avisan "aún no está configurado". Para probar los EFECTOS sin pagar, usa el panel 🛠️:
+> - `pase VIP` (o `X2_DINERO`, `AUTO_COBRO`, `PISO_EXTRA`, `DEPOSITO_XL`, `APERTURA_TRIPLE`, `ESTELA_ARCOIRIS`, `AURA_LLAMA`): activa ese Game Pass solo por esta sesión.
+> - `producto DINERO_CANASTA` (o `BOOST_X2`, `SUERTE_SERVIDOR`, `CANASTA_SORPRESA`, `PACK_INICIAL`, `PASE_PREMIUM`, `PASE_NIVEL`, `OFFLINE_X2`): entrega ese producto sin cobrar.
+> - `pasexp 5000`: suma XP al pase. `pasepremium`: activa el premium.
+
+### P3.1 Tienda 🛒
+- [ ] Pestaña 💰 Dinero: 4 paquetes con la cantidad EXACTA en $ que darían ahora, el precio en R$ y las etiquetas "Más popular" y "Mejor valor". Arriba: "Tu PRIMERA compra de dinero vale x2".
+- [ ] `producto DINERO_PUNADO` dos veces: la primera da el doble (aviso de bonus) y la segunda no.
+- [ ] Pestaña ⭐ Pases: 8 pases con descripción; los que tienes dicen "✔ Lo tienes".
+- [ ] Pestaña 🎁 Sorpresa: muestra las probabilidades (Épico 70 %, Legendario 24 %, Mítico 5 %, Secreto 1 %). En Studio suele salir "no disponible en tu región" (PolicyService en Studio restringe; es lo esperado y seguro).
+- [ ] Pestaña ✨ Cosméticos: comprar el "Aura Brillante" con dinero del juego ($25K) la equipa y se ve alrededor de tu personaje. "Quitar" / "Usar" funcionan.
+- [ ] Botón de compra con ID 0: aviso "aún no está configurado" (no se rompe nada).
+
+### P3.2 Game Passes (con `pase …`)
+- [ ] `pase X2_DINERO`: el `+$/s` se duplica.
+- [ ] `pase PISO_EXTRA`: 4 pedestales más se desbloquean en tu base.
+- [ ] `pase AUTO_COBRO`: cada 2 s aparece "+$X" junto al dinero sin pisar los botones.
+- [ ] `pase DEPOSITO_XL`: 📦 muestra capacidad 40.
+- [ ] `pase APERTURA_TRIPLE`: en 🧺 aparece "Abrir x3".
+- [ ] `pase VIP`: aparece `[VIP]` sobre tu cabeza y en tus mensajes de chat, el Aura Dorada se equipa sola, puedes entrar a la **Terraza VIP** (al final de la avenida, lado este). Sin VIP la puerta es sólida y, si entras de otra forma, te sacan.
+- [ ] `pase ESTELA_ARCOIRIS` / `pase AURA_LLAMA`: se equipan solos y se ven.
+
+### P3.3 Productos (con `producto …`)
+- [ ] `BOOST_X2`: bajo el dinero aparece `⚡ x2 29:59` y el ingreso se duplica. Al terminar: aviso y botón pequeño "⚡ x2 para siempre" (abre la pestaña Pases).
+- [ ] `SUERTE_SERVIDOR`: anuncio a todo el servidor con tu nombre y `🍀 Suerte x2` bajo el dinero de TODOS.
+- [ ] `CANASTA_SORPRESA`: se abre sola con la animación y da un Épico o mejor.
+- [ ] `PACK_INICIAL`: dinero + Manzana Cohete + boost 1 h + título "Crunchero". La pestaña 🚀 Pack desaparece.
+- [ ] `OFFLINE_X2`: con ganancia offline pendiente, la duplica (ver 🎁).
+
+### P3.4 Pase Crunch ⭐
+- [ ] Muestra temporada, nivel, barra de XP y "termina en…". (Si la fecha actual está fuera de la temporada, dice "temporada terminada" y no suma XP: ajusta las fechas en `Config/Pase.luau`.)
+- [ ] Reclamar misiones suma XP al pase. `pasexp 5000` sube 10 niveles.
+- [ ] Los premios gratis de niveles alcanzados tienen "Reclamar". Los premium muestran 🔒 hasta `pasepremium`.
+- [ ] El botón ⭐ muestra un globito con los premios por reclamar.
+
+### P3.5 Ofertas (sin interrumpir)
+- [ ] A los 3 minutos de juego (una sola vez por cuenta): aviso "🎁 ¡Regalo! Boost x2 GRATIS por 5 minutos".
+- [ ] A los 7 minutos: aparece a la DERECHA una tarjeta pequeña del Pack Inicial que se cierra con ✕ y se va sola a los 20 s. No vuelve a aparecer en la sesión.
+- [ ] Al intentar comprar en la cinta sin dinero, el aviso rojo trae un botón pequeño "💰 Conseguir $" que abre la tienda.
+
+### P3.6 Compras reales (cuando configures los IDs)
+- [ ] Compra un producto en un servidor publicado: se entrega una sola vez, aunque salgas enseguida.
+- [ ] Si el servidor se cierra justo al comprar, al volver a entrar se entrega (una vez).

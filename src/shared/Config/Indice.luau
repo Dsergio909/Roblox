@@ -7,12 +7,24 @@
 	El Índice de mutaciones (Dorado, Diamante...) es aparte: es la meta a largo plazo.
 ]]
 
-export type Hito = { porcentaje: number, titulo: string, minutos: number, canasta: string? }
+export type Hito = { porcentaje: number, titulo: string, minutos: number, canasta: string?, cosmetico: string? }
 
 local Indice = {
 	HITOS = {
-		{ porcentaje = 25, titulo = "Coleccionista", minutos = 10, canasta = "hierro" },
-		{ porcentaje = 50, titulo = "Gran Coleccionista", minutos = 20, canasta = "dorada" },
+		{
+			porcentaje = 25,
+			titulo = "Coleccionista",
+			minutos = 10,
+			canasta = "hierro",
+			cosmetico = "aura_coleccionista",
+		},
+		{
+			porcentaje = 50,
+			titulo = "Gran Coleccionista",
+			minutos = 20,
+			canasta = "dorada",
+			cosmetico = "estela_maestro",
+		},
 		{ porcentaje = 75, titulo = "Experto Crunchi", minutos = 30, canasta = "dorada" },
 		{ porcentaje = 100, titulo = "Maestro Crunch", minutos = 60, canasta = "epica" },
 	} :: { Hito },

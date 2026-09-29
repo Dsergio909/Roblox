@@ -118,6 +118,19 @@ local function alEfecto(nombre: any, datos: any)
 				end)
 			end
 		end
+	elseif nombre == "CompraRobux" then
+		-- Recompensa visible y satisfactoria al comprar.
+		SonidoController.Reproducir("Logro")
+		local texto = if type(datos) == "table" and type(datos.nombre) == "string" then datos.nombre else ""
+		NotificacionController.Anunciar(`🎉 ¡Gracias! {texto}`, "legendario")
+		local posicion = posicionJugador()
+		if posicion then
+			for i = 1, 2 do
+				task.delay(i * 0.2, function()
+					EfectosController.Confeti(posicion + Vector3.new(0, 3, 0), Color3.fromRGB(255, 210, 60), 45)
+				end)
+			end
+		end
 	elseif nombre == "Golpe" then
 		SonidoController.Reproducir("Golpe")
 	elseif nombre == "Cerrojo" then

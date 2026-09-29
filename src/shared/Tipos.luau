@@ -68,6 +68,25 @@ export type Offline = {
 	pendiente: number, -- dinero offline por cobrar
 }
 
+export type Compras = {
+	primeraCompraDinero: boolean, -- ya usó el bonus x2 de la primera compra de dinero
+	packInicial: boolean,
+	vecesOfertaPack: number, -- cuántas veces se le ofreció el Pack Inicial (máximo 3)
+	pruebaX2: boolean, -- ya recibió el boost x2 de prueba gratis
+	robuxGastados: number,
+}
+
+export type PaseGuardado = {
+	temporada: string,
+	xp: number,
+	premium: boolean,
+	gratis: { [string]: boolean }, -- nivel ("5") → reclamado
+	premiumes: { [string]: boolean },
+	minutosJuego: number,
+	diaXp: number,
+	xpJuegoDia: number,
+}
+
 export type Datos = {
 	version: number,
 	dinero: number,
@@ -97,6 +116,13 @@ export type Datos = {
 	semillas: { [string]: number }, -- semillaId → cantidad
 	macetero: Macetero,
 	offline: Offline,
+
+	-- Fase 3
+	compras: Compras,
+	boosts: { x2Hasta: number },
+	pase: PaseGuardado,
+	cosmeticos: { [string]: boolean },
+	equipados: { aura: string, estela: string },
 }
 
 -- Estado que el servidor comparte SOLO con el dueño (no con otros jugadores).

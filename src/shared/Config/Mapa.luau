@@ -69,6 +69,15 @@ local Mapa = {
 		POSICION_APARICION = Vector3.new(0, 3, -16),
 	},
 
+	-- Terraza VIP (Game Pass VIP): zona social al final de la avenida. Solo decoración y
+	-- estatus: no da ninguna ventaja de juego.
+	TERRAZA_VIP = {
+		CENTRO = Vector3.new(180, 0.6, 0),
+		TAMANO = 26,
+		ALTO_PARED = 6,
+		ANCHO_PUERTA = 8,
+	},
+
 	-- Donde aparecen los jugadores antes de tener base asignada.
 	APARICION_CENTRAL = Vector3.new(0, 3, 22),
 }
