@@ -238,4 +238,21 @@ function CatalogoPuro.OrdenDe(catalogo: Catalogo, crunchiId: string): number
 	return if rareza then rareza.orden else 0
 end
 
+--[[
+	Pesos de mutación de canastas, semillas y Almacén. Son FIJOS (los eventos solo cambian
+	las cintas), así las probabilidades que se muestran antes de abrir siempre son las
+	reales. `bonus` multiplica todas las mutaciones que no son "normal" (semillas).
+]]
+function CatalogoPuro.PesosMutacionFijos(catalogo: Catalogo, bonus: number?): { [string]: number }
+	local pesos = table.clone(catalogo.pesosMutacion)
+	if bonus and bonus ~= 1 then
+		for clave, peso in pesos do
+			if clave ~= "normal" then
+				pesos[clave] = peso * bonus
+			end
+		end
+	end
+	return pesos
+end
+
 return CatalogoPuro

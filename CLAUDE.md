@@ -10,6 +10,7 @@ Juego de Roblox "Crunch Heist" en Luau, sincronizado con Rojo. El dueño es prin
 - `--!strict` en todos los archivos Luau que se pueda.
 - **Contenido:** nada de caras de personas reales, nada del meme o creador original, todo apto para todo público.
 - **Monetización:** respetar las líneas rojas de `GAME_DESIGN.md` §8.7 (probabilidades visibles, sin pop-ups repetidos, sin escasez falsa, protecciones de robo que no se compran).
+- **Probabilidades de mutación** de canastas, semillas y Almacén: siempre de `Catalogo.PesosMutacionFijos` (nunca de `CintaService.PesosMutacion`, que cambia con los eventos). Lo que la UI muestra debe ser lo real.
 
 ## Al terminar cada fase o cambio relevante
 Actualizar `docs/CHANGELOG.md`, `docs/PRUEBAS.md` (qué probar en Studio y cómo) y `docs/ASSETS_PENDIENTES.md`. Subir `VERSION` en `src/shared/Config/Juego.luau`.

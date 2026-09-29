@@ -313,13 +313,13 @@ local function pestanaSorpresa(l: ScrollingFrame, e: any)
 	tarjeta(l, {
 		icono = producto.icono,
 		titulo = producto.nombre,
-		detalle = `Probabilidades: {table.concat(lineas, " · ")}\nTodos estos Crunchis también se consiguen GRATIS en las cintas.`,
+		detalle = `Probabilidades: {table.concat(lineas, " · ")}\n{Catalogo.TextoMutaciones()}\nTodos estos Crunchis también se consiguen GRATIS en las cintas.`,
 		textoBoton = textoPrecio(precioDe(producto.id, Enum.InfoType.Product, producto.precio)),
 		alPulsar = function()
 			comprarProducto(producto)
 		end,
 		orden = 1,
-		alto = 100,
+		alto = 124,
 		colorBorde = canasta.color,
 	})
 end

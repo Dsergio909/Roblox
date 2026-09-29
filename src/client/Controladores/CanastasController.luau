@@ -70,7 +70,7 @@ local function tarjetaCanasta(padre: Instance, canasta: any, orden: number, e: a
 		return
 	end
 	local marco = UI.Panel({
-		Size = UDim2.new(1, -8, 0, 104),
+		Size = UDim2.new(1, -8, 0, 122),
 		BackgroundColor3 = Tema.COLORES.fondoClaro,
 		LayoutOrder = orden,
 		Parent = padre,
@@ -86,8 +86,8 @@ local function tarjetaCanasta(padre: Instance, canasta: any, orden: number, e: a
 		padre = marco,
 	})
 	local probabilidades = UI.Texto({
-		texto = textoProbabilidades(canasta.pesos),
-		tamano = UDim2.new(1, -20, 0, 32),
+		texto = `{textoProbabilidades(canasta.pesos)}\n{Catalogo.TextoMutaciones()}`,
+		tamano = UDim2.new(1, -20, 0, 48),
 		posicion = UDim2.fromOffset(10, 28),
 		tamanoLetra = 13,
 		alineacion = Enum.TextXAlignment.Left,

@@ -14,6 +14,8 @@
 
 local Config = script.Parent:WaitForChild("Config")
 local CatalogoPuro = require(script.Parent:WaitForChild("Logica"):WaitForChild("CatalogoPuro"))
+local Azar = require(script.Parent:WaitForChild("Util"):WaitForChild("Azar"))
+local Formato = require(script.Parent:WaitForChild("Util"):WaitForChild("Formato"))
 
 local datos, errores = CatalogoPuro.Construir(
 	require(Config:WaitForChild("Rarezas")),
@@ -71,6 +73,24 @@ end
 
 function Catalogo.Mutacion(mutacionId: string): Mutacion
 	return datos.mutacion[mutacionId] or datos.mutacion["normal"]
+end
+
+-- Pesos de mutación de canastas, semillas y Almacén (fijos: ver CatalogoPuro).
+function Catalogo.PesosMutacionFijos(bonus: number?): { [string]: number }
+	return CatalogoPuro.PesosMutacionFijos(datos, bonus)
+end
+
+-- "Mutación: Dorado 4 % · Diamante 1 % · Arcoíris 0.2 %" (para mostrar antes de abrir).
+function Catalogo.TextoMutaciones(bonus: number?): string
+	local probabilidades = Azar.Probabilidades(Catalogo.PesosMutacionFijos(bonus))
+	local partes = {}
+	for _, mutacion in datos.mutaciones do
+		local p = probabilidades[mutacion.id] or 0
+		if mutacion.id ~= "normal" and p > 0 then
+			table.insert(partes, `{mutacion.nombre} {Formato.Porcentaje(p)}`)
+		end
+	end
+	return "Mutación: " .. table.concat(partes, " · ")
 end
 
 -- Nombre completo con mutación: "Crunchito Bobo" o "Crunchito Bobo (Dorado)".

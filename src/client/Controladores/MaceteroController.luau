@@ -174,7 +174,7 @@ local function refrescar()
 		if cantidad > 0 then
 			alguna = true
 			local marco = UI.Panel({
-				Size = UDim2.new(1, -8, 0, 70),
+				Size = UDim2.new(1, -8, 0, 84),
 				BackgroundColor3 = Tema.COLORES.fondoClaro,
 				LayoutOrder = i,
 				Parent = lista,
@@ -189,8 +189,8 @@ local function refrescar()
 				padre = marco,
 			})
 			UI.Texto({
-				texto = textoProbabilidades(semilla.pesos),
-				tamano = UDim2.new(1, -140, 0, 36),
+				texto = `{textoProbabilidades(semilla.pesos)}\n{Catalogo.TextoMutaciones(semilla.bonusMutacion)}`,
+				tamano = UDim2.new(1, -140, 0, 50),
 				posicion = UDim2.fromOffset(10, 28),
 				tamanoLetra = 12,
 				alineacion = Enum.TextXAlignment.Left,

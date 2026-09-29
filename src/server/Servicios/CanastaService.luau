@@ -20,7 +20,6 @@ local DatosService = require(script.Parent:WaitForChild("DatosService"))
 local EconomiaService = require(script.Parent:WaitForChild("EconomiaService"))
 local AnaliticaService = require(script.Parent:WaitForChild("AnaliticaService"))
 local BaseService = require(script.Parent:WaitForChild("BaseService"))
-local CintaService = require(script.Parent:WaitForChild("CintaService"))
 local RedServidor = require(script.Parent.Parent:WaitForChild("Util"):WaitForChild("RedServidor"))
 local Acciones = require(script.Parent.Parent:WaitForChild("Util"):WaitForChild("Acciones"))
 
@@ -52,7 +51,8 @@ function CanastaService.MaximoPorVez(jugador: Player): number
 	return maximo
 end
 
--- Sortea el contenido de una canasta (rareza → Crunchi → mutación).
+-- Sortea el contenido de una canasta, semilla o caja del Almacén (rareza → Crunchi →
+-- mutación).
 function CanastaService.Sortear(pesos: Azar.Pesos, bonusMutacion: number?): (string?, string)
 	local rarezaId = Azar.Ponderado(pesos, numeroAleatorio)
 	local candidatos = if rarezaId then Catalogo.datos.porRareza[rarezaId] else nil
@@ -60,14 +60,8 @@ function CanastaService.Sortear(pesos: Azar.Pesos, bonusMutacion: number?): (str
 	if crunchi == nil then
 		return nil, "normal"
 	end
-	local pesosMutacion = CintaService.PesosMutacion()
-	if bonusMutacion and bonusMutacion ~= 1 then
-		for clave, peso in pesosMutacion do
-			if clave ~= "normal" then
-				pesosMutacion[clave] = peso * bonusMutacion
-			end
-		end
-	end
+	-- Pesos FIJOS (no cambian con los eventos): los mismos que la UI muestra antes de abrir.
+	local pesosMutacion = Catalogo.PesosMutacionFijos(bonusMutacion)
 	local mutacion = Azar.Ponderado(pesosMutacion, numeroAleatorio) or "normal"
 	return crunchi.id, mutacion
 end
