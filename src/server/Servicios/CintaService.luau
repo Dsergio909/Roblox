@@ -236,9 +236,13 @@ local function comprar(jugador: Player, itemId: any)
 		return
 	end
 
-	local lugar = BaseService.LugarLibre(jugador)
-	if lugar == nil then
-		RedServidor.Notificar(jugador, "¡Tu base está llena! Vende un Crunchi para hacer espacio.", "error")
+	-- Pedestal libre o, si la base está llena, el depósito.
+	if BaseService.Destino(jugador) == nil then
+		RedServidor.Notificar(
+			jugador,
+			"¡Tu base y tu depósito están llenos! Vende o guarda un Crunchi para hacer espacio.",
+			"error"
+		)
 		return
 	end
 
@@ -254,16 +258,16 @@ local function comprar(jugador: Player, itemId: any)
 
 	-- ¡Comprado!
 	quitar(item.id, jugador.UserId)
-	local crunchi: Tipos.CrunchiGuardado = {
-		uid = DatosService.NuevoUid(jugador),
-		id = item.crunchi,
-		mut = item.mut,
-		lugar = lugar,
-	}
-	table.insert(datos.crunchis, crunchi)
 	datos.stats.comprasCinta += 1
-	local esNuevo = DatosService.RegistrarIndice(datos, crunchi.id, crunchi.mut)
-	BaseService.Colocar(jugador, crunchi)
+	local crunchi, esNuevo = BaseService.Otorgar(jugador, item.crunchi, item.mut)
+	if crunchi == nil then
+		-- No debería pasar (revisamos el espacio antes), pero si pasa, devolvemos el dinero.
+		EconomiaService.Agregar(jugador, precio, AnaliticaService.Tipo.Tienda, "reembolso")
+		return
+	end
+	if crunchi.lugar == 0 then
+		RedServidor.Notificar(jugador, "Tu base está llena: lo guardamos en el depósito 📦", "info")
+	end
 
 	RedServidor.Enviar("Efecto", jugador, "Compra", { crunchi = crunchi.id, mut = crunchi.mut, nuevo = esNuevo })
 	local rareza = Catalogo.RarezaDe(crunchi.id)

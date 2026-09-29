@@ -91,6 +91,16 @@ function RoboService.EstaCargando(jugador: Player): boolean
 	return robos[jugador] ~= nil
 end
 
+-- ¿Alguien le está robando a este jugador ahora mismo?
+function RoboService.EstaSiendoRobado(dueno: Player): boolean
+	for _, robo in robos do
+		if robo.dueno == dueno then
+			return true
+		end
+	end
+	return false
+end
+
 ----------------------------------------------------------------------------- validación
 
 -- Devuelve (true, lugarDueno, lugarLadron) o (false, motivo).
@@ -183,6 +193,7 @@ local MENSAJES_FALLO: { [string]: string } = {
 	tiempo = "¡Se acabó el tiempo! El Crunchi volvió a su base",
 	murio = "Soltaste el Crunchi",
 	dueno_salio = "El dueño se fue: el Crunchi volvió con él",
+	agente = "🔎 ¡Un Agente Escáner te atrapó! El Crunchi volvió a su dueño",
 	ladron_salio = "",
 }
 
@@ -199,7 +210,7 @@ function RoboService.Fallar(ladron: Player, motivo: string, defensor: Player?)
 	if dueno.Parent then
 		BaseService.DevolverCrunchi(dueno, robo.uid)
 		RedServidor.Enviar("Alarma", dueno, false)
-		if motivo == "golpe" or motivo == "tiempo" or motivo == "murio" then
+		if motivo == "golpe" or motivo == "tiempo" or motivo == "murio" or motivo == "agente" then
 			RedServidor.Notificar(dueno, `¡Recuperaste a {nombre}!`, "exito")
 		end
 	end
@@ -252,7 +263,7 @@ local function completar(robo: Robo)
 	-- Agregar a los datos del ladrón
 	crunchi.lugar = robo.lugarLadron
 	table.insert(datosLadron.crunchis, crunchi)
-	DatosService.RegistrarIndice(datosLadron, crunchi.id, crunchi.mut)
+	DatosService.RegistrarIndice(ladron, crunchi.id, crunchi.mut)
 	BaseService.Colocar(ladron, crunchi)
 
 	datosLadron.stats.robosExitosos += 1

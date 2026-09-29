@@ -39,6 +39,7 @@ export type BaseMapa = {
 	cerrojo: BasePart,
 	promptCerrojo: ProximityPrompt,
 	letrero: TextLabel,
+	macetero: BasePart,
 	aparicion: CFrame, -- donde aparece el dueño
 	salida: CFrame, -- afuera de la puerta (para sacar intrusos cuando está cerrada)
 }
@@ -232,6 +233,28 @@ local function construirBase(carpetaBases: Folder, indice: number, centro: Vecto
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = cerrojo
 
+	-- Macetero (en la esquina opuesta al cerrojo): se planta una semilla que crece en
+	-- tiempo real. La planta la dibuja el cliente según los atributos del macetero.
+	local posMacetero = MEDIDAS.POSICION_MACETERO
+	local macetero = crearParte({
+		nombre = "Macetero",
+		tamano = Vector3.new(1.4, 3, 3),
+		cframe = cf * CFrame.new(posMacetero.X, 0.7, posMacetero.Z) * CFrame.Angles(0, 0, math.rad(90)),
+		color = Color3.fromRGB(170, 95, 55),
+		forma = Enum.PartType.Cylinder,
+		padre = modelo,
+	})
+	macetero:SetAttribute("Semilla", "")
+	macetero:SetAttribute("ListaEn", 0)
+	local promptMacetero = Instance.new("ProximityPrompt")
+	promptMacetero.Name = "PromptMacetero"
+	promptMacetero.ActionText = "Macetero"
+	promptMacetero.ObjectText = "🌱"
+	promptMacetero.HoldDuration = 0
+	promptMacetero.MaxActivationDistance = 9
+	promptMacetero.RequiresLineOfSight = false
+	promptMacetero.Parent = macetero
+
 	-- Letrero con el nombre del dueño, sobre la puerta
 	local cartel = crearParte({
 		nombre = "Letrero",
@@ -287,6 +310,7 @@ local function construirBase(carpetaBases: Folder, indice: number, centro: Vecto
 		cerrojo = cerrojo,
 		promptCerrojo = prompt,
 		letrero = texto,
+		macetero = macetero,
 		aparicion = CFrame.lookAt(aparicionPos, aparicionPos + cf.LookVector * -1),
 		salida = cf * CFrame.new(0, 3, -mitadFondo - 5),
 	}
@@ -323,6 +347,7 @@ local function construirCinta(carpeta: Folder, id: string)
 			tamano = Vector3.new(0.4, alto + 0.6, largo),
 			cframe = cf * CFrame.new(lado * (datos.ancho / 2 + 0.2), 0.3, 0),
 			color = Color3.fromRGB(240, 200, 40),
+			colisiona = false, -- decorativo (así nadie se traba al cruzar)
 			padre = modelo,
 		})
 	end

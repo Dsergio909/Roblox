@@ -23,6 +23,8 @@ local ConfigEconomia = require(Config:WaitForChild("Economia"))
 local Formato = require(Shared:WaitForChild("Util"):WaitForChild("Formato"))
 local Senal = require(Shared:WaitForChild("Util"):WaitForChild("Senal"))
 local Ingreso = require(Shared:WaitForChild("Logica"):WaitForChild("Ingreso"))
+local Progresion = require(Shared:WaitForChild("Logica"):WaitForChild("Progresion"))
+local Catalogo = require(Shared:WaitForChild("Catalogo"))
 
 local DatosService = require(script.Parent:WaitForChild("DatosService"))
 local AnaliticaService = require(script.Parent:WaitForChild("AnaliticaService"))
@@ -37,6 +39,9 @@ local EconomiaService = {
 type Proveedor = (Player) -> number
 local bonusAditivos: { [string]: Proveedor } = {}
 local multiplicadores: { [string]: Proveedor } = {}
+-- Multiplicadores temporales (boosts): no cuentan para las recompensas "en minutos de
+-- ingreso", para que no se pueda hacer trampa activando un boost justo antes de cobrar.
+local temporales: { [string]: boolean } = {}
 
 local enGrupo: { [Player]: boolean } = {}
 
@@ -114,13 +119,17 @@ function EconomiaService.RegistrarBonus(nombre: string, proveedor: Proveedor)
 	bonusAditivos[nombre] = proveedor
 end
 
-function EconomiaService.RegistrarMultiplicador(nombre: string, proveedor: Proveedor)
+function EconomiaService.RegistrarMultiplicador(nombre: string, proveedor: Proveedor, temporal: boolean?)
 	multiplicadores[nombre] = proveedor
+	temporales[nombre] = temporal == true
 end
 
-local function recolectar(proveedores: { [string]: Proveedor }, jugador: Player): { number }
+local function recolectar(proveedores: { [string]: Proveedor }, jugador: Player, sinTemporales: boolean?): { number }
 	local valores = {}
 	for nombre, proveedor in proveedores do
+		if sinTemporales and temporales[nombre] then
+			continue
+		end
 		local ok, valor = pcall(proveedor, jugador)
 		if ok and type(valor) == "number" and valor == valor then
 			table.insert(valores, valor)
@@ -134,6 +143,33 @@ end
 -- Multiplicador total de ingreso del jugador (1 = sin bonus).
 function EconomiaService.Multiplicador(jugador: Player): number
 	return Ingreso.MultiplicadorTotal(recolectar(bonusAditivos, jugador), recolectar(multiplicadores, jugador))
+end
+
+-- Multiplicador sin boosts temporales (para recompensas y ganancias offline).
+function EconomiaService.MultiplicadorPermanente(jugador: Player): number
+	return Ingreso.MultiplicadorTotal(recolectar(bonusAditivos, jugador), recolectar(multiplicadores, jugador, true))
+end
+
+-- Ingreso por segundo "base" del jugador: sus Crunchis en pedestales × multiplicador
+-- permanente. Se calcula desde los datos (no depende de que la base esté cargada).
+function EconomiaService.IngresoBase(jugador: Player): number
+	local datos = DatosService.Obtener(jugador)
+	if datos == nil then
+		return 0
+	end
+	local suma = 0
+	for _, crunchi in datos.crunchis do
+		if crunchi.lugar >= 1 then
+			local ingreso = Catalogo.Valor(crunchi.id, crunchi.mut)
+			suma += ingreso
+		end
+	end
+	return suma * EconomiaService.MultiplicadorPermanente(jugador)
+end
+
+-- Recompensa en dinero equivalente a N minutos de ingreso base (con mínimo).
+function EconomiaService.DineroPorMinutos(jugador: Player, minutos: number, minimo: number): number
+	return Progresion.DineroPorMinutos(EconomiaService.IngresoBase(jugador), minutos, minimo)
 end
 
 -- Detalle de bonus (para mostrarlo en la UI): nombre → valor.

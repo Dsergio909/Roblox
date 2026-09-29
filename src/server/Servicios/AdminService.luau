@@ -24,7 +24,6 @@ local Config = Shared:WaitForChild("Config")
 local ConfigAdmin = require(Config:WaitForChild("Admin"))
 local ConfigRobo = require(Config:WaitForChild("Robo"))
 local Catalogo = require(Shared:WaitForChild("Catalogo"))
-local Tipos = require(Shared:WaitForChild("Tipos"))
 local Azar = require(Shared:WaitForChild("Util"):WaitForChild("Azar"))
 local Formato = require(Shared:WaitForChild("Util"):WaitForChild("Formato"))
 
@@ -80,21 +79,11 @@ local function registrarBasicos()
 			responder(jugador, "Crunchi desconocido. Usa: crunchi <id> [mutación] (escribe 'lista')")
 			return
 		end
-		local datos = DatosService.Obtener(jugador)
-		local lugar = BaseService.LugarLibre(jugador)
-		if datos == nil or lugar == nil then
-			responder(jugador, "No tienes pedestales libres")
+		local crunchi = BaseService.Otorgar(jugador, id, mutacionValida(args[2]))
+		if crunchi == nil then
+			responder(jugador, "No tienes espacio (base y depósito llenos)")
 			return
 		end
-		local crunchi: Tipos.CrunchiGuardado = {
-			uid = DatosService.NuevoUid(jugador),
-			id = id,
-			mut = mutacionValida(args[2]),
-			lugar = lugar,
-		}
-		table.insert(datos.crunchis, crunchi)
-		DatosService.RegistrarIndice(datos, crunchi.id, crunchi.mut)
-		BaseService.Colocar(jugador, crunchi)
 		responder(jugador, `Te di {Catalogo.NombreCompleto(crunchi.id, crunchi.mut)}`)
 	end)
 

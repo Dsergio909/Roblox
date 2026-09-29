@@ -69,6 +69,40 @@ local PLANTILLA: Datos = {
 		efectos = true,
 		ahorro = false,
 	},
+
+	-- Fase 2
+	mejorAmigo = "",
+	setsCompletados = {},
+	hitosIndice = {},
+	titulos = {},
+	tituloEquipado = "",
+	misiones = {
+		dia = 0,
+		diarias = {},
+		semana = 0,
+		semanales = {},
+		cambiosUsados = 0,
+		bonusDiario = false,
+	},
+	login = {
+		diasTotales = 0,
+		ultimoDia = 0,
+		racha = 0,
+		pendiente = false,
+	},
+	tickets = {},
+	-- ⚠️ Las tablas de la plantilla deben estar VACÍAS si el jugador puede vaciarlas: Reconcile
+	-- vuelve a rellenar las claves que falten (regalaría semillas en cada sesión). Los
+	-- regalos iniciales se dan una sola vez en darRegalosIniciales().
+	semillas = {},
+	macetero = {
+		semilla = "",
+		listaEn = 0,
+	},
+	offline = {
+		ingresoAlSalir = 0,
+		pendiente = 0,
+	},
 }
 
 -- Migraciones: MIGRACIONES[n] convierte datos de la versión n a la n + 1.
@@ -92,6 +126,9 @@ type Perfil = {
 local DatosService = {
 	JugadorListo = Senal.nueva(),
 	JugadorSaliendo = Senal.nueva(),
+	-- (jugador, crunchiId, mutacionId, esNuevo) — el jugador consiguió un Crunchi (comprado,
+	-- robado, de canasta, del macetero...). esNuevo = primera vez que tiene ese tipo.
+	CrunchiObtenido = Senal.nueva(),
 }
 
 local tienda = ProfileStore.New(ConfigJuego.NOMBRE_DATASTORE, PLANTILLA)
@@ -127,6 +164,22 @@ local function migrar(datos: Datos)
 		version += 1
 	end
 	datos.version = VERSION_DATOS
+end
+
+-- Lo que recibe una cuenta nueva (una sola vez).
+local function darRegalosIniciales(jugador: Player, datos: Datos)
+	local ahora = os.time()
+	datos.primeraConexion = ahora
+	table.insert(datos.crunchis, {
+		uid = `{jugador.UserId}-{datos.contadorUid + 1}`,
+		id = ConfigEconomia.CRUNCHI_INICIAL,
+		mut = "normal",
+		lugar = 1,
+	})
+	datos.contadorUid += 1
+	datos.indice[ConfigEconomia.CRUNCHI_INICIAL] = ahora
+	datos.indice[`{ConfigEconomia.CRUNCHI_INICIAL}:normal`] = ahora
+	datos.semillas["comun"] = 1 -- una semilla para descubrir el macetero
 end
 
 ----------------------------------------------------------------------------- API
@@ -175,9 +228,13 @@ function DatosService.NuevoUid(jugador: Player): string
 	return `{jugador.UserId}-{datos.contadorUid}`
 end
 
--- Registra en el Índice que el jugador tuvo este Crunchi (y esta mutación).
--- Devuelve true si es la primera vez que tiene ese Crunchi.
-function DatosService.RegistrarIndice(datos: Datos, crunchiId: string, mutacionId: string): boolean
+-- Registra en el Índice que el jugador consiguió este Crunchi (y esta mutación) y avisa
+-- a los demás servicios (misiones, sets...). Devuelve true si es el primero de ese tipo.
+function DatosService.RegistrarIndice(jugador: Player, crunchiId: string, mutacionId: string): boolean
+	local datos = DatosService.Obtener(jugador)
+	if datos == nil then
+		return false
+	end
 	local ahora = os.time()
 	local nuevo = datos.indice[crunchiId] == nil
 	if nuevo then
@@ -187,6 +244,7 @@ function DatosService.RegistrarIndice(datos: Datos, crunchiId: string, mutacionI
 	if datos.indice[clave] == nil then
 		datos.indice[clave] = ahora
 	end
+	DatosService.CrunchiObtenido:Disparar(jugador, crunchiId, mutacionId, nuevo)
 	return nuevo
 end
 
@@ -259,15 +317,8 @@ function DatosService.Reiniciar(jugador: Player)
 		(perfil.Data :: any)[clave] = valor
 	end
 	perfil.Data.recibos = recibos
-	perfil.Data.primeraConexion = os.time()
 	perfil.Data.ultimaConexion = os.time()
-	table.insert(perfil.Data.crunchis, {
-		uid = DatosService.NuevoUid(jugador),
-		id = ConfigEconomia.CRUNCHI_INICIAL,
-		mut = "normal",
-		lugar = 1,
-	})
-	DatosService.RegistrarIndice(perfil.Data, ConfigEconomia.CRUNCHI_INICIAL, "normal")
+	darRegalosIniciales(jugador, perfil.Data)
 	DatosService.JugadorListo:Disparar(jugador, perfil.Data)
 	RedServidor.Enviar("EstadoPrivado", jugador, DatosService.ConstruirEstado(jugador))
 end
@@ -304,17 +355,9 @@ local function alEntrar(jugador: Player)
 	local datos = perfil.Data
 	local ahora = os.time()
 
-	-- Jugador nuevo: le damos su primer Crunchi.
+	-- Jugador nuevo: su primer Crunchi y una semilla.
 	if datos.primeraConexion == 0 then
-		datos.primeraConexion = ahora
-		perfiles[jugador] = perfil
-		table.insert(datos.crunchis, {
-			uid = DatosService.NuevoUid(jugador),
-			id = ConfigEconomia.CRUNCHI_INICIAL,
-			mut = "normal",
-			lugar = 1,
-		})
-		DatosService.RegistrarIndice(datos, ConfigEconomia.CRUNCHI_INICIAL, "normal")
+		darRegalosIniciales(jugador, datos)
 	end
 
 	datos.stats.sesiones += 1
