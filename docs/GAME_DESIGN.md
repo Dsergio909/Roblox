@@ -184,6 +184,7 @@ Las mutaciones son el objetivo del **mes**: hay un Índice separado por mutació
 | Depósito | Los Crunchis guardados (no producen) no se pueden robar | Opción segura |
 | Revancha | Tras un robo exitoso, el cerrojo del ladrón se recarga 45 s | La víctima tiene una ventana para recuperarlo |
 | Base offline | Tu base solo existe mientras estás en el servidor | **Nunca pierdes nada estando desconectado** |
+| Robar quita tu escudo | Si robas mientras tienes escudo de entrada o de novato, lo pierdes | Nadie puede robar siendo intocable |
 
 **Ningún producto de pago** aumenta la velocidad, el tiempo de cerrojo, el poder del periódico, las bóvedas ni la capacidad de robo.
 

@@ -2,7 +2,7 @@
 
 Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El código funciona sin esto: en la Fase 1 todo se ve con **partes de colores (placeholders)**. Cuando subas un asset, pon su ID en el módulo `Config` que se indica y el juego lo usará sin cambiar la lógica.
 
-**Estado actual (Fase 0):** nada es obligatorio todavía. La lista está ordenada por la fase en que conviene tenerlo.
+**Estado actual (Fase 1):** nada es obligatorio todavía; el juego es jugable con placeholders. La lista está ordenada por la fase en que conviene tenerlo. Lo más valioso para empezar: las **caras de los Crunchis** (I1) y los **sonidos S1–S4** (comprar, cobrar, alarma y cerrojo).
 
 ---
 
@@ -30,8 +30,8 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 
 | # | Asset | Especificación | Dónde va el ID | Fase |
 |---|---|---|---|---|
-| M1 | **Cuerpo de Crunchi** (malla base compartida) | Manzana redondeada ≤ 400 tris, pivote en la base, ~3 studs de alto. **Una sola malla para los 21 Crunchis.** Hoja y rabito aparte (≤ 60 tris). | `Config/Crunchis.luau` → `MALLA_BASE` | 2 |
-| M2 | **Accesorios** (1 por Crunchi) | ≤ 300 tris cada uno, solo colores. Lista: mochila, semillas (decal), gotas de sudor, gusano, taladro, casco de obra, sombrero de pescador, catapulta, globo con canasta, mecha encendida, cohete, corona de hojas, (Gigantón: sin accesorio, escala 3×), visor láser, armadura robot, bandana ninja, brillo radiactivo, corazón dorado, aura en espiral | `Config/Crunchis.luau` → campo `accesorio` | 2–3 |
+| M1 | **Cuerpo de Crunchi** (malla base compartida) | Manzana redondeada ≤ 400 tris, ~3 studs de alto. **Una sola malla para los 21 Crunchis.** Hoja y rabito aparte (≤ 60 tris). | Ver "Cómo reemplazar un placeholder" abajo | 2 |
+| M2 | **Accesorios** (1 por Crunchi) | ≤ 300 tris cada uno, solo colores. Lista: mochila, semillas (decal), gotas de sudor, gusano, taladro, casco de obra, sombrero de pescador, catapulta, globo con canasta, mecha encendida, cohete, corona de hojas, (Gigantón: sin accesorio, escala 2×), visor láser, armadura robot, bandana ninja, brillo radiactivo, corazón dorado, anillo cósmico | Dentro del modelo de cada Crunchi | 2–3 |
 | M3 | **Agente Escáner** | Rig R6 con traje negro y corbata roja. Cabeza = **escáner de supermercado** (pistola lectora con ventana roja), ≤ 800 tris, + línea láser `Neon` roja. Total ≤ 1,500 tris. **No** debe parecerse a personajes con cabeza de cámara de otras series. | `Config/Agentes.luau` | 2 |
 | M4 | **Kit de base** (modular) | Plataforma de piso, pedestal (≤ 200 tris), botón de cobro redondo, botón de cerrojo, puerta con campo de fuerza, cartel con nombre del dueño | Se reemplaza el placeholder en `Mapa/` | 3–4 |
 | M5 | **Cinta transportadora** | Segmento recto repetible (≤ 150 tris) + textura de franjas 256×256 que se mueve | `Config/Mapa.luau` | 4 |
@@ -40,6 +40,16 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 | M8 | **Ciudad (Villa Crunch)** | Fachadas simples (cajas + atlas de ventanas 512×512), postes y árboles low-poly | Mapa en Studio | 4 |
 | M9 | **Edificio FrutaMax / Almacén** | Edificio gris con logo **inventado** "FrutaMax" (manzana con etiqueta de precio) | Mapa en Studio | 4 |
 | M10 | Props de evento | Manzana gigante que cae, cohete con humo, globo | `Config/Eventos.luau` | 4 |
+
+### Cómo reemplazar un placeholder por un modelo real (Crunchis)
+1. Arma el modelo en Studio: un **Model** con una parte llamada **`Cuerpo`** (el cuerpo de la manzana) y el resto de las piezas (hojas, accesorio, cara…).
+2. La cara mira hacia **-Z** (el "frente" de Roblox; en Studio, la cara que muestra la flecha azul "Front" de la parte).
+3. Tamaño con escala 1: el cuerpo mide unos **3 studs** de alto. El juego lo agranda solo según la rareza.
+4. Nombra el modelo **exactamente** con el id del Crunchi (p. ej. `crunchito_bobo`; la lista está en `src/shared/Config/Crunchis.luau`).
+5. Ponlo en **ReplicatedStorage → Modelos → Crunchis** (crea las carpetas `Modelos` y `Crunchis` si no existen).
+6. Listo: el juego usa tu modelo en vez del placeholder, en la cinta y en las bases. Las mutaciones cambian el color de la parte `Cuerpo`.
+
+> Mientras un Crunchi no tenga modelo, se sigue viendo el placeholder: puedes reemplazarlos de a uno.
 
 **Cómo subir una malla:** en Blender exporta `.fbx` u `.obj` → en Studio usa `Home → Import 3D` → revisa triángulos y escala → guárdalo en `ReplicatedStorage/Modelos` (te daré la ruta exacta en su fase).
 
@@ -79,7 +89,7 @@ Reglas de Roblox: solo puedes usar audio **subido por ti** (tuyo o con licencia)
 | S11 | Música principal | Loop de 90–120 s, funky y alegre, sin letra | 3 |
 | S12 | Música de evento | Loop tenso pero gracioso, para la Redada FrutaMax | 4 |
 
-Los IDs van en `Config/Sonidos.luau` (se crea en la Fase 1 con `0` como placeholder, que significa "sin sonido").
+Los IDs van en `src/shared/Config/Sonidos.luau` (ya existe; `0` = sin sonido). Ahí cada sonido tiene su nombre (Compra, Cobro, Alarma…) y su volumen.
 
 ---
 

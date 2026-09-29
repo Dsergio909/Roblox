@@ -12,31 +12,54 @@ Guía corta para entender dónde vive cada cosa. El detalle del diseño del jueg
 
 Los archivos `init.server.luau` e `init.client.luau` son los **únicos puntos de entrada**. Todo lo demás son módulos (`.luau`) que esos puntos cargan en orden.
 
-## Estructura planeada (se completa en la Fase 1 y siguientes)
+## Estructura actual
 
 ```
 src/
-├── server/
-│   ├── init.server.luau        ← arranque: carga los servicios en orden
+├── server/                              (solo el servidor)
+│   ├── init.server.luau                 ← arranque: crea los remotos e inicia los servicios en orden
 │   ├── Servicios/
-│   │   ├── DatosService         ← ProfileStore: cargar, autoguardar, guardar al salir, migraciones
-│   │   ├── EconomiaService      ← único lugar que suma o resta dinero (con registro en Analytics)
-│   │   ├── BaseService          ← asignar bases, pedestales, cobro, cerrojo, escudos
-│   │   ├── CintaService         ← aparición de Crunchis por rareza (un solo loop)
-│   │   ├── RoboService          ← robar, cargar, soltar, límites y protecciones
-│   │   ├── CompraService        ← Game Passes, ProcessReceipt idempotente (Fase 3)
-│   │   ├── AnaliticaService     ← envoltorio de AnalyticsService de Roblox
-│   │   └── AdminService         ← comandos solo para los UserIds de Config.Admin
-│   └── Mapa/                    ← genera el mapa placeholder con partes de colores
-├── client/
-│   ├── init.client.luau        ← arranque: carga los controladores
-│   ├── Controladores/           ← HUD, tienda, índice, ajustes, efectos, sonidos
-│   └── UI/                      ← componentes reutilizables (botón, tarjeta, barra)
-└── shared/
-    ├── Config/                  ← TODO el balance: Crunchis, Rarezas, Economía, Robo, Productos, Eventos…
-    ├── Red/                     ← definición de todos los RemoteEvents (nombres y tipos)
-    └── Util/                    ← formato de números ($1.5M), tablas, etc.
+│   │   ├── DatosService                 ← ProfileStore: cargar, autoguardar, guardar al salir, migraciones
+│   │   ├── AnaliticaService             ← envoltorio de AnalyticsService (embudo, economía, eventos)
+│   │   ├── EconomiaService              ← único lugar que suma o resta dinero; bonus y multiplicadores
+│   │   ├── MapaService                  ← genera el mapa placeholder (bases, cintas, suelo)
+│   │   ├── BaseService                  ← bases: pedestales, cobro, venta, cerrojo, escudos
+│   │   ├── CintaService                 ← aparición de Crunchis por rareza y compra validada
+│   │   ├── RoboService                  ← robos, protecciones y periódico
+│   │   ├── TutorialService              ← pasos del onboarding y estado del tutorial
+│   │   └── AdminService                 ← comandos de prueba (solo admins)
+│   ├── Util/RedServidor                 ← escuchar remotos con límite de frecuencia y pcall
+│   └── Paquetes/ProfileStore            ← librería de terceros (Apache 2.0), sin modificar
+├── client/                              (en el dispositivo de cada jugador)
+│   ├── init.client.luau                 ← arranque: inicia los controladores en orden
+│   ├── Interfaz/Tema, Interfaz/UI       ← colores, medidas y constructores de UI (escala automática)
+│   └── Controladores/
+│       ├── EstadoCliente                ← estado privado que manda el servidor
+│       ├── HudController                ← dinero, ingreso, estado de la base, barra de robo, botones
+│       ├── NotificacionController       ← avisos, anuncios, alarma de robo
+│       ├── CintaController              ← dibuja y mueve los Crunchis de la cinta; botón Comprar
+│       ├── BaseController               ← contadores de cobro, puertas, qué acciones ves en cada Crunchi
+│       ├── EfectosController            ← confeti y efectos (con límite)
+│       ├── RoboController               ← rayo hacia el ladrón y empujón
+│       ├── TutorialController           ← rayo guía y globo de los primeros minutos
+│       ├── SonidoController             ← sonidos (IDs en Config/Sonidos)
+│       └── AdminController              ← panel 🛠️
+└── shared/                              (servidor y cliente)
+    ├── Config/                          ← TODO el balance y los datos editables
+    ├── Catalogo                         ← la Config indexada y validada
+    ├── Red                              ← lista de RemoteEvents y RemoteFunctions
+    ├── Tipos                            ← forma de los datos guardados
+    ├── ModeloCrunchi                    ← modelo real o placeholder de un Crunchi y su etiqueta
+    ├── Logica/                          ← fórmulas puras (probadas fuera de Studio)
+    └── Util/                            ← Formato, Azar, Limitador, Senal, Reloj
+
+tests/                                   ← pruebas unitarias (no se sincronizan con Studio)
 ```
+
+### Cómo se comunican los servicios
+- **Señales** (`Util/Senal`): p. ej. `DatosService.JugadorListo`, `CintaService.Comprado`, `RoboService.RoboCompletado`. Un servicio avisa y otros reaccionan, sin depender unos de otros.
+- **Registro de bonus:** `EconomiaService.RegistrarBonus(...)`. Rebirths, Premium, grupo, pases y boosts aportan su parte sin que Economía los conozca.
+- **Estado privado:** `DatosService.RegistrarEstado("tutorial", fn)`. Cada servicio arma la parte del estado que el cliente necesita.
 
 ## Principios (no negociables)
 

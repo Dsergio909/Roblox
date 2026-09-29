@@ -17,7 +17,18 @@ Actualizar `docs/CHANGELOG.md`, `docs/PRUEBAS.md` (qué probar en Studio y cómo
 ## Verificación antes de hacer commit
 ```sh
 rojo build -o /tmp/test.rbxlx   # el proyecto compila
-stylua --check src              # formato
+stylua src tests                # formato (stylua --check para solo revisar)
 selene src                      # lint (necesita roblox.yml; ver abajo)
+rojo sourcemap default.project.json -o sourcemap.json
+luau-lsp analyze --platform=roblox --sourcemap=sourcemap.json \
+  --definitions=@roblox=<globalTypes.d.luau de luau-lsp> --ignore="**/Paquetes/**" src   # tipos
+LUAU_PRELUDE=tests/preludio.luau luau tests/ejecutar.luau                              # pruebas
 ```
-Si Selene no puede descargar la API de Roblox, genera `roblox.yml` con `selene generate-roblox-std`. Ese archivo está en `.gitignore`.
+- Si Selene no puede descargar la API de Roblox, genera `roblox.yml` con `selene generate-roblox-std`. Ese archivo está en `.gitignore`.
+- `luau-lsp` y `luau` se pueden compilar desde su código fuente (GitHub: JohnnyMorganz/luau-lsp, que incluye Luau como submódulo). Las definiciones de tipos de Roblox están en `scripts/globalTypes.d.luau` de ese repo.
+- Las pruebas necesitan un `luau` con soporte de preludio (ver `tests/README.md`).
+
+## Particularidades de Luau estricto encontradas
+- Listas de tablas con campos opcionales: envolver cada elemento en una función tipada (ver `P()` en `Config/Crunchis`).
+- `pcall(fn)` con una función que no devuelve nada: usar `pcall(fn :: any, ...)`.
+- Iterar `x or {}`: asignarlo antes a una variable tipada.
