@@ -161,12 +161,14 @@ end
 function EventoController.Iniciar()
 	banner = UI.Panel({
 		Name = "Evento",
-		Position = UDim2.fromOffset(8, 46),
+		-- Arriba al centro, debajo del dinero (no tapa los botones laterales). Va dentro del
+		-- bloque del dinero para escalar junto con él.
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 150),
 		Size = UDim2.fromOffset(250, 46),
 		Visible = false,
-		Parent = HudController.Pantalla(),
+		Parent = HudController.Superior(),
 	})
-	UI.Escalar(banner)
 	borde = UI.Borde(banner, Tema.COLORES.dinero, 2.5)
 	textoNombre = UI.Texto({
 		texto = "",

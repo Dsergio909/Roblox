@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ConfigMisiones = require(Shared:WaitForChild("Config"):WaitForChild("Misiones"))
+local ConfigConsumibles = require(Shared:WaitForChild("Config"):WaitForChild("Consumibles"))
 local Catalogo = require(Shared:WaitForChild("Catalogo"))
 local Red = require(Shared:WaitForChild("Red"))
 local Formato = require(Shared:WaitForChild("Util"):WaitForChild("Formato"))
@@ -44,6 +45,16 @@ local function textoRecompensa(mision: any): string
 	local partes = { `💰 {Formato.Dinero(mision.dinero or 0)}`, `⭐ {mision.xp or 0} XP` }
 	if (mision.semillas or 0) > 0 then
 		table.insert(partes, `🌱 {mision.semillas}`)
+	end
+	local objeto = mision.objeto
+	if type(objeto) == "table" and type(objeto.id) == "string" then
+		local icono = "🎒"
+		for _, consumible in ConfigConsumibles.LISTA do
+			if consumible.id == objeto.id then
+				icono = consumible.icono
+			end
+		end
+		table.insert(partes, `{icono} ×{objeto.cantidad or 1}`)
 	end
 	return table.concat(partes, "  ")
 end
@@ -215,7 +226,7 @@ function MisionesController.Iniciar()
 	end
 	lista = UI.Lista({ Size = UDim2.fromScale(1, 1), Parent = v.contenido }, 6)
 
-	boton = HudController.AgregarBoton("📋", Tema.COLORES.verde, 2, function()
+	boton = HudController.AgregarBoton("📋", Tema.COLORES.verde, 3, function()
 		v:Alternar()
 	end)
 

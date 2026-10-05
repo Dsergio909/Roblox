@@ -239,7 +239,7 @@ function PaseController.Iniciar()
 		Parent = v.contenido,
 	}, 4)
 
-	boton = HudController.AgregarBoton("⭐", Tema.COLORES.dinero, 4, function()
+	boton = HudController.AgregarBoton("⭐", Tema.COLORES.dinero, 5, function()
 		v:Alternar()
 	end)
 	EstadoCliente.Cambio:Conectar(function(parte: string)

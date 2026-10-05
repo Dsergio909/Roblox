@@ -29,12 +29,13 @@ local HudController = require(script.Parent:WaitForChild("HudController"))
 local SonidoController = require(script.Parent:WaitForChild("SonidoController"))
 local EfectosController = require(script.Parent:WaitForChild("EfectosController"))
 local NotificacionController = require(script.Parent:WaitForChild("NotificacionController"))
+local MascotasController = require(script.Parent:WaitForChild("MascotasController"))
 
 local AjustesController = {}
 
-type Ajustes = { musica: boolean, efectos: boolean, ahorro: boolean }
+type Ajustes = { musica: boolean, efectos: boolean, ahorro: boolean, mascotas: boolean, anuncios: boolean }
 
-local ajustes: Ajustes = { musica = true, efectos = true, ahorro = false }
+local ajustes: Ajustes = { musica = true, efectos = true, ahorro = false, mascotas = true, anuncios = true }
 local sombrasOriginales = Lighting.GlobalShadows
 local botones: { [string]: TextButton } = {}
 local textoFps: TextLabel? = nil
@@ -44,6 +45,12 @@ local OPCIONES = {
 	{ clave = "musica", texto = "🎵 Música", ayuda = "Música de fondo" },
 	{ clave = "efectos", texto = "🔊 Sonidos", ayuda = "Compras, cobros, alarmas..." },
 	{ clave = "ahorro", texto = "🔋 Modo ahorro", ayuda = "Menos efectos y sin sombras: más fluido en celulares" },
+	{ clave = "mascotas", texto = "🐾 Mascotas de otros", ayuda = "Ver los Bichitos de los demás jugadores" },
+	{
+		clave = "anuncios",
+		texto = "📢 Anuncios",
+		ayuda = "Avisos de lo que consiguen los demás (Míticos, Secretos...)",
+	},
 }
 
 local function valor(clave: string): boolean
@@ -64,6 +71,8 @@ local function aplicar()
 	SonidoController.FijarMusica(ajustes.musica)
 	EfectosController.calidad = if ajustes.ahorro then 0.3 else 1
 	Lighting.GlobalShadows = if ajustes.ahorro then false else sombrasOriginales
+	MascotasController.verOtros = ajustes.mascotas
+	NotificacionController.anunciosActivos = ajustes.anuncios
 	pintarBotones()
 end
 
@@ -124,17 +133,11 @@ local function vigilarRendimiento()
 end
 
 function AjustesController.Iniciar()
-	local v = Ventana.nueva("⚙️ Ajustes", 380, 300, Tema.COLORES.azul)
-	local lista = UI.Crear("Frame", {
-		BackgroundTransparency = 1,
+	local v = Ventana.nueva("⚙️ Ajustes", 400, 330, Tema.COLORES.azul)
+	local lista = UI.Lista({
 		Size = UDim2.new(1, 0, 1, -24),
 		Parent = v.contenido,
-	})
-	UI.Crear("UIListLayout", {
-		Padding = UDim.new(0, 8),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		Parent = lista,
-	})
+	}, 8)
 	for orden, opcion in OPCIONES do
 		local fila = UI.Crear("Frame", {
 			BackgroundTransparency = 1,

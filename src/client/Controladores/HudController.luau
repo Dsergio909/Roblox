@@ -39,6 +39,7 @@ local pantalla: ScreenGui
 local textoDinero: TextLabel
 local textoIngreso: TextLabel
 local pildoraDinero: Frame
+local superiorHud: Frame? = nil
 local textoBoost: TextLabel
 local botonX2: TextButton? = nil
 local textoEstadoBase: TextLabel
@@ -65,8 +66,8 @@ function HudController.AgregarBoton(
 	local boton = UI.Boton({
 		texto = texto,
 		color = color,
-		tamano = UDim2.fromOffset(54, 54),
-		tamanoLetra = 26,
+		tamano = UDim2.fromOffset(50, 50),
+		tamanoLetra = 24,
 		alPulsar = alPulsar,
 		padre = if lado == "izquierda" then columnaIzquierda else columnaBotones,
 	})
@@ -94,6 +95,11 @@ function HudController.Globito(boton: GuiObject, cantidad: number)
 	local g = globo :: TextLabel
 	g.Visible = cantidad > 0
 	g.Text = if cantidad > 9 then "9+" else tostring(cantidad)
+end
+
+-- Bloque de arriba al centro (dinero, ingreso, boosts). Lo que se ponga adentro escala junto.
+function HudController.Superior(): Frame
+	return superiorHud :: Frame
 end
 
 function HudController.Pantalla(): ScreenGui
@@ -161,6 +167,15 @@ local function actualizarEstados()
 	if type(suerteHasta) == "number" and suerteHasta > ahoraUnix then
 		table.insert(partes, `🍀 Suerte x2 {Formato.Tiempo(suerteHasta - ahoraUnix)}`)
 	end
+	-- Objetos de la Mochila con tiempo
+	local jugoHasta = jugador:GetAttribute("JugoHasta")
+	if type(jugoHasta) == "number" and jugoHasta > ahoraUnix then
+		table.insert(partes, `🧃 {Formato.Tiempo(jugoHasta - ahoraUnix)}`)
+	end
+	local imanHasta = jugador:GetAttribute("ImanHasta")
+	if type(imanHasta) == "number" and imanHasta > ahoraUnix then
+		table.insert(partes, `🧲 {Formato.Tiempo(imanHasta - ahoraUnix)}`)
+	end
 	textoBoost.Text = table.concat(partes, "  ")
 	-- Tras la prueba gratis: un botón pequeño "x2 para siempre" (nunca un pop-up).
 	local pases = jugador:GetAttribute("Pases")
@@ -212,6 +227,7 @@ local function construir()
 		Parent = pantalla,
 	})
 	UI.Escalar(superior)
+	superiorHud = superior
 	pildoraDinero = UI.Panel({
 		Name = "Dinero",
 		Size = UDim2.fromOffset(210, 50),
@@ -299,17 +315,17 @@ local function construir()
 			BackgroundTransparency = 1,
 			AnchorPoint = ancla,
 			Position = posicion,
-			Size = UDim2.fromOffset(60, 300),
+			Size = UDim2.fromOffset(58, 340),
 			Parent = pantalla,
 		}) :: Frame
 		UI.Crear("UIListLayout", {
 			SortOrder = Enum.SortOrder.LayoutOrder,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-			Padding = UDim.new(0, 7),
+			Padding = UDim.new(0, 6),
 			Parent = marco,
 		})
-		UI.Escalar(marco, nil, 300)
+		UI.Escalar(marco, nil, 340)
 		return marco
 	end
 	columnaBotones = columna("Botones", Vector2.new(1, 0.5), UDim2.new(1, -6, 0.5, 0))

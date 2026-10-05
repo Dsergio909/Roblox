@@ -255,7 +255,7 @@ function IndiceController.Iniciar()
 		Parent = v.contenido,
 	}, 6)
 
-	HudController.AgregarBoton("📖", Tema.COLORES.morado, 3, function()
+	HudController.AgregarBoton("📖", Tema.COLORES.morado, 4, function()
 		v:Alternar()
 	end)
 

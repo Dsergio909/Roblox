@@ -23,6 +23,8 @@ local SonidoController = require(script.Parent:WaitForChild("SonidoController"))
 local NotificacionController = {
 	-- Lo asigna la tienda: qué hacer al tocar "Conseguir $" en un aviso de "te falta dinero".
 	AlPedirDinero = nil :: (() -> ())?,
+	-- Anuncios de otros jugadores ("¡X sacó un Mítico!"). Se apagan en ⚙️ Ajustes.
+	anunciosActivos = true,
 }
 
 local MAX_AVISOS = 3
@@ -229,7 +231,7 @@ function NotificacionController.Iniciar()
 		end
 	end)
 	Red.Evento("Anuncio").OnClientEvent:Connect(function(texto: any, rarezaId: any)
-		if type(texto) == "string" then
+		if type(texto) == "string" and NotificacionController.anunciosActivos then
 			NotificacionController.Anunciar(texto, if type(rarezaId) == "string" then rarezaId else nil)
 		end
 	end)

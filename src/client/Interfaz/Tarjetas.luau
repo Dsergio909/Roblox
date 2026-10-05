@@ -117,6 +117,94 @@ function Tarjetas.Crunchi(crunchiId: string, mutacionId: string, opciones: Opcio
 	return tarjeta
 end
 
+-- Tarjeta de un Bichito (mascota): color, ícono, nombre, rareza y bonus. Silueta "???" si
+-- todavía no lo tienes (para la colección).
+export type DatosMascota = {
+	id: string,
+	nombre: string,
+	icono: string,
+	rareza: string,
+	bonus: number,
+	color: Color3,
+}
+
+function Tarjetas.Mascota(mascota: DatosMascota, opciones: Opciones): GuiObject
+	local rareza = Catalogo.datos.rareza[mascota.rareza]
+	local desconocido = opciones.desconocido == true
+	local colorRareza = if rareza then rareza.color else Tema.COLORES.textoSuave
+	if rareza and rareza.id == "secreto" then
+		colorRareza = Color3.fromRGB(230, 230, 230)
+	end
+
+	local tarjeta: GuiObject
+	if opciones.alPulsar then
+		local boton = UI.Crear("TextButton", {
+			Text = "",
+			AutoButtonColor = true,
+			BackgroundColor3 = Tema.COLORES.fondoClaro,
+		}) :: TextButton
+		local fn = opciones.alPulsar
+		boton.Activated:Connect(function()
+			fn()
+		end)
+		tarjeta = boton
+	else
+		tarjeta = UI.Crear("Frame", { BackgroundColor3 = Tema.COLORES.fondoClaro }) :: Frame
+	end
+	tarjeta.Name = mascota.id
+	tarjeta.Size = opciones.tamano or UDim2.fromOffset(96, 118)
+	tarjeta.LayoutOrder = opciones.orden or 0
+	tarjeta.BorderSizePixel = 0
+	UI.Esquinas(tarjeta)
+	UI.Borde(tarjeta, if desconocido then Color3.fromRGB(70, 70, 80) else colorRareza, 2.5)
+
+	local foto = UI.Crear("Frame", {
+		Name = "Foto",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 6),
+		Size = UDim2.fromOffset(52, 52),
+		BackgroundColor3 = if desconocido then Color3.fromRGB(15, 15, 18) else mascota.color,
+		Parent = tarjeta,
+	})
+	UI.Esquinas(foto, UDim.new(1, 0))
+	UI.Texto({
+		texto = if desconocido then "?" else mascota.icono,
+		tamano = UDim2.fromScale(1, 1),
+		tamanoLetra = 30,
+		color = if desconocido then Color3.fromRGB(90, 90, 100) else Tema.COLORES.texto,
+		padre = foto,
+	})
+	UI.Texto({
+		texto = if desconocido then "???" else mascota.nombre,
+		tamano = UDim2.new(1, -6, 0, 30),
+		posicion = UDim2.fromOffset(3, 60),
+		tamanoLetra = 13,
+		padre = tarjeta,
+	})
+	UI.Texto({
+		texto = if rareza then `{rareza.nombre} · +{math.floor(mascota.bonus * 100 + 0.5)} %` else "",
+		tamano = UDim2.new(1, -6, 0, 14),
+		posicion = UDim2.fromOffset(3, 89),
+		tamanoLetra = 12,
+		color = colorRareza,
+		padre = tarjeta,
+	})
+	if opciones.pie then
+		UI.Texto({
+			texto = opciones.pie,
+			tamano = UDim2.new(1, -6, 0, 14),
+			posicion = UDim2.fromOffset(3, 102),
+			tamanoLetra = 12,
+			color = Tema.COLORES.dinero,
+			padre = tarjeta,
+		})
+	end
+	if opciones.padre then
+		tarjeta.Parent = opciones.padre
+	end
+	return tarjeta
+end
+
 -- Rejilla (grid) para tarjetas, que crece hacia abajo según el contenido.
 function Tarjetas.Rejilla(padre: Instance, orden: number?): Frame
 	local marco = UI.Crear("Frame", {

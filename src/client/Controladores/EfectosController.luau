@@ -16,6 +16,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Catalogo = require(Shared:WaitForChild("Catalogo"))
+local ConfigArmas = require(Shared:WaitForChild("Config"):WaitForChild("Armas"))
 local ModeloCrunchi = require(Shared:WaitForChild("ModeloCrunchi"))
 local Red = require(Shared:WaitForChild("Red"))
 local Reloj = require(Shared:WaitForChild("Util"):WaitForChild("Reloj"))
@@ -138,7 +139,16 @@ local function alEfecto(nombre: any, datos: any)
 			end
 		end
 	elseif nombre == "Golpe" then
-		SonidoController.Reproducir("Golpe")
+		-- Cada arma tiene su sonido (chancla, chillido, splash...).
+		local sonido = "Golpe"
+		if type(datos) == "table" and type(datos.arma) == "string" then
+			for _, arma in ConfigArmas.LISTA do
+				if arma.id == datos.arma then
+					sonido = arma.sonido
+				end
+			end
+		end
+		SonidoController.Reproducir(sonido)
 	elseif nombre == "Cerrojo" then
 		SonidoController.Reproducir("Cerrojo")
 	elseif nombre == "Laser" then
@@ -147,6 +157,16 @@ local function alEfecto(nombre: any, datos: any)
 		if posicion then
 			EfectosController.Confeti(posicion + Vector3.new(0, 2, 0), Color3.fromRGB(255, 40, 40), 20)
 		end
+	elseif nombre == "ConfetiJugador" then
+		-- Bomba de Confeti de algún jugador: la ven los que están cerca.
+		local posicion = if type(datos) == "table" and typeof(datos.posicion) == "Vector3" then datos.posicion else nil
+		local camara = workspace.CurrentCamera
+		if posicion and camara and (camara.CFrame.Position - posicion).Magnitude < 120 then
+			EfectosController.Confeti(posicion + Vector3.new(0, 3, 0), nil, 60)
+			SonidoController.Reproducir("Logro")
+		end
+	elseif nombre == "Objeto" then
+		SonidoController.Reproducir("Objeto")
 	elseif nombre == "AgenteFuera" then
 		SonidoController.Reproducir("Golpe")
 		local posicion = if type(datos) == "table" and typeof(datos.posicion) == "Vector3" then datos.posicion else nil
