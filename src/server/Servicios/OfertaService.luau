@@ -58,6 +58,7 @@ local function revisar()
 				and datos.compras.vecesOfertaPack < pack.VECES_MAXIMAS_OFRECIDO
 				and minutos >= pack.OFRECER_A_LOS_MINUTOS
 				and jugador:GetAttribute("Cargando") ~= true
+				and jugador:GetAttribute("SinAleatoriosPagados") == false
 			then
 				ofertaEstaSesion[jugador] = true
 				datos.compras.vecesOfertaPack += 1
@@ -78,8 +79,10 @@ function OfertaService.Iniciar()
 	end)
 	-- El cliente avisa si la cerró (solo para Analytics: saber si la oferta molesta).
 	Acciones.Registrar("oferta_cerrada", function(jugador: Player, id: any)
-		if type(id) == "string" and #id < 40 then
-			AnaliticaService.Evento(jugador, "OfertaCerrada", 1, { id })
+		-- Solo ids conocidos: el cliente no puede escribir texto libre en Analytics.
+		local conocida: string? = if id == "pack_inicial" or id == "prueba_x2" then id else nil
+		if conocida then
+			AnaliticaService.Evento(jugador, "OfertaCerrada", 1, { conocida })
 		end
 	end)
 	Reloj.Cada(15, revisar)

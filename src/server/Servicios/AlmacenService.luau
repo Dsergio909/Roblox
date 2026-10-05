@@ -421,6 +421,12 @@ local function vigilar()
 			fallar(jugador, "salio")
 			continue
 		end
+		-- Antitrampas: nadie avanza más rápido que esto (teletransporte o "speed hack").
+		if avance > (momento - sesion.inicio) * ConfigAlmacen.VELOCIDAD_MAXIMA + 4 then
+			warn(`[Almacen] Avance imposible de {jugador.Name} ({jugador.UserId})`)
+			fallar(jugador, "trampa")
+			continue
+		end
 		-- La posición que ve el servidor llega con retraso: comparamos contra los láseres
 		-- de ese momento (media latencia atrás).
 		local retraso = math.clamp(jugador:GetNetworkPing() / 2, 0, 0.3)

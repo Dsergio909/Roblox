@@ -179,7 +179,23 @@ end
 
 ----------------------------------------------------------------------------- pestañas
 
+-- Donde Roblox restringe los objetos aleatorios de pago, el dinero no se vende por Robux
+-- (con él se abren canastas y huevos). Ver CompraService.
+local function avisoRegion(l: ScrollingFrame)
+	UI.Texto({
+		texto = "Este producto no está disponible en tu región.",
+		tamano = UDim2.new(1, -8, 0, 40),
+		tamanoLetra = 16,
+		padre = l,
+	}).LayoutOrder =
+		1
+end
+
 local function pestanaDinero(l: ScrollingFrame, e: any)
+	if e.sinAleatorios then
+		avisoRegion(l)
+		return
+	end
 	local paquetes: { { clave: string, p: Producto } } = {}
 	for clave, producto in ConfigProductos.PRODUCTOS do
 		if producto.tipo == "dinero" then
@@ -284,13 +300,7 @@ end
 
 local function pestanaSorpresa(l: ScrollingFrame, e: any)
 	if e.sinAleatorios then
-		UI.Texto({
-			texto = "Este producto no está disponible en tu región.",
-			tamano = UDim2.new(1, -8, 0, 40),
-			tamanoLetra = 16,
-			padre = l,
-		}).LayoutOrder =
-			1
+		avisoRegion(l)
 		return
 	end
 	local producto = ConfigProductos.PRODUCTOS.CANASTA_SORPRESA
@@ -383,6 +393,10 @@ local function pestanaCosmeticos(l: ScrollingFrame, _e: any)
 end
 
 local function pestanaPack(l: ScrollingFrame, e: any)
+	if e.sinAleatorios then
+		avisoRegion(l)
+		return
+	end
 	local producto = ConfigProductos.PRODUCTOS.PACK_INICIAL
 	if e.packInicial then
 		UI.Texto({
@@ -425,12 +439,15 @@ function TiendaController.Refrescar()
 		return
 	end
 	local e = estado()
+	if e.sinAleatorios and (pestanaActual == "dinero" or pestanaActual == "pack" or pestanaActual == "sorpresa") then
+		pestanaActual = "pases"
+	end
 	for id, boton in botonesPestana do
 		boton.BackgroundColor3 = if id == pestanaActual then Tema.COLORES.naranja else Tema.COLORES.fondoClaro
-		if id == "sorpresa" then
+		if id == "sorpresa" or id == "dinero" then
 			boton.Visible = not e.sinAleatorios
 		elseif id == "pack" then
-			boton.Visible = not e.packInicial
+			boton.Visible = not e.packInicial and not e.sinAleatorios
 		end
 	end
 	UI.Vaciar(l)
@@ -499,9 +516,17 @@ function TiendaController.Iniciar()
 	end)
 
 	-- "Te faltan $X" → botón discreto "Conseguir $" dentro del aviso (nunca un pop-up).
-	NotificacionController.AlPedirDinero = function()
-		TiendaController.Abrir("dinero")
+	-- No aparece donde el dinero no se vende por Robux (ver avisoRegion).
+	local function actualizarPedirDinero()
+		local restringido = Players.LocalPlayer:GetAttribute("SinAleatoriosPagados") ~= false
+		NotificacionController.AlPedirDinero = if restringido
+			then nil
+			else function()
+				TiendaController.Abrir("dinero")
+			end
 	end
+	actualizarPedirDinero()
+	Players.LocalPlayer:GetAttributeChangedSignal("SinAleatoriosPagados"):Connect(actualizarPedirDinero)
 	HudController.AlPedirX2 = function()
 		TiendaController.Abrir("pases")
 	end

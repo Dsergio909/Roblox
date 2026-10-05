@@ -885,6 +885,7 @@ function BaseService.Liberar(jugador: Player)
 	end
 	estados[jugador] = nil
 	duenos[estado.mapa.indice] = nil
+	ultimoAutoCobro[jugador] = nil
 
 	-- El dinero sin cobrar no se pierde: pasa al saldo del jugador.
 	local momento = ahora()

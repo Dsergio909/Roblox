@@ -26,6 +26,12 @@ local Robo = {
 	-- Si robas mientras tienes escudo de entrada o de novato, lo pierdes (si no, sería injusto).
 	ROBAR_QUITA_ESCUDO = true,
 
+	-- Antitrampas: quien carga un Crunchi no puede alejarse del punto del robo más rápido de lo
+	-- que camina (con margen). Detecta teletransportes y "speed hacks" sin falsos positivos
+	-- por lag: se compara la distancia TOTAL recorrida, no el salto entre dos muestras.
+	ANTITRAMPA_SEGUNDOS = 2, -- tolerancia extra de tiempo
+	ANTITRAMPA_MARGEN = 1.35, -- velocidad máxima = velocidad cargando × margen
+
 	-- Periódico enrollado (defensa)
 	PERIODICO_ALCANCE = 8, -- studs
 	PERIODICO_COOLDOWN = 0.8, -- segundos entre golpes

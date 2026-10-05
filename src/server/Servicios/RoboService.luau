@@ -46,6 +46,7 @@ type Robo = {
 	mutacion: string,
 	modelo: Model?,
 	inicio: number,
+	origen: Vector3, -- dónde estaba el ladrón al agarrar el Crunchi (antitrampas)
 	velocidadOriginal: number,
 	resaltado: Highlight?,
 	conexiones: { RBXScriptConnection },
@@ -198,6 +199,7 @@ local MENSAJES_FALLO: { [string]: string } = {
 	dueno_salio = "El dueño se fue: el Crunchi volvió con él",
 	agente = "🔎 ¡Un Agente Escáner te atrapó! El Crunchi volvió a su dueño",
 	ladron_salio = "",
+	trampa = "El Crunchi volvió a su dueño",
 }
 
 function RoboService.Fallar(ladron: Player, motivo: string, defensor: Player?)
@@ -371,6 +373,7 @@ function RoboService.Intentar(ladron: Player, dueno: Player, uid: string)
 	resaltado.DepthMode = Enum.HighlightDepthMode.Occluded
 	resaltado.Parent = personaje
 
+	local raizLadron = raizDe(ladron)
 	local robo: Robo = {
 		ladron = ladron,
 		dueno = dueno,
@@ -381,6 +384,7 @@ function RoboService.Intentar(ladron: Player, dueno: Player, uid: string)
 		mutacion = mutacion,
 		modelo = modelo,
 		inicio = Reloj.Ahora(),
+		origen = if raizLadron then raizLadron.Position else cabeza.Position,
 		velocidadOriginal = humanoide.WalkSpeed,
 		resaltado = resaltado,
 		conexiones = {},
@@ -495,6 +499,19 @@ end
 
 ----------------------------------------------------------------------------- inicio
 
+-- ¿Se alejó del punto del robo más rápido de lo que se puede caminar? (teletransporte o
+-- "speed hack"). La velocidad la decide el servidor (lo que cambie el cliente no cuenta).
+local function movimientoImposible(robo: Robo, momento: number): boolean
+	local raiz = raizDe(robo.ladron)
+	if raiz == nil then
+		return false
+	end
+	local plano = (raiz.Position - robo.origen) * Vector3.new(1, 0, 1)
+	local velocidad = robo.velocidadOriginal * ConfigRobo.VELOCIDAD_CARGANDO * ConfigRobo.ANTITRAMPA_MARGEN
+	local maximo = (momento - robo.inicio + ConfigRobo.ANTITRAMPA_SEGUNDOS) * velocidad
+	return plano.Magnitude > maximo
+end
+
 local function revisar()
 	local momento = Reloj.Ahora()
 	for ladron, robo in robos do
@@ -504,6 +521,9 @@ local function revisar()
 			RoboService.Fallar(ladron, "dueno_salio")
 		elseif momento - robo.inicio > ConfigRobo.TIEMPO_MAXIMO_CARGA then
 			RoboService.Fallar(ladron, "tiempo")
+		elseif movimientoImposible(robo, momento) then
+			warn(`[Robo] Movimiento imposible de {ladron.Name} ({ladron.UserId}) cargando un Crunchi`)
+			RoboService.Fallar(ladron, "trampa")
 		elseif BaseService.DentroDeSuBase(ladron) then
 			completar(robo)
 		end

@@ -211,7 +211,7 @@ Pestaña **Test → Device**: elige un teléfono pequeño y uno con notch, en ho
 - [ ] Pestaña 💰 Dinero: 4 paquetes con la cantidad EXACTA en $ que darían ahora, el precio en R$ y las etiquetas "Más popular" y "Mejor valor". Arriba: "Tu PRIMERA compra de dinero vale x2".
 - [ ] `producto DINERO_PUNADO` dos veces: la primera da el doble (aviso de bonus) y la segunda no.
 - [ ] Pestaña ⭐ Pases: 8 pases con descripción; los que tienes dicen "✔ Lo tienes".
-- [ ] Pestaña 🎁 Sorpresa: muestra las probabilidades por rareza (Épico 70 %, Legendario 24 %, Mítico 5 %, Secreto 1 %) y por mutación (Dorado 4 %, Diamante 1 %, Arcoíris 0.2 %). En Studio puede salir "no disponible en tu región": el juego oculta la canasta cuando Roblox (PolicyService) no confirma que está permitida, y en Studio a veces no lo confirma. Es lo esperado y seguro.
+- [ ] Pestaña 🎁 Sorpresa: muestra las probabilidades por rareza (Épico 70 %, Legendario 24 %, Mítico 5 %, Secreto 1 %) y por mutación (Dorado 4 %, Diamante 1 %, Arcoíris 0.2 %). En Studio se ve todo (ahí Roblox no siempre responde la consulta de región, y el juego lo permite solo en Studio para que puedas probar). En el juego publicado, en los países que restringen objetos aleatorios de pago, desaparecen la pestaña 🎁 Sorpresa, 💰 Dinero y 🚀 Pack (el dinero sirve para abrir canastas y huevos), y el botón "Conseguir $".
 - [ ] Pestaña ✨ Cosméticos: comprar el "Aura Brillante" con dinero del juego ($25K) la equipa y se ve alrededor de tu personaje. "Quitar" / "Usar" funcionan.
 - [ ] Botón de compra con ID 0: aviso "aún no está configurado" (no se rompe nada).
 

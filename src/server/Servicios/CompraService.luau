@@ -25,6 +25,7 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local PolicyService = game:GetService("PolicyService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = Shared:WaitForChild("Config")
@@ -329,13 +330,32 @@ local function estado(jugador: Player, datos: Tipos.Datos)
 	}
 end
 
+--[[
+	Objetos aleatorios de pago. Roblox considera "de pago" también lo aleatorio que se compra
+	con una moneda que se puede comprar con Robux. Por eso, donde está restringido, además
+	de ocultar la Canasta Sorpresa se ocultan los paquetes de dinero y el Pack Inicial: así
+	el dinero del juego (con el que se abren canastas y huevos) no se puede comprar con Robux.
+
+	Hasta tener la respuesta de Roblox, el jugador se trata como restringido. Si la consulta
+	falla en un servidor real, también (por prudencia). En Studio la consulta suele fallar:
+	ahí se muestra todo para poder probar la tienda.
+]]
 local function revisarPolitica(jugador: Player)
+	jugador:SetAttribute("SinAleatoriosPagados", true)
 	local ok, info = pcall(function()
 		return PolicyService:GetPolicyInfoForPlayerAsync(jugador)
 	end)
-	-- Si no se puede consultar, por prudencia se trata como restringido.
-	local restringido = not ok or (type(info) == "table" and info.ArePaidRandomItemsRestricted == true)
+	local restringido
+	if ok and type(info) == "table" then
+		restringido = info.ArePaidRandomItemsRestricted == true
+	else
+		restringido = not RunService:IsStudio()
+	end
+	if jugador.Parent == nil then
+		return
+	end
 	jugador:SetAttribute("SinAleatoriosPagados", restringido)
+	DatosService.ActualizarEstado(jugador, { "tienda" })
 end
 
 local function registrarEfectos()

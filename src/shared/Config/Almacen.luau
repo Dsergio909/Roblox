@@ -25,6 +25,7 @@ local Almacen = {
 	REINTENTO_SEGUNDOS = 15, -- tras tocar un láser: fallar no castiga, solo esperas un poco
 	TIEMPO_MAXIMO = 90, -- segundos para llegar a la bodega desde que entras
 	TIEMPO_MINIMO = 3, -- nadie cruza el pasillo más rápido (antitrampas)
+	VELOCIDAD_MAXIMA = 22, -- studs/s: avanzar más rápido que esto = teletransporte o "speed hack"
 
 	PESOS = { raro = 50, epico = 35, legendario = 12, mitico = 2.8, secreto = 0.2 },
 
