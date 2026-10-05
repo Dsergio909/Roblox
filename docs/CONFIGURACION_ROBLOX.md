@@ -15,7 +15,7 @@ Todo lo que **solo tú puedes hacer** porque se hace en tu cuenta de Roblox: cre
 
 - [ ] 1. Publicar y ajustes básicos (API Services, 8 jugadores)
 - [ ] 2. Tu UserId de administrador
-- [ ] 3. Los 8 Game Passes
+- [ ] 3. Los 9 Game Passes
 - [ ] 4. Los 11 Developer Products
 - [ ] 5. Las 8 insignias (badges)
 - [ ] 6. Sonidos y música
@@ -68,7 +68,7 @@ El panel 🛠️ (dar dinero, eventos, reiniciar...) solo aparece para los admin
 
 ---
 
-## 3. Los 8 Game Passes
+## 3. Los 9 Game Passes
 
 **Dónde:** Creator Dashboard → tu experiencia → **Monetization → Passes** → **Create a Pass**.
 
@@ -89,6 +89,7 @@ Para cada pase:
 | `APERTURA_TRIPLE` | Apertura Triple | 99 R$ | Abre 3 canastas a la vez (se pagan con dinero del juego). |
 | `ESTELA_ARCOIRIS` | Estela Arcoíris | 99 R$ | Una estela arcoíris que te sigue. |
 | `AURA_LLAMA` | Aura Llama Verde | 149 R$ | Un aura de llamas verdes. |
+| `MASCOTAS_EXTRA` | Mascotas Extra | 149 R$ | Lleva 2 Bichitos más equipados a la vez (solo suben tu ingreso). |
 
 - El precio que ven los jugadores se **lee de Roblox**: el `precio` del archivo es solo un respaldo. Aun así, déjalos iguales para que no haya confusión.
 - **Cómo probar:** en el juego publicado, compra un pase con tu cuenta (Roblox cobra de verdad). Para probar gratis, en Studio las compras son de prueba (no cobran) y funcionan igual; también puedes usar el comando `pase X2_DINERO` del panel 🛠️.
@@ -167,6 +168,9 @@ Solo puedes usar audio que **subiste tú** (y tienes derecho a usar) o audio de 
 | `MusicaEvento` | S12: música de los eventos |
 | `Laser` | S13: alarma del Almacén |
 | `Evento` | S14: empieza un evento |
+| `Chancla`, `Chillido`, `Splash` | S15–S17: golpes de la chancla, el pez de goma y el globo de agua |
+| `Huevo` | S18: abrir un huevo de Bichito |
+| `Objeto` | S19: usar un objeto de la Mochila |
 | `Robo` | Robo exitoso |
 
 4. Si un audio no suena en el juego publicado, revisa en el Creator Dashboard que tu experiencia tenga **permiso** para usarlo (en la página del audio → **Permissions**).

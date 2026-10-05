@@ -2,6 +2,30 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versiones: `MAYOR.MENOR.PARCHE`.
 
+## [0.5.0] - 2026-10-05 (Fase 5: Bichitos, armas y objetos)
+
+### Agregado
+- **7 armas de defensa** (🎒 Mochila → Armas): Periódico, Chancla Voladora, Matamoscas Gigante, Pez de Goma Chillón, Baguette Dura, Globo de Agua y Paraguas Rebotón. Se desbloquean jugando (detener ladrones, rebirths, Índice, Almacén, Redadas), nunca se compran, y están equilibradas (más alcance = golpe más lento). Aviso al desbloquear una y barrita de progreso en las bloqueadas.
+- **Bichitos de la Huerta 🐾:** 12 mascotas originales que te siguen y suben tu ingreso (tope +60 %). Tres huevos con dinero del juego, con la probabilidad de cada bichito a la vista. Equipar, "Equipar mejores", liberar (con confirmación para los raros) y colección con siluetas. Los de los demás se ven si están cerca.
+- **Objetos de la Mochila 🎒:** Jugo Turbo, Imán de Monedas, Fertilizante Mágico, Reloj del Almacén y Bomba de Confeti. Si un objeto no sirve en ese momento, no se gasta. Sus tiempos se ven bajo el dinero.
+- Game Pass **Mascotas Extra** (+2 espacios; ID pendiente en `Config/Productos`).
+- Misiones nuevas: abrir huevos y usar objetos (con objetos de premio). Objetos y bichitos en el Pase Crunch (niveles 7, 12, 18 y 22).
+- **Ajustes:** 🐾 Mascotas de otros y 📢 Anuncios.
+- Comandos de admin: `arma <id>`, `mascota <id>`, `objeto <id> [n]`.
+- Recompensas extensibles (`RecompensaService.RegistrarTipo`): "consumible" y "mascota".
+- Pruebas: armas (equilibrio y desbloqueo), huevos (probabilidades y que todo se pueda conseguir), espacios y bonus de mascotas, objetos (67 en total).
+
+### Cambiado
+- El periódico ahora es un arma más de `Config/Armas` (los valores salieron de `Config/Robo`).
+- Botones del HUD un poco más chicos para que entren 🐾 y 🎒; nuevo orden. El cartel de eventos pasó arriba al centro, debajo del dinero.
+- El menú ⚙️ se desplaza si no entra en la pantalla.
+
+### Seguridad y correcciones
+- **Antitrampas de robo:** quien carga un Crunchi no puede alejarse del punto del robo más rápido de lo que camina (teletransporte o "speed hack" → el Crunchi vuelve a su dueño). Sin falsos positivos por lag.
+- **Antitrampas del Almacén:** avanzar más rápido que lo posible termina el intento.
+- **Región (objetos aleatorios de pago):** donde Roblox los restringe, también se ocultan los paquetes de dinero, el Pack Inicial y "Conseguir $"; antes la respuesta de Roblox podía llegar tarde y no aplicarse. En Studio se muestra todo para poder probar.
+- Fuga de memoria del Auto-Cobro al salir; `oferta_cerrada` solo acepta ids conocidos; el comando `almacen` actualiza la puerta al instante.
+
 ## [0.4.0] - 2026-09-29 (Fase 4: eventos, Almacén y optimización)
 
 ### Agregado

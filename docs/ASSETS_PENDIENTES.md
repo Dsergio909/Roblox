@@ -42,6 +42,9 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 | M12 | **Terraza VIP** | Plataforma elegante (≤ 3,000 tris) con bancos y una estatua dorada | Reemplaza el placeholder en `MapaService` | 4 |
 | M11 | **Macetero y planta** | Maceta ≤ 200 tris; planta en 3 etapas (brote, tallo, flor-manzana) ≤ 300 tris cada una | Reemplaza el placeholder en `MaceteroController` | 3–4 |
 | M10 | Props de evento | Manzana gigante que cae (≤ 200 tris; hoy es una esfera roja), cohete con humo, globo | `EventoController` (Lluvia de Manzanas) | 4 |
+| M14 | **Bichitos (12 mascotas)** | ≤ 400 tris cada uno, estilo cartoon de huerta, "mirando" hacia -Z. Lista y colores en `Config/Mascotas.luau`. Un Model con PrimaryPart. | `ReplicatedStorage → Modelos → Mascotas → <id>` (el juego lo usa si existe) | 5 |
+| M15 | **Armas de defensa (7)** | Tool con su `Handle`, ≤ 300 tris: periódico, chancla, matamoscas, pez de goma, baguette, globo de agua, paraguas. Nada realista: todo cartoon. | `ReplicatedStorage → Modelos → Armas → <id>` (una Tool) | 5 |
+| M16 | **Huevos (3)** | Huevo de Huerta, Dorado y Celestial para la animación de abrir (≤ 300 tris) | Por ahora la UI usa emojis | 5 |
 | M13 | **Salón de la Fama** | 3 carteles de clasificación con marco decorativo (≤ 500 tris cada uno) | Hoy los arma `ClasificacionService`; posición en `Config/Clasificacion.luau` | 4 |
 
 ### Cómo reemplazar un placeholder por un modelo real (Crunchis)
@@ -66,7 +69,7 @@ Todo lo que **tú** debes crear o subir en Roblox Studio o en el Creator Hub. El
 | I2 | **Íconos de UI** (hoja de sprites) | Un PNG de 1024×1024 con íconos de 128×128 | Dinero, tienda, índice, misiones, ajustes, rebirth, cerrojo, escudo, canasta, 7 gemas de rareza, x2, VIP. Una sola imagen = menos descargas en internet lento. | 3 |
 | I3 | **Ícono del juego** | 512×512 PNG | Ver conceptos en `LANZAMIENTO.md`. Legible en tamaño pequeño, un solo personaje. | Antes del lanzamiento |
 | I4 | **Miniaturas del juego** | 1920×1080 PNG/JPG, 3 a 5 imágenes | Ver `LANZAMIENTO.md`. Nada engañoso: debe mostrar lo que el juego tiene. | Antes del lanzamiento |
-| I5 | **Íconos de Game Passes** (8) | 512×512 PNG | VIP, x2 Dinero, Auto-Cobro, Piso Extra, Depósito XL, Apertura Triple, Estela Arcoíris, Aura Llama. Roblox los recorta en círculo: deja el contenido centrado con margen. | 3 |
+| I5 | **Íconos de Game Passes** (9) | 512×512 PNG | VIP, x2 Dinero, Auto-Cobro, Piso Extra, Depósito XL, Apertura Triple, Estela Arcoíris, Aura Llama, Mascotas Extra. Roblox los recorta en círculo: deja el contenido centrado con margen. | 3 |
 | I6 | **Íconos de Developer Products** (11) | 512×512 PNG | 4 paquetes de dinero (puñado, canasta, carretilla, camión), Boost x2, Suerte del Servidor, Duplicar offline, Canasta Sorpresa, Saltar nivel, Pase Premium, Pack Inicial | 3 |
 | I7 | **Íconos de badges** | 512×512 PNG, recorte circular | Primer Crunchi, primer robo, primer rebirth, set completo ×5, Índice 100 % | 2 |
 | I8 | Textura de periódico, franjas de la cinta y ventanas | 256×256 / 512×512 | Inventadas, sin marcas reales | 4 |
@@ -93,6 +96,11 @@ Reglas de Roblox: solo puedes usar audio **subido por ti** (tuyo o con licencia)
 | S12 | Música de evento (`MusicaEvento`) | Loop tenso pero gracioso, para los eventos (si no tiene ID, sigue la principal) | 4 |
 | S13 | Alarma del Almacén (`Laser`) | "¡Biip-biip!" corto de alarma cartoon al tocar un láser | 4 |
 | S14 | Empieza un evento (`Evento`) | Fanfarria corta o sirena cartoon (≤ 3 s) | 4 |
+| S15 | Chancla (`Chancla`) | "¡Plaf!" de chancla | 5 |
+| S16 | Pez de goma (`Chillido`) | Chillido de juguete de goma | 5 |
+| S17 | Globo de agua (`Splash`) | Salpicón | 5 |
+| S18 | Abrir huevo (`Huevo`) | "Crac" de cáscara + "¡pop!" alegre | 5 |
+| S19 | Usar objeto (`Objeto`) | "Glup" o brillo corto | 5 |
 
 Los IDs van en `src/shared/Config/Sonidos.luau` (ya existe; `0` = sin sonido). Ahí cada sonido tiene su nombre (Compra, Cobro, Alarma…) y su volumen.
 
@@ -104,7 +112,7 @@ Paso a paso en **`CONFIGURACION_ROBLOX.md`**.
 
 | Tarea | Fase |
 |---|---|
-| Crear los 8 Game Passes y copiar sus IDs a `Config/Productos.luau` | 3 |
+| Crear los 9 Game Passes y copiar sus IDs a `Config/Productos.luau` | 3–5 |
 | Crear los Developer Products y copiar sus IDs | 3 |
 | Crear las badges | 2 |
 | Activar servidores privados y ponerles precio | 3 |

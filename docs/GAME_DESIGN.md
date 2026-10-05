@@ -170,6 +170,8 @@ Las mutaciones son el objetivo del **mes**: hay un Índice separado por mutació
 ### Cómo se defiende
 - **Cerrojo:** un botón dentro de tu base cierra la puerta con un campo de fuerza por 60 s (+5 s por rebirth, máximo 120 s). Para volver a cerrarlo tienes que regresar a pulsarlo, lo que premia estar atento.
 - **Periódico enrollado:** todos lo tienen gratis. Solo empuja a quien carga un Crunchi robado o a intrusos dentro de tu base, así que no sirve para molestar a cualquiera.
+- **Armas de defensa (Fase 5):** 7 armas cartoon (periódico, chancla, matamoscas, pez de goma, baguette, globo de agua, paraguas) que funcionan igual que el periódico. **No se compran:** se desbloquean jugando (detener ladrones, rebirths, Índice, Almacén, Redadas). Son "de lado": más alcance = golpe más lento; cualquier golpe detiene igual a un ladrón. Ver sección 14.
+- **Antitrampas:** quien carga un Crunchi no puede alejarse más rápido de lo que camina (teletransporte o "speed hack" = el Crunchi vuelve a su dueño).
 
 ### Protecciones obligatorias (iguales para todos, no se compran)
 
@@ -186,7 +188,7 @@ Las mutaciones son el objetivo del **mes**: hay un Índice separado por mutació
 | Base offline | Tu base solo existe mientras estás en el servidor | **Nunca pierdes nada estando desconectado** |
 | Robar quita tu escudo | Si robas mientras tienes escudo de entrada o de novato, lo pierdes | Nadie puede robar siendo intocable |
 
-**Ningún producto de pago** aumenta la velocidad, el tiempo de cerrojo, el poder del periódico, las bóvedas ni la capacidad de robo.
+**Ningún producto de pago** aumenta la velocidad, el tiempo de cerrojo, el poder del periódico (o de cualquier arma), las bóvedas ni la capacidad de robo. Las mascotas y los objetos tampoco: solo dan ingreso o comodidad.
 
 ---
 
@@ -317,6 +319,7 @@ Un jugador gratis puede llegar a **todo** el contenido del Índice, a todas las 
 | **Apertura Triple** | 99 R$ | Abrir 3 canastas a la vez (pagando con $) | Ahorra tiempo |
 | **Estela Arcoíris** | 99 R$ | Estela cosmética permanente | Estatus visible |
 | **Aura Llama Verde** | 149 R$ | Aura cosmética permanente | Estatus visible |
+| **Mascotas Extra** (Fase 5) | 149 R$ | +2 Bichitos equipados a la vez | Solo ingreso (con el mismo tope de +60 % para todos) |
 
 ### 8.3 Developer Products (compras repetibles)
 
@@ -378,7 +381,8 @@ Auras, estelas, títulos sobre la cabeza, skins de pedestal, efecto de llegada d
 | Regla | Cómo se garantiza |
 |---|---|
 | Probabilidades visibles | Toda canasta, con dinero o con Robux, muestra la tabla **antes** del botón de compra: rareza **y mutación**. La tabla se genera de la misma `Config` que usa el servidor, así que no pueden diferir, y los eventos no cambian las probabilidades de las canastas. |
-| Productos aleatorios de pago según país | `PolicyService:GetPolicyInfoForPlayerAsync` → se oculta la Canasta Sorpresa si `ArePaidRandomItemsRestricted` |
+| Productos aleatorios de pago según país | `PolicyService:GetPolicyInfoForPlayerAsync` → si `ArePaidRandomItemsRestricted`, se ocultan la Canasta Sorpresa **y también los paquetes de dinero y el Pack Inicial** (el dinero abre canastas y huevos: así no se puede comprar con Robux). Hasta tener la respuesta, el jugador se trata como restringido. |
+| Huevos de mascota | Se pagan con dinero del juego y muestran la probabilidad de **cada** Bichito antes de abrir (la misma tabla que usa el servidor). No hay huevos por Robux. |
 | Precios claros | Siempre en R$ con el ícono oficial. Los paquetes de dinero muestran la cifra exacta. |
 | Sin escasez falsa | Un "limitado" tiene fecha de fin real guardada en `Config/Eventos.luau` y se cumple |
 | Máximo 1 oferta automática por sesión | El servidor lleva la cuenta. Si se cierra, no vuelve a aparecer en esa sesión. |
@@ -456,3 +460,45 @@ Los eventos solo cambian las probabilidades de las **cintas** (que se ven en viv
 | **2** | Índice y sets, rebirth, mutaciones, misiones diarias y semanales, login con racha suave, ganancias offline, depósito, canastas con dinero, patrulla de Agentes Escáner, macetero |
 | **3** | Tienda, Game Passes, Developer Products, ProcessReceipt idempotente, Pack Inicial, Pase Crunch, Premium, PolicyService, ofertas contextuales |
 | **4** | Optimización (pooling y modo ahorro), pulido de sonidos y efectos, menú de ajustes completo, primer evento (Lluvia de Manzanas + Redada), Almacén FrutaMax |
+| **5** | Armas de defensa desbloqueables, Bichitos (mascotas) con huevos, objetos consumibles en la Mochila, opciones nuevas y auditoría de seguridad (antitrampas) |
+
+---
+
+## 14. Actualización "Bichitos y Armas" (Fase 5)
+
+### Armas de defensa
+| Arma | Alcance | Recarga | Cómo se desbloquea |
+|---|---|---|---|
+| 🗞️ Periódico Enrollado | 8 | 0.8 s | Lo tienen todos |
+| 🩴 Chancla Voladora | 6.5 (casi sin apuntar) | 0.55 s | Detener a 3 ladrones |
+| 🪰 Matamoscas Gigante | 10.5 | 1.1 s | Rebirth 1 |
+| 🐟 Pez de Goma Chillón | 8 | 0.75 s | Índice al 50 % |
+| 🥖 Baguette Dura | 8.5 (empuja muchísimo) | 0.9 s | Rebirth 3 |
+| 🎈 Globo de Agua | 15 (hay que apuntar) | 2.2 s | 3 cajas del Almacén |
+| ☂️ Paraguas Rebotón | 7.5 (casi todo alrededor) | 1.0 s | Golpear 10 agentes de la Redada |
+
+Las armas son metas de juego, no compras. Todas sirven solo contra ladrones, intrusos en tu base y agentes de la Redada. Se equipan en 🎒 Mochila → Armas, que muestra la barrita de progreso de las bloqueadas.
+
+### Bichitos de la Huerta (mascotas)
+- 12 bichitos originales (Gusanito Glotón, Mariquita Puntitos, Caracol Turbo, Hormiga Forzuda, Abejita Zumbona, Mariposa Pétalo, Grillo Cantor, Luciérnaga Lumi, Colibrí Relámpago, Topo Excavador, Dragoncito de Semilla y Fénix de Manzana) con las mismas 7 rarezas de los Crunchis.
+- Te siguen y suman **ingreso** (+2 % a +30 % cada uno; tope total de +60 %). Nada más.
+- **Huevos** con dinero del juego: de Huerta ($2.5K), Dorado ($750K, Rebirth 1) y Celestial ($250M, Rebirth 4). La probabilidad de cada bichito se ve antes de abrir. La Apertura Triple también sirve para huevos.
+- Espacios: 2, +1 en Rebirth 2 y +1 en Rebirth 5 (+2 con el pase Mascotas Extra).
+- Colección con siluetas, "Equipar mejores", y liberar bichitos a cambio de un poco de dinero (los épicos o mejores piden confirmación).
+- También salen en el Pase Crunch (nunca exclusivos: todos salen de los huevos).
+
+### Objetos de la Mochila (consumibles)
+| Objeto | Efecto |
+|---|---|
+| 🧃 Jugo Turbo | +50 % de ingreso por 10 min (acumulable hasta 1 h) |
+| 🧲 Imán de Monedas | Cobro automático por 10 min (acumulable hasta 1 h) |
+| 🧪 Fertilizante Mágico | La planta del macetero crece la mitad de lo que le falta |
+| ⏱️ Reloj del Almacén | Quita la espera del Almacén (Rebirth 1) |
+| 🎉 Bomba de Confeti | Celebración que ven todos alrededor |
+
+Se compran con dinero del juego (precio en minutos de tu ingreso) y se ganan en misiones nuevas ("abre huevos", "usa objetos") y en el Pase. Si un objeto no sirve en ese momento, no se gasta. **Ninguno da velocidad, saltos ni escudos.**
+
+### Opciones nuevas (⚙️)
+- 🐾 Mascotas de otros (verlas o no; con el Modo ahorro solo se ven las tuyas).
+- 📢 Anuncios de otros jugadores.
+

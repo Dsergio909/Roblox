@@ -25,7 +25,7 @@ src/
 │   │   ├── MapaService                  ← genera el mapa placeholder (bases, cintas, suelo)
 │   │   ├── BaseService                  ← bases: pedestales, cobro, venta, cerrojo, escudos
 │   │   ├── CintaService                 ← aparición de Crunchis por rareza y compra validada
-│   │   ├── RoboService                  ← robos, protecciones y periódico
+│   │   ├── RoboService                  ← robos, protecciones, armas de defensa y antitrampas
 │   │   ├── TutorialService              ← pasos del onboarding y estado del tutorial
 │   │   ├── RecompensaService            ← entrega de recompensas (dinero, canastas, semillas, XP)
 │   │   ├── IndiceService                ← sets, hitos del Índice y títulos
@@ -47,6 +47,9 @@ src/
 │   │   ├── ClasificacionService         ← tablas globales con OrderedDataStore y sus carteles
 │   │   ├── AjustesService               ← guarda música, sonidos y Modo ahorro
 │   │   ├── InsigniaService              ← entrega las insignias (badges) según los datos
+│   │   ├── ArmaService                  ← armas de defensa: desbloqueo por juego y equipar
+│   │   ├── MascotaService               ← Bichitos: huevos, equipar, liberar y su bonus de ingreso
+│   │   ├── ConsumibleService            ← objetos de la Mochila: comprar, usar y sus efectos
 │   │   └── AdminService                 ← comandos de prueba (solo admins)
 │   ├── Util/RedServidor                 ← escuchar remotos con límite de frecuencia y pcall
 │   ├── Util/Acciones                    ← un remoto "AccionMenu" para todas las acciones de menús
@@ -79,6 +82,8 @@ src/
 │       ├── AjustesController            ← menú ⚙️ (música, sonidos, Modo ahorro, FPS)
 │       ├── EventoController             ← cartel del evento, música, tono y Lluvia de Manzanas
 │       ├── AlmacenController            ← dibuja y mueve los láseres, cuenta regresiva y puerta
+│       ├── MascotasController           ← ventana 🐾, huevos, colección y bichitos que te siguen
+│       ├── MochilaController            ← ventana 🎒: objetos (usar/comprar) y armas (equipar)
 │       └── AdminController              ← panel 🛠️
 └── shared/                              (servidor y cliente)
     ├── Config/                          ← TODO el balance y los datos editables
@@ -96,6 +101,7 @@ tests/                                   ← pruebas unitarias (no se sincroniza
 - **Señales** (`Util/Senal`): p. ej. `DatosService.JugadorListo`, `CintaService.Comprado`, `RoboService.RoboCompletado`. Un servicio avisa y otros reaccionan, sin depender unos de otros.
 - **Registro de bonus:** `EconomiaService.RegistrarBonus(...)`. Rebirths, Premium, grupo, pases y boosts aportan su parte sin que Economía los conozca.
 - **Estado privado:** `DatosService.RegistrarEstado("tutorial", fn)`. Cada servicio arma la parte del estado que el cliente necesita.
+- **Tipos de recompensa:** `RecompensaService.RegistrarTipo("mascota", fn)`. Misiones, Pase y demás entregan premios de otros servicios sin conocerlos.
 - **Modificadores de las cintas:** `CintaService.RegistrarModificadorRareza/Mutacion(...)`. Los eventos y la Suerte del Servidor cambian las probabilidades de las cintas sin tocar CintaService. Las canastas, semillas y el Almacén usan probabilidades de mutación **fijas** (`Catalogo.PesosMutacionFijos`), las mismas que muestra la UI.
 - **Atributos de Workspace** para lo que ve todo el servidor: `EventoId`/`EventoHasta` (evento actual) y `SuerteHasta`. El cliente los escucha, sin remotos extra.
 - **Fórmulas compartidas con el reloj del servidor** (`Reloj.Ahora()`): las cintas y los láseres del Almacén se mueven en cada cliente con la misma fórmula que usa el servidor para validar. Cero tráfico de red por movimiento.

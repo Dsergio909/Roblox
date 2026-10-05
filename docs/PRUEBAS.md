@@ -295,3 +295,46 @@ Pestaña **Test → Device**: elige un teléfono pequeño y uno con notch, en ho
 
 ### P4.6 Insignias (cuando tengan ID, en el juego publicado)
 - [ ] Con los IDs puestos en `Config/Insignias.luau` y el juego publicado: comprar tu primer Crunchi da la insignia "¡Mi primer Crunchi!" (aparece el aviso de Roblox). Salir y volver no la vuelve a pedir.
+
+---
+
+## Fase 5: Bichitos, armas y objetos
+
+**Qué hay:** 7 armas de defensa que se desbloquean jugando, mascotas (🐾 Bichitos) con huevos, objetos de un solo uso (🎒 Mochila), opciones nuevas y antitrampas.
+
+**Botones:** derecha 🛒 · 🧺 · 🐾 · 📋 · 📖 · ⭐ — izquierda 🎁 · 📦 · 🎒 · 🔁 · ⚙️ · 🛠️.
+
+> Atajos en el panel 🛠️ (escríbelos en el cuadro): `arma chancla` (equipa sin requisito), `mascota fenix`, `objeto jugo_turbo 5`, `dinero 1000000000` y `rebirth`.
+
+### P5.1 Armas
+- [ ] 🎒 → 🗞️ Armas: el Periódico dice "✅ Equipada"; las demás muestran 🔒, qué falta y una barrita.
+- [ ] `arma matamoscas`: en tu barra de herramientas aparece el Matamoscas (rojo, más largo). Con 2 jugadores, golpear a un ladrón lo detiene desde más lejos que el periódico, pero tarda más en volver a golpear.
+- [ ] Haz `rebirth` una vez: a los pocos segundos llega "🔓 ¡Nueva arma: Matamoscas!" y en Armas ya se puede **Equipar**.
+- [ ] Al morir y reaparecer, sigues teniendo el arma equipada (no vuelve el periódico).
+- [ ] Durante una 🚨 Redada, cada agente golpeado suma para el ☂️ Paraguas (10 agentes).
+
+### P5.2 Bichitos 🐾
+- [ ] 🐾 → 🥚 Huevos: cada huevo muestra la probabilidad de **cada** bichito (deben sumar 100 %). Sin rebirths, el Dorado y el Celestial dicen 🔒.
+- [ ] Con dinero, "Abrir ×1" en el Huevo de Huerta: animación, tarjeta del bichito con "📖 ¡NUEVO!", y el bichito aparece **flotando detrás de ti**.
+- [ ] En "Mis Bichitos", arriba dice "Equipadas 1/2 · Bonus de ingreso +2 %" y tu `+$/s` subió.
+- [ ] Toca una tarjeta para quitarla o equiparla. "⭐ Equipar mejores" elige las de más bonus.
+- [ ] "🌿 Liberar": un común se libera al tocarlo (te da algo de dinero). Uno épico o mejor pide tocarlo dos veces. Uno equipado pide quitarlo primero.
+- [ ] Colección: los que nunca tuviste salen como "???".
+- [ ] `mascota fenix` (Secreto): anuncio a todo el servidor y el bichito brilla.
+- [ ] `pase MASCOTAS_EXTRA`: los espacios suben en 2.
+- [ ] Con 2 jugadores: ves los bichitos del otro. En ⚙️, "🐾 Mascotas de otros: NO" los oculta (los tuyos siguen).
+
+### P5.3 Objetos 🎒
+- [ ] 🎒 → 🧃 Objetos: cada objeto con su precio (cambia según tu ingreso) y "Comprar".
+- [ ] Compra y usa un 🧃 Jugo Turbo: bajo el dinero aparece "🧃 9:59" y tu `+$/s` sube x1.5. Al acabarse: aviso y vuelve a la normalidad.
+- [ ] 🧲 Imán: el dinero se cobra solo (aparece "+$X" junto al dinero) mientras dure.
+- [ ] 🧪 Fertilizante sin nada plantado: dice que no hay nada creciendo y **no se gasta**. Con una semilla plantada: el tiempo baja a la mitad.
+- [ ] ⏱️ Reloj del Almacén después de sacar una caja: la puerta vuelve a decir "Entrar".
+- [ ] 🎉 Confeti: explosión de confeti que también ve el otro jugador si está cerca.
+- [ ] Misiones: aparecen a veces "Abre 3 huevos" y "Usa 2 objetos"; al reclamarlas dan su objeto.
+
+### P5.4 Opciones y seguridad
+- [ ] ⚙️ tiene 5 opciones y se puede desplazar en un celular chico. "📢 Anuncios: NO" oculta los avisos de lo que consiguen los demás (los eventos se siguen anunciando).
+- [ ] Antitrampas (no hace falta probarlo con trampas): robar y caminar normal a tu base sigue funcionando igual, aunque tengas lag.
+- [ ] En Output no aparecen errores rojos al usar todo lo anterior.
+
