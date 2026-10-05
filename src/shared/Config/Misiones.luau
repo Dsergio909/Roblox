@@ -13,6 +13,7 @@
 	  minutos     recompensa en MINUTOS de tu ingreso actual (así nunca queda vieja)
 	  xp          experiencia del Pase de Temporada (Fase 3)
 	  semillas    (opcional) semillas para el macetero
+	  objeto      (opcional) { id, cantidad } de Config/Consumibles para la Mochila
 
 	TIPOS que el juego sabe contar:
 	  comprar            comprar Crunchis en la cinta
@@ -25,6 +26,8 @@
 	  cerrar_base        usar el cerrojo
 	  cosechar           cosechar el macetero
 	  completar_diarias  completar misiones diarias (solo semanales)
+	  abrir_huevo        abrir huevos de Bichitos (mascotas)
+	  usar_objeto        usar objetos de la Mochila
 ]]
 
 export type Mision = {
@@ -36,6 +39,7 @@ export type Mision = {
 	minutos: number,
 	xp: number,
 	semillas: number?,
+	objeto: { id: string, cantidad: number }?,
 }
 
 local function M(mision: Mision): Mision
@@ -104,6 +108,23 @@ local Misiones = {
 			xp = 100,
 		}),
 		M({ id = "d_cosechar", tipo = "cosechar", meta = 1, texto = "Cosecha tu macetero", minutos = 6, xp = 100 }),
+		M({
+			id = "d_huevo_3",
+			tipo = "abrir_huevo",
+			meta = 3,
+			texto = "Abre {meta} huevos de Bichito",
+			minutos = 6,
+			xp = 100,
+		}),
+		M({
+			id = "d_objeto_2",
+			tipo = "usar_objeto",
+			meta = 2,
+			texto = "Usa {meta} objetos de tu Mochila",
+			minutos = 5,
+			xp = 100,
+			objeto = { id = "jugo_turbo", cantidad = 1 },
+		}),
 	},
 
 	SEMANALES = {
@@ -149,6 +170,24 @@ local Misiones = {
 			texto = "Abre {meta} canastas",
 			minutos = 30,
 			xp = 500,
+		}),
+		M({
+			id = "s_huevos_20",
+			tipo = "abrir_huevo",
+			meta = 20,
+			texto = "Abre {meta} huevos de Bichito",
+			minutos = 30,
+			xp = 500,
+			objeto = { id = "jugo_turbo", cantidad = 2 },
+		}),
+		M({
+			id = "s_objetos_10",
+			tipo = "usar_objeto",
+			meta = 10,
+			texto = "Usa {meta} objetos de tu Mochila",
+			minutos = 30,
+			xp = 500,
+			objeto = { id = "iman", cantidad = 2 },
 		}),
 		M({
 			id = "s_jugar_180",

@@ -23,11 +23,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ConfigAgentes = require(Shared:WaitForChild("Config"):WaitForChild("Agentes"))
 local ConfigEventos = require(Shared:WaitForChild("Config"):WaitForChild("Eventos"))
-local ConfigRobo = require(Shared:WaitForChild("Config"):WaitForChild("Robo"))
+local ConfigArmas = require(Shared:WaitForChild("Config"):WaitForChild("Armas"))
 local Catalogo = require(Shared:WaitForChild("Catalogo"))
 local Formato = require(Shared:WaitForChild("Util"):WaitForChild("Formato"))
 local Reloj = require(Shared:WaitForChild("Util"):WaitForChild("Reloj"))
 
+local DatosService = require(script.Parent:WaitForChild("DatosService"))
 local RoboService = require(script.Parent:WaitForChild("RoboService"))
 local BaseService = require(script.Parent:WaitForChild("BaseService"))
 local MapaService = require(script.Parent:WaitForChild("MapaService"))
@@ -414,8 +415,8 @@ local function pensarRedada(agente: Agente)
 	end
 end
 
--- Un periodicazo: ¿le dio a algún agente de la redada?
-local function alPeriodicazo(golpeador: Player, posicion: Vector3, frente: Vector3)
+-- Un golpe con un arma de defensa: ¿le dio a algún agente de la redada?
+local function alPeriodicazo(golpeador: Player, posicion: Vector3, frente: Vector3, arma: ConfigArmas.Arma)
 	for _, agente in redada do
 		if agente.estado == "fuera" or agente.modelo.Parent == nil then
 			continue
@@ -423,8 +424,8 @@ local function alPeriodicazo(golpeador: Player, posicion: Vector3, frente: Vecto
 		local diferencia = agente.raiz.Position - posicion
 		local plano = Vector3.new(diferencia.X, 0, diferencia.Z)
 		local distancia = plano.Magnitude
-		local enFrente = distancia < 3 or (distancia > 0 and frente:Dot(plano.Unit) > 0.2)
-		if distancia <= ConfigRobo.PERIODICO_ALCANCE + 1 and math.abs(diferencia.Y) < 6 and enFrente then
+		local enFrente = distancia < 3 or (distancia > 0 and frente:Dot(plano.Unit) > arma.cono)
+		if distancia <= arma.alcance + 1 and math.abs(diferencia.Y) < 6 and enFrente then
 			local lugarGolpe = agente.raiz.Position
 			agente.modelo.Parent = nil -- se va corriendo (vuelve en unos segundos)
 			agente.objetivo = nil
@@ -440,6 +441,10 @@ local function alPeriodicazo(golpeador: Player, posicion: Vector3, frente: Vecto
 				RedServidor.Notificar(golpeador, `🗞️ ¡Agente fuera! +{Formato.Dinero(monto)}`, "exito")
 			else
 				RedServidor.Notificar(golpeador, "🗞️ ¡Agente fuera!", "exito")
+			end
+			local datos = DatosService.Obtener(golpeador)
+			if datos then
+				datos.stats.agentesGolpeados += 1
 			end
 			AnaliticaService.Evento(golpeador, "AgenteRedada", 1)
 		end

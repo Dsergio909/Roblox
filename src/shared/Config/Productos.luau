@@ -95,6 +95,13 @@ local Productos = {
 			icono = "🌈",
 			descripcion = "Una estela arcoíris que te sigue a todas partes.",
 		}),
+		MASCOTAS_EXTRA = P({
+			id = 0, -- TODO
+			nombre = "Mascotas Extra",
+			precio = 149,
+			icono = "🐾",
+			descripcion = "Lleva 2 Bichitos más equipados a la vez (solo suben tu ingreso).",
+		}),
 		AURA_LLAMA = P({
 			id = 0, -- TODO
 			nombre = "Aura Llama Verde",

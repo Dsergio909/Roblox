@@ -465,6 +465,18 @@ local function revisarIntrusos()
 	end
 end
 
+-- Reloj del Almacén (objeto): quita la espera. Devuelve false si ya podía entrar.
+function AlmacenService.QuitarEspera(jugador: Player): boolean
+	local datos = DatosService.Obtener(jugador)
+	if datos == nil or datos.almacen.proximo <= Reloj.Ahora() then
+		return false
+	end
+	datos.almacen.proximo = 0
+	reintento[jugador] = nil
+	DatosService.ActualizarEstado(jugador, { "almacen" })
+	return true
+end
+
 function AlmacenService.Iniciar()
 	local puerta, caja = construir()
 
@@ -509,12 +521,9 @@ function AlmacenService.Iniciar()
 	end)
 
 	AdminService.Registrar("almacen", function(jugador)
-		local datos = DatosService.Obtener(jugador)
-		if datos then
-			datos.almacen.proximo = 0
-			reintento[jugador] = nil
-			RedServidor.Notificar(jugador, "🛠️ Almacén listo para entrar", "info")
-		end
+		AlmacenService.QuitarEspera(jugador)
+		reintento[jugador] = nil
+		RedServidor.Notificar(jugador, "🛠️ Almacén listo para entrar", "info")
 	end)
 end
 

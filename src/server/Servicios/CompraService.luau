@@ -471,11 +471,12 @@ function CompraService.Iniciar()
 	AdminService.Registrar("pase", function(jugador: Player, argumentos: { string })
 		local clave = string.upper(argumentos[1] or "")
 		if ConfigProductos.PASES[clave] == nil then
-			RedServidor.Notificar(
-				jugador,
-				"🛠️ Pases: VIP, X2_DINERO, AUTO_COBRO, PISO_EXTRA, DEPOSITO_XL, APERTURA_TRIPLE, ESTELA_ARCOIRIS, AURA_LLAMA",
-				"info"
-			)
+			local claves = {}
+			for k in ConfigProductos.PASES do
+				table.insert(claves, k)
+			end
+			table.sort(claves)
+			RedServidor.Notificar(jugador, `🛠️ Pases: {table.concat(claves, ", ")}`, "info")
 			return
 		end
 		darPase(jugador, clave, true)

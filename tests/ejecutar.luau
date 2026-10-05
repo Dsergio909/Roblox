@@ -31,6 +31,11 @@ local ConfigAlmacen = require("../src/shared/Config/Almacen")
 local ConfigClasificacion = require("../src/shared/Config/Clasificacion")
 local Laseres = require("../src/shared/Logica/Laseres")
 local ConfigInsignias = require("../src/shared/Config/Insignias")
+local ConfigArmas = require("../src/shared/Config/Armas")
+local ConfigMascotas = require("../src/shared/Config/Mascotas")
+local ConfigConsumibles = require("../src/shared/Config/Consumibles")
+local Desbloqueo = require("../src/shared/Logica/Desbloqueo")
+local LogicaMascotas = require("../src/shared/Logica/Mascotas")
 
 ----------------------------------------------------------------------------- mini framework
 local pasadas, fallidas = 0, 0
@@ -420,6 +425,14 @@ local semillaPorId: { [string]: any } = {}
 for _, s in ConfigSemillas do
 	semillaPorId[s.id] = s
 end
+local consumiblePorId: { [string]: any } = {}
+for _, c in ConfigConsumibles.LISTA do
+	consumiblePorId[c.id] = c
+end
+local mascotaPorId: { [string]: any } = {}
+for _, m in ConfigMascotas.LISTA do
+	mascotaPorId[m.id] = m
+end
 prueba("Canastas y semillas usan rarezas existentes con Crunchis", function()
 	local function revisar(nombre: string, pesos: { [string]: number })
 		for rareza, peso in pesos do
@@ -464,6 +477,8 @@ prueba("Misiones: ids únicos y tipos conocidos", function()
 		cerrar_base = true,
 		cosechar = true,
 		completar_diarias = true,
+		abrir_huevo = true,
+		usar_objeto = true,
 	}
 	local vistos = {}
 	for _, lista in { ConfigMisiones.DIARIAS, ConfigMisiones.SEMANALES } do
@@ -473,6 +488,9 @@ prueba("Misiones: ids únicos y tipos conocidos", function()
 			verdadero(tipos[m.tipo] == true, `tipo desconocido {m.tipo}`)
 			if m.tipo == "conseguir_rareza" then
 				verdadero(ordenRareza[m.parametro or ""] ~= nil, `{m.id}: parámetro de rareza inválido`)
+			end
+			if m.objeto then
+				verdadero(consumiblePorId[m.objeto.id] ~= nil, `{m.id}: objeto desconocido`)
 			end
 		end
 	end
@@ -581,6 +599,10 @@ prueba("Pase: 30 niveles con premios válidos", function()
 			verdadero(cosmeticoPorId[premio.id] ~= nil, `nivel {n}: cosmético desconocido`)
 		elseif premio.tipo == "dinero" then
 			verdadero((premio.minutos or 0) > 0, `nivel {n}: dinero sin minutos`)
+		elseif premio.tipo == "consumible" then
+			verdadero(consumiblePorId[premio.id] ~= nil, `nivel {n}: objeto desconocido`)
+		elseif premio.tipo == "mascota" then
+			verdadero(mascotaPorId[premio.id] ~= nil, `nivel {n}: mascota desconocida`)
 		else
 			igual(premio.tipo, "titulo", `nivel {n}`)
 		end
@@ -729,6 +751,129 @@ prueba("Cruza: detecta a quien pasa corriendo entre dos muestras", function()
 	-- Quieto sobre la cortina.
 	verdadero(Laseres.Cruza(laserPrueba, 0, 10, 0, 0.1, 10, 0, 4, 0), "quieto encima")
 	igual(Laseres.Tocado({ laserPrueba }, 0, 8, 0, 0.01, 12, 0, 4, 0), 1)
+end)
+
+----------------------------------------------------------------------------- Fase 5
+grupo("Fase 5: armas")
+local ConfigSonidos = require("../src/shared/Config/Sonidos")
+prueba("Armas: ids únicos, inicial válida y sonidos que existen", function()
+	local vistas = {}
+	local tipos = {}
+	for _, t in Desbloqueo.TIPOS do
+		tipos[t] = true
+	end
+	local inicial = nil
+	for _, arma in ConfigArmas.LISTA do
+		verdadero(not vistas[arma.id], `arma repetida: {arma.id}`)
+		vistas[arma.id] = true
+		verdadero(tipos[arma.desbloqueo.tipo] == true, `{arma.id}: desbloqueo desconocido`)
+		verdadero(ConfigSonidos[arma.sonido] ~= nil, `{arma.id}: sonido desconocido {arma.sonido}`)
+		verdadero(arma.forma == "Block" or arma.forma == "Ball", `{arma.id}: forma inválida`)
+		if arma.id == ConfigArmas.INICIAL then
+			inicial = arma
+		end
+	end
+	verdadero(inicial ~= nil and inicial.desbloqueo.tipo == "inicial", "el arma inicial debe ser de todos")
+end)
+prueba("Armas: equilibradas (ninguna es mejor en todo)", function()
+	for _, arma in ConfigArmas.LISTA do
+		verdadero(arma.alcance > 0 and arma.alcance <= 16, `{arma.id}: alcance fuera de rango`)
+		verdadero(arma.cooldown >= 0.5, `{arma.id}: golpea demasiado rápido`)
+		verdadero(arma.cono >= -1 and arma.cono <= 1, `{arma.id}: cono inválido`)
+		-- "Poder" = alcance por segundo: todas en una franja parecida.
+		local poder = arma.alcance / arma.cooldown
+		verdadero(poder >= 5 and poder <= 12.5, `{arma.id}: poder {poder} fuera de la franja`)
+		verdadero(arma.empuje <= 90, `{arma.id}: empuje exagerado`)
+	end
+end)
+prueba("Desbloqueo: cumple, progreso y texto", function()
+	local r = { rebirths = 2, defensas = 1, indice = 40, almacen = 3, agentes = 0 }
+	verdadero(Desbloqueo.Cumple({ tipo = "inicial", valor = 0 }, r), "inicial siempre")
+	verdadero(Desbloqueo.Cumple({ tipo = "rebirths", valor = 2 }, r), "rebirths justo")
+	verdadero(not Desbloqueo.Cumple({ tipo = "defensas", valor = 3 }, r), "faltan defensas")
+	verdadero(not Desbloqueo.Cumple({ tipo = "indice", valor = 50 }, r), "falta índice")
+	verdadero(Desbloqueo.Cumple({ tipo = "almacen", valor = 3 }, r), "almacén justo")
+	cerca(Desbloqueo.Progreso({ tipo = "defensas", valor = 4 }, r), 0.25, 1e-9)
+	cerca(Desbloqueo.Progreso({ tipo = "almacen", valor = 1 }, r), 1, 1e-9)
+	verdadero(not Desbloqueo.Cumple({ tipo = "inventado", valor = 1 }, r), "tipo desconocido no cumple")
+	for _, t in Desbloqueo.TIPOS do
+		verdadero(Desbloqueo.Texto({ tipo = t, valor = 3 }) ~= "?", `sin texto para {t}`)
+	end
+end)
+
+grupo("Fase 5: mascotas")
+prueba("Mascotas: ids únicos, rarezas existentes y bonus razonables", function()
+	local vistas = {}
+	for _, m in ConfigMascotas.LISTA do
+		verdadero(not vistas[m.id], `mascota repetida: {m.id}`)
+		vistas[m.id] = true
+		verdadero(ordenRareza[m.rareza] ~= nil, `{m.id}: rareza desconocida`)
+		verdadero(m.bonus > 0 and m.bonus <= 0.5, `{m.id}: bonus fuera de rango`)
+		verdadero(m.forma == "gusano" or m.forma == "bicho" or m.forma == "volador", `{m.id}: forma inválida`)
+		verdadero((ConfigMascotas.LIBERAR[m.rareza] or 0) > 0, `{m.id}: sin precio de liberar`)
+	end
+	verdadero(ConfigMascotas.BONUS_MAXIMO > 0 and ConfigMascotas.BONUS_MAXIMO <= 1, "tope de bonus raro")
+end)
+prueba("Huevos: probabilidades válidas y cada bichito se puede conseguir", function()
+	local obtenibles = {}
+	for _, huevo in ConfigMascotas.HUEVOS do
+		verdadero(huevo.precio > 0, `{huevo.id}: precio`)
+		local p = Azar.Probabilidades(huevo.pesos)
+		local suma = 0
+		for id, prob in p do
+			verdadero(mascotaPorId[id] ~= nil, `{huevo.id}: mascota desconocida {id}`)
+			suma += prob
+			if prob > 0 then
+				obtenibles[id] = true
+			end
+		end
+		cerca(suma, 1, 1e-9)
+	end
+	for _, m in ConfigMascotas.LISTA do
+		verdadero(obtenibles[m.id] == true, `{m.id}: no sale de ningún huevo`)
+	end
+	-- Los huevos más caros piden más rebirths (no hay atajos raros).
+	local anterior = -1
+	for _, huevo in ConfigMascotas.HUEVOS do
+		verdadero(huevo.requisitoRebirths >= anterior, `{huevo.id}: requisito desordenado`)
+		anterior = huevo.requisitoRebirths
+	end
+end)
+prueba("Mascotas: espacios, bonus con tope y mejores", function()
+	igual(LogicaMascotas.Espacios(0, false, ConfigMascotas), ConfigMascotas.ESPACIOS_BASE)
+	local todos = ConfigMascotas.ESPACIOS_BASE + #ConfigMascotas.ESPACIOS_POR_REBIRTH
+	igual(LogicaMascotas.Espacios(99, false, ConfigMascotas), todos)
+	igual(LogicaMascotas.Espacios(99, true, ConfigMascotas), todos + ConfigMascotas.ESPACIOS_PASE)
+	cerca(LogicaMascotas.Bonus({ 0.1, 0.2 }, 0.6), 0.3, 1e-9)
+	cerca(LogicaMascotas.Bonus({ 0.3, 0.3, 0.3 }, 0.6), 0.6, 1e-9)
+	local mejores = LogicaMascotas.Mejores({
+		{ uid = "a", bonus = 0.02 },
+		{ uid = "b", bonus = 0.12 },
+		{ uid = "c", bonus = 0.05 },
+	}, 2)
+	igual(#mejores, 2)
+	igual(mejores[1], "b")
+	igual(mejores[2], "c")
+	verdadero(ConfigProductos.PASES.MASCOTAS_EXTRA ~= nil, "falta el pase Mascotas Extra")
+end)
+
+grupo("Fase 5: objetos")
+prueba("Objetos: ids únicos, efectos conocidos y precios", function()
+	local efectos = { ingreso = true, autocobro = true, macetero = true, almacen = true, confeti = true }
+	local vistos = {}
+	for _, c in ConfigConsumibles.LISTA do
+		verdadero(not vistos[c.id], `objeto repetido: {c.id}`)
+		vistos[c.id] = true
+		verdadero(efectos[c.efecto] == true, `{c.id}: efecto desconocido`)
+		verdadero(c.precioMinutos > 0 and c.precioMinimo > 0, `{c.id}: precio`)
+		if c.efecto == "ingreso" or c.efecto == "autocobro" then
+			verdadero(c.duracion > 0 and c.maxDuracion >= c.duracion, `{c.id}: duración`)
+		end
+		if c.efecto == "ingreso" then
+			verdadero(c.valor > 1 and c.valor <= 2, `{c.id}: multiplicador fuera de rango`)
+		end
+	end
+	verdadero(ConfigConsumibles.MAXIMO_POR_OBJETO >= ConfigConsumibles.COMPRA_MAXIMA, "tope de inventario")
 end)
 
 ----------------------------------------------------------------------------- resumen

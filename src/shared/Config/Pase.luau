@@ -11,7 +11,8 @@
 	cuando termina, termina (nada de "limitado" falso). Para una temporada nueva, cambia el
 	`id` (p. ej. "t2"): el progreso de todos empieza de cero y el premium se vuelve a comprar.
 
-	Tipos de premio: dinero (minutos), canasta, semilla, cosmetico, titulo.
+	Tipos de premio: dinero (minutos), canasta, semilla, cosmetico, titulo, consumible (objeto
+	de la Mochila) y mascota (un Bichito que también sale de los huevos: nada exclusivo).
 ]]
 
 export type Premio = { tipo: string, minutos: number?, id: string?, cantidad: number?, texto: string }
@@ -34,13 +35,36 @@ end
 local function titulo(nombre: string): Premio
 	return { tipo = "titulo", id = nombre, texto = `🏷️ «{nombre}»` }
 end
+local function objeto(id: string, icono: string, nombre: string, cantidad: number?): Premio
+	local n = cantidad or 1
+	return { tipo = "consumible", id = id, cantidad = n, texto = `{icono} {if n > 1 then `{n}× ` else ""}{nombre}` }
+end
+local function mascota(id: string, icono: string, nombre: string): Premio
+	return { tipo = "mascota", id = id, texto = `{icono} {nombre}` }
+end
 
 -- Niveles especiales; el resto sigue un patrón (ver abajo).
 local ESPECIALES: { [number]: Nivel } = {
 	[5] = { gratis = semilla("dorada", "Semilla Dorada"), premium = canasta("dorada", "Canasta Dorada") },
+	[7] = {
+		gratis = objeto("iman", "🧲", "Imán de Monedas", 2),
+		premium = objeto("jugo_turbo", "🧃", "Jugo Turbo", 3),
+	},
+	[12] = {
+		gratis = objeto("jugo_turbo", "🧃", "Jugo Turbo"),
+		premium = mascota("abejita", "🐝", "Abejita Zumbona"),
+	},
 	[10] = { gratis = titulo("Crunchero de Temporada"), premium = cosmetico("aura_temporada1_premium", "Aura Nuclear") },
 	[15] = { gratis = canasta("hierro", "Canasta de Hierro", 2), premium = semilla("estelar", "Semilla Estelar") },
+	[18] = {
+		gratis = objeto("fertilizante", "🧪", "Fertilizante Mágico", 2),
+		premium = objeto("reloj_almacen", "⏱️", "Reloj del Almacén", 2),
+	},
 	[20] = { gratis = cosmetico("aura_temporada1", "Aura T1"), premium = canasta("dorada", "Canasta Dorada", 2) },
+	[22] = {
+		gratis = objeto("confeti", "🎉", "Bomba de Confeti", 5),
+		premium = mascota("luciernaga", "✨", "Luciérnaga Lumi"),
+	},
 	[25] = { gratis = semilla("dorada", "Semilla Dorada", 2), premium = titulo("Leyenda de la Temporada 1") },
 	[30] = {
 		gratis = cosmetico("estela_temporada1", "Estela T1"),

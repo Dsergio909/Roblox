@@ -116,6 +116,23 @@ local function cosechar(jugador: Player)
 	DatosService.ActualizarEstado(jugador, { "macetero" })
 end
 
+-- Fertilizante (objeto): la planta crece de golpe; queda `fraccion` del tiempo que le
+-- faltaba (0.5 = la mitad). Devuelve false si no hay nada creciendo.
+function MaceteroService.Acelerar(jugador: Player, fraccion: number): boolean
+	local datos = DatosService.Obtener(jugador)
+	if datos == nil or datos.macetero.semilla == "" then
+		return false
+	end
+	local restante = datos.macetero.listaEn - os.time()
+	if restante <= 0 then
+		return false
+	end
+	datos.macetero.listaEn = os.time() + math.floor(restante * math.clamp(fraccion, 0, 1))
+	publicar(jugador)
+	DatosService.ActualizarEstado(jugador, { "macetero" })
+	return true
+end
+
 function MaceteroService.Iniciar()
 	DatosService.RegistrarEstado("macetero", function(_jugador: Player, datos: Tipos.Datos)
 		return {

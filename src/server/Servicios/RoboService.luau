@@ -24,6 +24,7 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ConfigRobo = require(Shared:WaitForChild("Config"):WaitForChild("Robo"))
+local ConfigArmas = require(Shared:WaitForChild("Config"):WaitForChild("Armas"))
 local Catalogo = require(Shared:WaitForChild("Catalogo"))
 local ModeloCrunchi = require(Shared:WaitForChild("ModeloCrunchi"))
 local Tipos = require(Shared:WaitForChild("Tipos"))
@@ -59,17 +60,21 @@ local RoboService = {
 	RoboFallido = Senal.nueva(),
 	-- (ladron, dueno)
 	RoboIniciado = Senal.nueva(),
-	-- (golpeador, posicion: Vector3, frente: Vector3) — alguien dio un periodicazo (los
-	-- agentes de la Redada lo escuchan para saber si les pegaron)
+	-- (golpeador, posicion: Vector3, frente: Vector3, arma: Arma) — alguien dio un golpe con
+	-- su arma de defensa (los agentes de la Redada lo escuchan para saber si les pegaron)
 	Periodicazo = Senal.nueva(),
 }
 
 local robos: { [Player]: Robo } = {} -- clave: el ladrón
 local cooldownPar: { [string]: number } = {} -- "ladron:victima" → hasta cuándo
 local ultimoGolpe: { [Player]: number } = {}
-local plantillaPeriodico: Tool? = nil
-
-local NOMBRE_PERIODICO = "Periódico"
+type Arma = ConfigArmas.Arma
+local armaPorId: { [string]: Arma } = {}
+for _, arma in ConfigArmas.LISTA do
+	armaPorId[arma.id] = arma
+end
+local plantillas: { [string]: Tool } = {}
+local ATRIBUTO_ARMA = "ArmaCrunch" -- marca las herramientas que son armas de defensa
 
 ----------------------------------------------------------------------------- utilidades
 
@@ -410,32 +415,65 @@ function RoboService.Intentar(ladron: Player, dueno: Player, uid: string)
 	RoboService.RoboIniciado:Disparar(ladron, dueno)
 end
 
------------------------------------------------------------------------------ periódico
+----------------------------------------------------------------------------- armas de defensa
 
-local function crearPlantillaPeriodico(): Tool
+-- Herramienta de un arma: el modelo real (ReplicatedStorage > Modelos > Armas > <id>) o un
+-- placeholder hecho con una parte. Lleva el atributo ATRIBUTO_ARMA con el id del arma.
+local function crearHerramienta(arma: Arma): Tool
+	local modelos = ReplicatedStorage:FindFirstChild("Modelos")
+	local carpeta = modelos and modelos:FindFirstChild("Armas")
+	local real = carpeta and carpeta:FindFirstChild(arma.id)
+	if real and real:IsA("Tool") and real:FindFirstChild("Handle") then
+		local copia = real:Clone()
+		copia.Name = arma.nombre
+		copia.CanBeDropped = false
+		copia:SetAttribute(ATRIBUTO_ARMA, arma.id)
+		return copia
+	end
+
 	local herramienta = Instance.new("Tool")
-	herramienta.Name = NOMBRE_PERIODICO
-	herramienta.ToolTip = "Golpea a los ladrones"
+	herramienta.Name = arma.nombre
+	herramienta.ToolTip = arma.descripcion
 	herramienta.CanBeDropped = false
 	herramienta.RequiresHandle = true
-	herramienta.Grip = CFrame.new(0, 0, 1.1)
+	herramienta.Grip = CFrame.new(0, 0, math.max(0, arma.tamano.Z / 2 - 0.4))
+	herramienta:SetAttribute(ATRIBUTO_ARMA, arma.id)
 
 	local mango = Instance.new("Part")
 	mango.Name = "Handle"
-	mango.Size = Vector3.new(0.5, 0.5, 3)
-	mango.Color = Color3.fromRGB(235, 235, 225)
-	mango.Material = Enum.Material.SmoothPlastic
+	if arma.forma == "Ball" then
+		mango.Shape = Enum.PartType.Ball
+	end
+	mango.Size = arma.tamano
+	mango.Color = arma.color
+	local ok, material = pcall(function()
+		return (Enum.Material :: any)[arma.material]
+	end)
+	mango.Material = if ok and material then material else Enum.Material.SmoothPlastic
 	mango.CanCollide = false
 	mango.CanQuery = false
+	mango.CanTouch = false
 	mango.CastShadow = false
 	mango.Massless = true
 	mango.Parent = herramienta
 	return herramienta
 end
 
-local function golpear(golpeador: Player)
+-- El arma equipada del jugador (la decide el servidor; si no hay datos, el periódico).
+function RoboService.ArmaDe(jugador: Player): Arma
+	local datos = DatosService.Obtener(jugador)
+	local arma = if datos then armaPorId[datos.armaEquipada] else nil
+	return arma or armaPorId[ConfigArmas.INICIAL]
+end
+
+local function golpear(golpeador: Player, herramienta: Tool)
+	local arma = RoboService.ArmaDe(golpeador)
+	-- Solo cuenta el arma que el servidor le dio y que tiene en la mano.
+	if herramienta:GetAttribute(ATRIBUTO_ARMA) ~= arma.id or herramienta.Parent ~= golpeador.Character then
+		return
+	end
 	local momento = os.clock()
-	if (ultimoGolpe[golpeador] or 0) + ConfigRobo.PERIODICO_COOLDOWN > momento then
+	if (ultimoGolpe[golpeador] or 0) + arma.cooldown > momento then
 		return
 	end
 	ultimoGolpe[golpeador] = momento
@@ -444,7 +482,7 @@ local function golpear(golpeador: Player)
 		return
 	end
 	local frente = raiz.CFrame.LookVector
-	RoboService.Periodicazo:Disparar(golpeador, raiz.Position, frente)
+	RoboService.Periodicazo:Disparar(golpeador, raiz.Position, frente, arma)
 	for _, otro in Players:GetPlayers() do
 		if otro ~= golpeador then
 			local raizOtro = raizDe(otro)
@@ -452,10 +490,10 @@ local function golpear(golpeador: Player)
 				local diferencia = raizOtro.Position - raiz.Position
 				local plano = Vector3.new(diferencia.X, 0, diferencia.Z)
 				local distancia = plano.Magnitude
-				local enFrente = distancia < 2.5 or (distancia > 0 and frente:Dot(plano.Unit) > 0.2)
-				if distancia <= ConfigRobo.PERIODICO_ALCANCE and math.abs(diferencia.Y) < 6 and enFrente then
+				local enFrente = distancia < 2.5 or (distancia > 0 and frente:Dot(plano.Unit) > arma.cono)
+				if distancia <= arma.alcance and math.abs(diferencia.Y) < 6 and enFrente then
 					-- Solo afecta a ladrones que cargan un Crunchi o a intrusos en tu base:
-					-- el periódico no sirve para molestar a cualquiera.
+					-- las armas no sirven para molestar a cualquiera.
 					local esLadron = robos[otro] ~= nil
 					local esIntruso = BaseService.EstaEnBaseDe(otro, golpeador)
 					if esLadron or esIntruso then
@@ -463,14 +501,9 @@ local function golpear(golpeador: Player)
 							RoboService.Fallar(otro, "golpe", golpeador)
 						end
 						local direccion = if distancia > 0 then plano.Unit else frente
-						RedServidor.Enviar(
-							"Empujon",
-							otro,
-							direccion * ConfigRobo.PERIODICO_EMPUJE,
-							ConfigRobo.PERIODICO_EMPUJE_ARRIBA
-						)
-						RedServidor.Enviar("Efecto", golpeador, "Golpe")
-						RedServidor.Enviar("Efecto", otro, "Golpe")
+						RedServidor.Enviar("Empujon", otro, direccion * arma.empuje, arma.empujeArriba)
+						RedServidor.Enviar("Efecto", golpeador, "Golpe", { arma = arma.id })
+						RedServidor.Enviar("Efecto", otro, "Golpe", { arma = arma.id })
 					end
 				end
 			end
@@ -478,23 +511,50 @@ local function golpear(golpeador: Player)
 	end
 end
 
-local function darPeriodico(jugador: Player, personaje: Model)
-	local plantilla = plantillaPeriodico
+local function quitarArmas(jugador: Player, personaje: Model?)
+	local contenedores: { Instance? } = { jugador:FindFirstChildOfClass("Backpack"), personaje }
+	for _, contenedor in contenedores do
+		if contenedor then
+			for _, hijo in contenedor:GetChildren() do
+				if hijo:IsA("Tool") and hijo:GetAttribute(ATRIBUTO_ARMA) ~= nil then
+					hijo:Destroy()
+				end
+			end
+		end
+	end
+end
+
+-- Da (o cambia) el arma del jugador. Si tenía la anterior en la mano, equipa la nueva.
+local function darArma(jugador: Player, personaje: Model)
+	local mochila = jugador:WaitForChild("Backpack", 10)
+	if mochila == nil or personaje.Parent == nil or jugador.Character ~= personaje then
+		return
+	end
+	local arma = RoboService.ArmaDe(jugador)
+	local plantilla: Tool? = plantillas[arma.id]
 	if plantilla == nil then
 		return
 	end
-	local mochila = jugador:WaitForChild("Backpack", 10)
-	if mochila == nil or personaje.Parent == nil then
-		return
-	end
-	if mochila:FindFirstChild(NOMBRE_PERIODICO) or personaje:FindFirstChild(NOMBRE_PERIODICO) then
-		return
-	end
+	local enMano = personaje:FindFirstChildOfClass("Tool")
+	local teniaEnMano = enMano ~= nil and enMano:GetAttribute(ATRIBUTO_ARMA) ~= nil
+	quitarArmas(jugador, personaje)
 	local herramienta = plantilla:Clone()
 	herramienta.Activated:Connect(function()
-		golpear(jugador)
+		golpear(jugador, herramienta)
 	end)
 	herramienta.Parent = mochila
+	local humanoide = personaje:FindFirstChildOfClass("Humanoid")
+	if teniaEnMano and humanoide then
+		humanoide:EquipTool(herramienta)
+	end
+end
+
+-- Lo llama ArmaService al cambiar de arma.
+function RoboService.ActualizarArma(jugador: Player)
+	local personaje = jugador.Character
+	if personaje then
+		task.spawn(darArma, jugador, personaje)
+	end
 end
 
 ----------------------------------------------------------------------------- inicio
@@ -537,9 +597,14 @@ local function revisar()
 end
 
 function RoboService.Iniciar()
-	local plantilla = crearPlantillaPeriodico()
-	plantilla.Parent = ServerStorage
-	plantillaPeriodico = plantilla
+	local carpetaArmas = Instance.new("Folder")
+	carpetaArmas.Name = "ArmasDefensa"
+	carpetaArmas.Parent = ServerStorage
+	for _, arma in ConfigArmas.LISTA do
+		local herramienta = crearHerramienta(arma)
+		herramienta.Parent = carpetaArmas
+		plantillas[arma.id] = herramienta
+	end
 
 	BaseService.IntentoRobo:Conectar(function(ladron: Player, dueno: Player, uid: string)
 		RoboService.Intentar(ladron, dueno, uid)
@@ -558,12 +623,16 @@ function RoboService.Iniciar()
 
 	local function alEntrar(jugador: Player)
 		jugador.CharacterAdded:Connect(function(personaje)
-			darPeriodico(jugador, personaje)
+			darArma(jugador, personaje)
 		end)
 		if jugador.Character then
-			task.spawn(darPeriodico, jugador, jugador.Character)
+			task.spawn(darArma, jugador, jugador.Character)
 		end
 	end
+	-- Cuando cargan los datos ya se sabe qué arma tiene equipada.
+	DatosService.JugadorListo:Conectar(function(jugador: Player)
+		RoboService.ActualizarArma(jugador)
+	end)
 	for _, jugador in Players:GetPlayers() do
 		alEntrar(jugador)
 	end

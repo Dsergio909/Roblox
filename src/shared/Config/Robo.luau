@@ -32,11 +32,7 @@ local Robo = {
 	ANTITRAMPA_SEGUNDOS = 2, -- tolerancia extra de tiempo
 	ANTITRAMPA_MARGEN = 1.35, -- velocidad máxima = velocidad cargando × margen
 
-	-- Periódico enrollado (defensa)
-	PERIODICO_ALCANCE = 8, -- studs
-	PERIODICO_COOLDOWN = 0.8, -- segundos entre golpes
-	PERIODICO_EMPUJE = 55, -- fuerza horizontal del empujón
-	PERIODICO_EMPUJE_ARRIBA = 28, -- fuerza vertical del empujón
+	-- Las armas de defensa (periódico, chancla...) y su alcance están en Config/Armas.
 }
 
 return table.freeze(Robo)

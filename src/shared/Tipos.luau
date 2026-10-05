@@ -25,6 +25,7 @@ export type Estadisticas = {
 	comprasCinta: number,
 	cobros: number,
 	robosExitosos: number,
+	agentesGolpeados: number, -- agentes de la Redada golpeados (desbloquea armas)
 	robosSufridos: number,
 	defensas: number, -- robos frustrados con el periódico
 	gananciaTotal: number, -- dinero ganado en total (histórico)
@@ -34,6 +35,8 @@ export type Ajustes = {
 	musica: boolean,
 	efectos: boolean,
 	ahorro: boolean, -- "modo ahorro": menos partículas y efectos
+	mascotas: boolean, -- ver las mascotas de los demás
+	anuncios: boolean, -- anuncios de otros jugadores (rarezas altas, eventos de compra)
 }
 
 export type MisionGuardada = {
@@ -68,6 +71,12 @@ export type Offline = {
 	pendiente: number, -- dinero offline por cobrar
 }
 
+export type Boosts = {
+	x2Hasta: number,
+	jugoHasta: number, -- Jugo Turbo (objeto)
+	imanHasta: number, -- Imán de Monedas (objeto)
+}
+
 export type Compras = {
 	primeraCompraDinero: boolean, -- ya usó el bonus x2 de la primera compra de dinero
 	packInicial: boolean,
@@ -85,6 +94,11 @@ export type PaseGuardado = {
 	minutosJuego: number,
 	diaXp: number,
 	xpJuegoDia: number,
+}
+
+export type MascotaGuardada = {
+	uid: string,
+	id: string, -- id de Config/Mascotas
 }
 
 export type Datos = {
@@ -119,7 +133,7 @@ export type Datos = {
 
 	-- Fase 3
 	compras: Compras,
-	boosts: { x2Hasta: number },
+	boosts: Boosts,
 	pase: PaseGuardado,
 	cosmeticos: { [string]: boolean },
 	equipados: { aura: string, estela: string },
@@ -127,6 +141,14 @@ export type Datos = {
 	-- Fase 4
 	almacen: { proximo: number, veces: number }, -- Almacén FrutaMax: próximo intento (os.time)
 	insignias: { [string]: boolean }, -- insignias de Roblox ya entregadas (clave de Config/Insignias)
+
+	-- Fase 5 (Bichitos y armas)
+	armaEquipada: string, -- id de Config/Armas
+	armasAvisadas: { [string]: boolean }, -- armas cuyo desbloqueo ya se avisó
+	mascotas: { MascotaGuardada },
+	mascotasEquipadas: { string }, -- uids
+	mascotasVistas: { [string]: boolean }, -- ids que alguna vez tuvo (colección)
+	consumibles: { [string]: number }, -- objetos de la Mochila: id → cantidad
 }
 
 -- Estado que el servidor comparte SOLO con el dueño (no con otros jugadores).

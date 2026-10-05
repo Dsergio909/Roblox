@@ -178,6 +178,10 @@ local function recompensasDe(mision: Mision): { RecompensaService.Recompensa }
 	if mision.semillas then
 		table.insert(lista, { tipo = "semilla", id = "comun", cantidad = mision.semillas })
 	end
+	local objeto = mision.objeto
+	if objeto then
+		table.insert(lista, { tipo = "consumible", id = objeto.id, cantidad = objeto.cantidad })
+	end
 	return lista
 end
 
@@ -263,6 +267,7 @@ local function lista(jugador: Player, guardadas: { Tipos.MisionGuardada })
 				dinero = EconomiaService.DineroPorMinutos(jugador, mision.minutos, ConfigMisiones.DINERO_MINIMO),
 				xp = mision.xp,
 				semillas = mision.semillas or 0,
+				objeto = mision.objeto,
 			})
 		end
 	end

@@ -28,6 +28,13 @@ local Sonidos: { [string]: Sonido } = {
 	-- Música en bucle (se apaga en ⚙️ Ajustes).
 	MusicaPrincipal = { id = 0, volumen = 0.25 }, -- S11
 	MusicaEvento = { id = 0, volumen = 0.3 }, -- S12
+
+	-- Fase 5
+	Chancla = { id = 0, volumen = 0.6 }, -- S15 (golpe de chancla)
+	Chillido = { id = 0, volumen = 0.6 }, -- S16 (pez de goma)
+	Splash = { id = 0, volumen = 0.6 }, -- S17 (globo de agua)
+	Huevo = { id = 0, volumen = 0.6 }, -- S18 (eclosión de un huevo)
+	Objeto = { id = 0, volumen = 0.5 }, -- S19 (usar un objeto)
 }
 
 return Sonidos

@@ -56,6 +56,7 @@ local PLANTILLA: Datos = {
 		comprasCinta = 0,
 		cobros = 0,
 		robosExitosos = 0,
+		agentesGolpeados = 0,
 		robosSufridos = 0,
 		defensas = 0,
 		gananciaTotal = 0,
@@ -68,6 +69,8 @@ local PLANTILLA: Datos = {
 		musica = true,
 		efectos = true,
 		ahorro = false,
+		mascotas = true,
+		anuncios = true,
 	},
 
 	-- Fase 2
@@ -112,7 +115,7 @@ local PLANTILLA: Datos = {
 		pruebaX2 = false,
 		robuxGastados = 0,
 	},
-	boosts = { x2Hasta = 0 },
+	boosts = { x2Hasta = 0, jugoHasta = 0, imanHasta = 0 },
 	pase = {
 		temporada = "",
 		xp = 0,
@@ -129,6 +132,14 @@ local PLANTILLA: Datos = {
 	-- Fase 4
 	almacen = { proximo = 0, veces = 0 },
 	insignias = {},
+
+	-- Fase 5 (Bichitos y armas)
+	armaEquipada = "periodico",
+	armasAvisadas = {},
+	mascotas = {},
+	mascotasEquipadas = {},
+	mascotasVistas = {},
+	consumibles = {},
 }
 
 -- Migraciones: MIGRACIONES[n] convierte datos de la versión n a la n + 1.

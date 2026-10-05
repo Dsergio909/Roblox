@@ -1,7 +1,8 @@
 --!strict
 --[[
 	AjustesService
-	Guarda los ajustes del jugador (⚙️): música, efectos y Modo ahorro. Se guardan con sus
+	Guarda los ajustes del jugador (⚙️): música, efectos, Modo ahorro, mascotas de otros y
+	anuncios. Se guardan con sus
 	datos, así valen en cualquier dispositivo y servidor. El cliente los aplica.
 ]]
 
@@ -15,7 +16,7 @@ local Acciones = require(script.Parent.Parent:WaitForChild("Util"):WaitForChild(
 
 local AjustesService = {}
 
-local CLAVES = { "musica", "efectos", "ahorro" }
+local CLAVES = { "musica", "efectos", "ahorro", "mascotas", "anuncios" }
 
 function AjustesService.Iniciar()
 	DatosService.RegistrarEstado("ajustes", function(_, datos: Tipos.Datos)

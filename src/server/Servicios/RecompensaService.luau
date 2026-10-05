@@ -9,6 +9,9 @@
 	  { tipo = "semilla", id = "comun", cantidad = 2 }  → semillas para el macetero
 	  { tipo = "xp", cantidad = 100 }                   → experiencia del Pase (Fase 3)
 
+	Otros servicios agregan tipos nuevos con RecompensaService.RegistrarTipo (Fase 5:
+	"consumible" y "mascota").
+
 	Devuelve un texto corto para mostrar ("💰 $1.2K", "🧺 Canasta de Madera"...).
 ]]
 
@@ -37,6 +40,14 @@ local RecompensaService = {
 }
 
 local DINERO_MINIMO_POR_DEFECTO = 100
+
+type Entregador = (jugador: Player, recompensa: Recompensa) -> string
+local tiposExtra: { [string]: Entregador } = {}
+
+-- Un servicio enseña a entregar un tipo de recompensa nuevo. Devuelve el texto a mostrar.
+function RecompensaService.RegistrarTipo(tipo: string, entregar: Entregador)
+	tiposExtra[tipo] = entregar
+end
 
 function RecompensaService.Dar(jugador: Player, recompensa: Recompensa, sku: string): string
 	local datos = DatosService.Obtener(jugador)
@@ -83,6 +94,14 @@ function RecompensaService.Dar(jugador: Player, recompensa: Recompensa, sku: str
 	elseif recompensa.tipo == "xp" then
 		RecompensaService.XpGanada:Disparar(jugador, cantidad)
 		return `⭐ {cantidad} XP`
+	end
+	local extra = tiposExtra[recompensa.tipo]
+	if extra then
+		local ok, texto = pcall(extra, jugador, recompensa)
+		if ok and type(texto) == "string" then
+			return texto
+		end
+		warn(`[Recompensa] Error entregando "{recompensa.tipo}": {texto}`)
 	end
 	return ""
 end
