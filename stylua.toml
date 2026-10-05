@@ -1,0 +1,9 @@
+# StyLua: formatea el código Luau automáticamente.
+# Uso: `stylua src` (formatear) o `stylua --check src` (solo revisar)
+syntax = "Luau"
+column_width = 120
+line_endings = "Unix"
+indent_type = "Tabs"
+indent_width = 4
+quote_style = "AutoPreferDouble"
+call_parentheses = "Always"
